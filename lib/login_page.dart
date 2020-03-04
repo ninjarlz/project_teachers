@@ -3,6 +3,10 @@ import 'package:project_teachers/auth.dart';
 
 class LoginPage extends StatefulWidget {
 
+  LoginPage({this.auth, this.loginCallback});
+  final BaseAuth auth;
+  final VoidCallback loginCallback;
+
   @override
   State<StatefulWidget> createState() => _LoginPageState();
 
@@ -54,13 +58,13 @@ class _LoginPageState extends State<LoginPage> {
   Widget _showEmailInput(){
     return Padding(
       padding: EdgeInsets.fromLTRB(0.0, 100, 0.0, 0.0),
-      child: new TextFormField(
+      child: TextFormField(
         maxLines: 1,
         keyboardType: TextInputType.emailAddress,
         autofocus: false,
         decoration: InputDecoration(
           hintText: "Email",
-          icon:  new Icon(Icons.mail, color: Colors.grey)
+          icon:  Icon(Icons.mail, color: Colors.grey)
         ),
         validator: (value) => value.isEmpty ? 'Email can\'t be empty' : null,
         onSaved: (value) => _email = value.trim()
@@ -71,18 +75,27 @@ class _LoginPageState extends State<LoginPage> {
   Widget _showPasswordInput(){
     return Padding(
         padding: EdgeInsets.fromLTRB(0.0, 100, 0.0, 0.0),
-        child: new TextFormField(
+        child: TextFormField(
           maxLines: 1,
           obscureText: true,
           autofocus: false,
           decoration: InputDecoration(
             hintText: "Password",
-            icon: new Icon(Icons.lock, color: Colors.grey)
+            icon: Icon(Icons.lock, color: Colors.grey)
           ),
           validator: (value) => value.isEmpty ? "Password can\'t be empty" : null,
           onSaved: (value) => _password = value.trim()
         )
     );
+  }
+
+  bool _validateAndSave() {
+    final form = _formKey.currentState;
+    if (form.validate()) {
+      form.save();
+      return true;
+    }
+    return false;
   }
 
   Widget _showPrimaryButton() {
@@ -121,8 +134,40 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  void _validateAndSubmit() {
+  void _validateAndSubmit()  async {
+    setState(() {
+      _errorMessage = "";
+      _isLoading = true;
+    });
 
+    if (_validateAndSave()) {
+      String userId;
+      try {
+        if (_isLoginForm) {
+          userId = await widget.auth.signIn(_email, _password);
+          print('Signed in: $userId');
+        } else {
+          userId = await widget.auth.signUp(_email, _password);
+          //widget.auth.sendEmailVerification();
+          print('Signed up user: $userId');
+        }
+
+        setState(() {
+          _isLoading = false;
+        });
+
+        if (userId != null && userId.length > 0 && _isLoginForm) {
+          widget.loginCallback();
+        }
+      } catch(e) {
+        print("Error: $e");
+        setState(() {
+          _isLoading = false;
+          _errorMessage = e.message;
+          _formKey.currentState.reset();
+        });
+      }
+    }
   }
 
 
@@ -150,9 +195,9 @@ class _LoginPageState extends State<LoginPage> {
   Widget _showForm() {
     return Container(
         padding: EdgeInsets.all(16.0),
-        child: new Form(
+        child: Form(
           key: _formKey,
-          child: new ListView(
+          child: ListView(
             shrinkWrap: true,
             children: <Widget>[
               _showLogo(),
