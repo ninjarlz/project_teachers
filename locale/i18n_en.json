@@ -1,0 +1,18 @@
+{
+  "": "",
+  "global_hello": "Welcome",
+  "global_next": "Next",
+  "global_back": "Back",
+  "global_send": "Send",
+  "global_warning": "Warning!",
+  "global_sending": "Sending...",
+  "global_continue": "Continue",
+  "global_save": "Save",
+  "global_or": "OR",
+  "error_unknown": "An error occurred. Please try again",
+  "error_email": "Please enter a valid email",
+  "login_email_field": "Enter your email",
+  "login_password_field": "Enter your password",
+  "login": "Login",
+  "logout": "Logout"
+}

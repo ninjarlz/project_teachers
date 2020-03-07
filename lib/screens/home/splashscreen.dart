@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:project_teachers/auth.dart';
-import 'package:project_teachers/login_page.dart';
-import 'package:project_teachers/home_page.dart';
+import 'package:project_teachers/services/index.dart';
+import 'package:project_teachers/screens/index.dart';
 
 enum AuthStatus {
   NOT_DETERMINED,
@@ -9,19 +8,19 @@ enum AuthStatus {
   LOGGED_IN
 }
 
-class RootPage extends StatefulWidget {
+class Splashscreen extends StatefulWidget {
 
   final BaseAuth auth;
 
-  RootPage({this.auth});
+  Splashscreen({this.auth});
 
   @override
-  State<StatefulWidget> createState() => _RootPageState();
+  State<StatefulWidget> createState() => _SplashscreenState();
 
 }
 
 
-class _RootPageState extends State<RootPage> {
+class _SplashscreenState extends State<Splashscreen> {
   AuthStatus _authStatus = AuthStatus.NOT_DETERMINED;
   String _userId;
 
@@ -63,14 +62,14 @@ class _RootPageState extends State<RootPage> {
         return _buildWaitingScreen();
         break;
       case AuthStatus.NOT_LOGGED_IN:
-        return LoginPage(
+        return Login(
           auth: widget.auth,
           loginCallback: loginCallback,
         );
         break;
       case AuthStatus.LOGGED_IN:
         if (_userId != null && _userId.length > 0) {
-          return HomePage(
+          return Home(
             title: "Kurwa",
             userId: _userId,
             auth: widget.auth,

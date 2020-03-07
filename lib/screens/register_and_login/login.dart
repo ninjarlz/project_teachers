@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:project_teachers/auth.dart';
+import 'package:project_teachers/services/index.dart';
 
-class LoginPage extends StatefulWidget {
+class Login extends StatefulWidget {
 
-  LoginPage({this.auth, this.loginCallback});
+  Login({this.auth, this.loginCallback});
   final BaseAuth auth;
   final VoidCallback loginCallback;
 
   @override
-  State<StatefulWidget> createState() => _LoginPageState();
+  State<StatefulWidget> createState() => _LoginState();
 
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginState extends State<Login> {
 
   bool _isLoading = false;
   String _email;
@@ -49,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
         child: CircleAvatar (
           backgroundColor: Colors.transparent,
           radius: 100.0,
-          child: Image.asset("assets/logo.png")
+          child: Image.asset("assets/img/logo.png")
         )
       )
     );

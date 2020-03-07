@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:project_teachers/auth.dart';
+import 'package:project_teachers/services/index.dart';
 
-class HomePage extends StatelessWidget {
+class Home extends StatelessWidget {
 
-  HomePage({Key key, this.title, this.auth, this.userId, this.logoutCallback})
+  Home({Key key, this.title, this.auth, this.userId, this.logoutCallback})
       : super(key: key);
 
   final BaseAuth auth;
