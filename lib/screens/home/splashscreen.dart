@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/services/index.dart';
 import 'package:project_teachers/screens/index.dart';
 
@@ -23,16 +24,22 @@ class Splashscreen extends StatefulWidget {
 class _SplashscreenState extends State<Splashscreen> {
   AuthStatus _authStatus = AuthStatus.NOT_DETERMINED;
   String _userId;
+  UserRepository _userRepository;
 
   @override
   void initState() {
     super.initState();
+    _userRepository = UserRepository.instance;
     widget.auth.getCurrentUser().then((user) {
       setState(() {
         if (user != null) {
           _userId = user?.uid;
+          _userRepository.setCurrentUser(user.uid, user.email);
+          _authStatus = AuthStatus.LOGGED_IN;
+        } else {
+          _authStatus = AuthStatus.NOT_LOGGED_IN;
         }
-        _authStatus = user?.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
+        //_authStatus = user?.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
       });
     });
   }
@@ -41,16 +48,16 @@ class _SplashscreenState extends State<Splashscreen> {
     widget.auth.getCurrentUser().then((user) {
       setState(() {
         _userId = user.uid.toString();
+        _userRepository.setCurrentUser(user.uid, user.email);
+        _authStatus = AuthStatus.LOGGED_IN;
       });
-    });
-    setState(() {
-      _authStatus = AuthStatus.LOGGED_IN;
     });
   }
 
   void logoutCallback() {
     setState(() {
       _authStatus = AuthStatus.NOT_LOGGED_IN;
+      _userRepository.logoutUser();
       _userId = null;
     });
   }
@@ -70,7 +77,7 @@ class _SplashscreenState extends State<Splashscreen> {
       case AuthStatus.LOGGED_IN:
         if (_userId != null && _userId.length > 0) {
           return Home(
-            title: "Kurwa",
+            title: "Home",
             userId: _userId,
             auth: widget.auth,
             logoutCallback: logoutCallback,

@@ -1,7 +1,7 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
 import 'package:project_teachers/utils/index.dart';
 import 'package:project_teachers/screens/index.dart';
 import 'package:project_teachers/services/index.dart';
@@ -11,8 +11,9 @@ import 'package:project_teachers/translations/application.dart';
 
 class Routes extends StatefulWidget {
   final Widget testWidget;
+  final FirebaseApp app;
 
-  Routes([this.testWidget]);
+  Routes([this.testWidget, this.app]);
 
   @override
   State<StatefulWidget> createState() {
@@ -27,7 +28,7 @@ class _RoutesState extends State<Routes> {
   @override
   void initState() {
     super.initState();
-    _localeOverrideDelegate = new SpecificLocalizationDelegate(null);
+    _localeOverrideDelegate = SpecificLocalizationDelegate(null);
     applic.onLocaleChanged = onLocaleChange;
     AuthenticationSave().getString("lang").then((response) {
       if (response != null) applic.onLocaleChanged(new Locale(response));
@@ -40,7 +41,7 @@ class _RoutesState extends State<Routes> {
 
   onLocaleChange(Locale locale) {
     setState(() {
-      _localeOverrideDelegate = new SpecificLocalizationDelegate(locale);
+      _localeOverrideDelegate = SpecificLocalizationDelegate(locale);
     });
   }
 
