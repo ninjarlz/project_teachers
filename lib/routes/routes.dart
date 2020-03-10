@@ -54,7 +54,7 @@ class _RoutesState extends State<Routes> {
     return MaterialApp(
       title: 'ProjectTeachers',
       routes: routes,
-
+      debugShowCheckedModeBanner: false,
       // Custom Routes
       onGenerateRoute: (RouteSettings settings) {
         final List<String> pathElements = settings.name.split("/");

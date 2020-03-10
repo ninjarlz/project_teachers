@@ -42,7 +42,7 @@ class _HomeState extends State<Home> implements UserListListener, UserListener {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title)),
+      appBar: AppBar(title: Text(widget.title, style: TextStyle(color: Colors.white)), backgroundColor: Colors.purpleAccent),
       body: Center(child: Text(_usersInfo)),
       drawer: Drawer(
         // Add a ListView to the drawer. This ensures the user can scroll
@@ -93,7 +93,12 @@ class _HomeState extends State<Home> implements UserListListener, UserListener {
   @override
   onUserDataChange() {
     setState(() {
-      _userEmail = _userRepository.currentUser?.email;
+      User user = _userRepository.currentUser;
+      if (user != null) {
+        _userEmail = _userRepository.currentUser.email;
+      } else {
+        _userEmail = "";
+      }
     });
   }
 

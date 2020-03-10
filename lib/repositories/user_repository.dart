@@ -15,8 +15,9 @@ class UserRepository {
       _instance._userListRef.keepSynced(true);
       _instance._userListSub = _instance._userListRef.onValue.listen((event) {
         _instance._usersMap = event.snapshot.value;
+        _instance._userList = List<User>();
         _instance._usersMap.forEach((key, value) {
-          _instance._userList.add(User.fromSnapshot(value));
+          _instance._userList.add(User.fromJson(value));
         });
         _instance._userListListeners.forEach((userListListener) {
           userListListener.onUsersListChange(_instance._userList)
@@ -29,9 +30,9 @@ class UserRepository {
     return _instance;
   }
 
-  List<UserListListener> _userListListeners;
+  List<UserListListener> _userListListeners = List<UserListListener>();
   List<UserListListener> get userListListeners => _userListListeners;
-  List<UserListener> _userListeners;
+  List<UserListener> _userListeners = List<UserListener>();
   List<UserListener> get userListeners => _userListeners;
   Map<dynamic, dynamic> _usersMap;
   List<User> _userList;
