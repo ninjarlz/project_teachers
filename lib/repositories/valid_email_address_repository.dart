@@ -16,25 +16,24 @@ class ValidEmailAddressRepository {
     if (_instance == null) {
       _instance = ValidEmailAddressRepository._privateConstructor();
       _instance._database = FirebaseDatabase.instance;
-      _instance._emailsRef = _instance._database.reference()
-          .child("ValidEmailAdresses").orderByChild("isValidated").equalTo(false);
     }
     return _instance;
   }
 
-  Query _emailsRef;
   FirebaseDatabase _database;
 
 
   Future<List<ValidEmailAddress>> getNotValidatedEmailAddresses() async {
-      DataSnapshot emailSnapshot = await _emailsRef.once();
+      DataSnapshot emailSnapshot = await _database.reference()
+          .child("ValidEmailAdresses").once();
       List<dynamic> rawEmailsMap = emailSnapshot.value;
       List<ValidEmailAddress> notValidatedValidEmails = List<ValidEmailAddress>();
       rawEmailsMap.forEach((element) {
-        if (element != null) {
+          ValidEmailAddress validEmailAddress = ValidEmailAddress.fromJson(element);
           print(element);
-          notValidatedValidEmails.add(ValidEmailAddress.fromJson(element));
-        }
+          if (!validEmailAddress.isValidated) {
+            notValidatedValidEmails.add(ValidEmailAddress.fromJson(element));
+          }
       });
       return notValidatedValidEmails;
   }

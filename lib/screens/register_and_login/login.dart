@@ -24,6 +24,7 @@ class _LoginState extends State<Login> {
   ValidEmailAddressRepository _validEmailAddressRepository;
   static const String INVALID_EMAIL_MSG = "The email address is not registered in our database";
   static const String NOT_VERIFIED_EMAIL_MSG = "The email address is not verified";
+  static const String ACTIVATE_EMAIL_MSG = "The activation link has been sent to a given address";
 
   @override
   Widget build(BuildContext context) {
@@ -181,6 +182,7 @@ class _LoginState extends State<Login> {
             userId = await widget.auth.signUp(_email, _password);
             _validEmailAddressRepository.markAddressAsValidated(_email);
             widget.auth.sendEmailVerification();
+            _errorMessage = ACTIVATE_EMAIL_MSG;
             print('Signed up user: $userId');
           } else {
             setState(() {
