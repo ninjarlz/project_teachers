@@ -33,9 +33,13 @@ class _SplashscreenState extends State<Splashscreen> {
     widget.auth.getCurrentUser().then((user) {
       setState(() {
         if (user != null) {
-          _userId = user?.uid;
-          _userRepository.setCurrentUser(user.uid, user.email);
-          _authStatus = AuthStatus.LOGGED_IN;
+          if (user.isEmailVerified) {
+            _userId = user?.uid;
+            _userRepository.setCurrentUser(user.uid, user.email);
+            _authStatus = AuthStatus.LOGGED_IN;
+          } else {
+            _authStatus = AuthStatus.NOT_LOGGED_IN;
+          }
         } else {
           _authStatus = AuthStatus.NOT_LOGGED_IN;
         }
@@ -46,12 +50,17 @@ class _SplashscreenState extends State<Splashscreen> {
 
   void loginCallback() {
     widget.auth.getCurrentUser().then((user) {
+      if (user.isEmailVerified) {
+      _userRepository.setCurrentUser(user.uid, user.email);
       setState(() {
-        _userId = user.uid.toString();
-        _userRepository.setCurrentUser(user.uid, user.email);
-        _authStatus = AuthStatus.LOGGED_IN;
+          _userId = user.uid.toString();
+          _authStatus = AuthStatus.LOGGED_IN;
+        });
+      }
+      else {
+        _authStatus = AuthStatus.NOT_LOGGED_IN;
+      }
       });
-    });
   }
 
   void logoutCallback() {

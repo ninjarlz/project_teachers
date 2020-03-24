@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_teachers/repositories/valid_email_address_repository.dart';
 import 'package:project_teachers/services/index.dart';
 
 class Login extends StatefulWidget {
@@ -20,9 +21,13 @@ class _LoginState extends State<Login> {
   bool _isLoginForm = true;
   String _errorMessage;
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  ValidEmailAddressRepository _validEmailAddressRepository;
+  static const String INVALID_EMAIL_MSG = "The email address is not registered in our database";
+  static const String NOT_VERIFIED_EMAIL_MSG = "The email address is not verified";
 
   @override
   Widget build(BuildContext context) {
+    _validEmailAddressRepository = ValidEmailAddressRepository.instance;
     return Scaffold(
       appBar: AppBar(title : Text("Sign in", style: TextStyle(color: Colors.white)), backgroundColor: Colors.purpleAccent,),
       body : Stack(
@@ -134,7 +139,7 @@ class _LoginState extends State<Login> {
     });
   }
 
-  void _validateAndSubmit()  async {
+  void _validateAndSubmit() async {
     setState(() {
       _errorMessage = "";
       _isLoading = true;
@@ -144,27 +149,58 @@ class _LoginState extends State<Login> {
       String userId;
       try {
         if (_isLoginForm) {
-          userId = await widget.auth.signIn(_email, _password);
-          print('Signed in: $userId');
+          widget.auth.signIn(_email, _password).then((user) {
+            if (user.isEmailVerified) {
+              widget.loginCallback();
+              userId = user.uid;
+              print('Signed in: $userId');
+            } else {
+              setState(() {
+                _errorMessage = NOT_VERIFIED_EMAIL_MSG;
+                print(NOT_VERIFIED_EMAIL_MSG);
+                widget.auth.signOut();
+              });
+            }
+            setState(() {
+              _isLoading = false;
+              FocusScope.of(context).unfocus();
+            });
+          }).catchError((e) {
+            print("Error: $e");
+            setState(() {
+              _errorMessage = e.message;
+              print(e.message);
+              _isLoading = false;
+              FocusScope.of(context).unfocus();
+            });
+          });
         } else {
-          userId = await widget.auth.signUp(_email, _password);
-          //widget.auth.sendEmailVerification();
-          print('Signed up user: $userId');
+          bool isEmailValid =
+          await _validEmailAddressRepository.checkIfAddressIsValid(_email);
+          if (isEmailValid) {
+            userId = await widget.auth.signUp(_email, _password);
+            _validEmailAddressRepository.markAddressAsValidated(_email);
+            widget.auth.sendEmailVerification();
+            print('Signed up user: $userId');
+          } else {
+            setState(() {
+              _errorMessage = INVALID_EMAIL_MSG;
+              print(INVALID_EMAIL_MSG);
+            });
+          }
+          setState(() {
+            _isLoading = false;
+            FocusScope.of(context).unfocus();
+          });
         }
-
-        setState(() {
-          _isLoading = false;
-        });
-
-        if (userId != null && userId.length > 0 && _isLoginForm) {
-          widget.loginCallback();
-        }
-      } catch(e) {
+      }
+      catch(e) {
         print("Error: $e");
         setState(() {
           _isLoading = false;
           _errorMessage = e.message;
           _formKey.currentState.reset();
+          FocusScope.of(context).unfocus();
         });
       }
     }

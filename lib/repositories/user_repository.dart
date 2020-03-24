@@ -6,6 +6,9 @@ class UserRepository {
 
   UserRepository._privateConstructor();
 
+  static const String DB_ERROR_MSG = "An error with database occured: ";
+
+
   static UserRepository _instance;
   static UserRepository get instance {
     if (_instance == null) {
@@ -24,7 +27,7 @@ class UserRepository {
           ;});
       }, onError: (Object o) {
         final DatabaseError error = o;
-        print("An error with database occured: " + error.message);
+        print(DB_ERROR_MSG + error.message);
       });
     }
     return _instance;
@@ -72,7 +75,7 @@ class UserRepository {
       });
     }, onError: (Object o) {
       final DatabaseError error = o;
-      print("An error with database occured: " + error.message);
+      print(DB_ERROR_MSG + error.message);
     });
   }
 
