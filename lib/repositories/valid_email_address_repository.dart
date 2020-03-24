@@ -26,13 +26,12 @@ class ValidEmailAddressRepository {
   Future<List<ValidEmailAddress>> getNotValidatedEmailAddresses() async {
       DataSnapshot emailSnapshot = await _database.reference()
           .child("ValidEmailAdresses").once();
-      List<dynamic> rawEmailsMap = emailSnapshot.value;
       List<ValidEmailAddress> notValidatedValidEmails = List<ValidEmailAddress>();
-      rawEmailsMap.forEach((element) {
+      emailSnapshot.value.forEach((element) {
           ValidEmailAddress validEmailAddress = ValidEmailAddress.fromJson(element);
           print(element);
           if (!validEmailAddress.isValidated) {
-            notValidatedValidEmails.add(ValidEmailAddress.fromJson(element));
+            notValidatedValidEmails.add(validEmailAddress);
           }
       });
       return notValidatedValidEmails;
