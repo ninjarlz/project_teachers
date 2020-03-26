@@ -59,7 +59,7 @@ class UserRepository {
 
   void setCurrentUser(String userId, String email) {
     if (_usersMap == null || (_usersMap != null && !_usersMap.containsKey(userId))) {
-      _userListRef.child(userId).set(User(null, email).toJson());
+      _userListRef.child(userId).set(User(null, null, email).toJson());
     }
 
     if (_userSub != null) {
