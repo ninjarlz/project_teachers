@@ -11,8 +11,21 @@
   "global_or": "OR",
   "error_unknown": "An error occurred. Please try again",
   "error_email": "Please enter a valid email",
+  "error_email_empty": "Email can not be empty",
+  "error_password_empty": "Password can not be empty",
+  "error_email_invalid": "Email not registered",
+  "error_email_unverified": "Email unverified",
+  "error_db_known": "And error occured: ",
+  "error_transaction": "Transaction not committed",
+  "error_email_validation": "There is no such email address or it is already validated",
   "login_email_field": "Enter your email",
   "login_password_field": "Enter your password",
   "login": "Login",
-  "logout": "Logout"
+  "logout": "Logout",
+  "login_email": "Email",
+  "login_password": "Password",
+  "register": "Create an account",
+  "login_have_account": "Have an account? Sign in",
+  "login_password_forgotten": "Password forgotten?",
+  "login_code_sent": "The activation link was sent to your email address"
 }
