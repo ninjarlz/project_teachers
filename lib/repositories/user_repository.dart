@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:project_teachers/entities/user.dart';
+import 'package:project_teachers/entities/user_enums.dart';
+import 'package:project_teachers/repositories/valid_email_address_repository.dart';
 
 class UserRepository {
 
@@ -14,14 +16,17 @@ class UserRepository {
     if (_instance == null) {
       _instance = UserRepository._privateConstructor();
       _instance._database = FirebaseDatabase.instance;
+      _instance._validEmailAddressRepository = ValidEmailAddressRepository.instance;
       _instance._userListRef =  _instance._database.reference().child("Users");
       _instance._userListRef.keepSynced(true);
       _instance._userListSub = _instance._userListRef.onValue.listen((event) {
-        _instance._usersMap = event.snapshot.value;
         _instance._userList = List<User>();
-        _instance._usersMap.forEach((key, value) {
-          _instance._userList.add(User.fromJson(value));
-        });
+        _instance._usersMap = event.snapshot.value;
+        if (_instance._usersMap != null) {
+          _instance._usersMap.forEach((key, value) {
+            _instance._userList.add(User.fromJson(value));
+          });
+        }
         _instance._userListListeners.forEach((userListListener) {
           userListListener.onUsersListChange(_instance._userList)
           ;});
@@ -41,12 +46,15 @@ class UserRepository {
   List<User> _userList;
   List<User> get userList => _userList;
   User _currentUser;
+  UserType _currentUserType;
+  UserType get currentUserType => _currentUserType;
   User get currentUser => _currentUser;
   DatabaseReference _userListRef;
   StreamSubscription<Event> _userListSub;
   DatabaseReference _userRef;
   StreamSubscription<Event> _userSub;
   FirebaseDatabase _database;
+  ValidEmailAddressRepository _validEmailAddressRepository;
 
 
   void logoutUser() {
@@ -57,9 +65,12 @@ class UserRepository {
     _userListeners.clear();
   }
 
-  void setCurrentUser(String userId, String email) {
+
+
+  Future<void> setCurrentUser(String userId, String email) async {
     if (_usersMap == null || (_usersMap != null && !_usersMap.containsKey(userId))) {
-      _userListRef.child(userId).set(User(null, null, email).toJson());
+      UserType userType = await _validEmailAddressRepository.getUserType(email);
+      _userListRef.child(userId).set(User(null, null, email, userType).toJson());
     }
 
     if (_userSub != null) {

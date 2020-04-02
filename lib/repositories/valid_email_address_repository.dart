@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:project_teachers/entities/user_enums.dart';
 import 'package:project_teachers/entities/valid_email_address.dart';
 
 
@@ -37,6 +38,18 @@ class ValidEmailAddressRepository {
       return notValidatedValidEmails;
   }
 
+  Future<List<ValidEmailAddress>> getEmailAddresses() async {
+    DataSnapshot emailSnapshot = await _database.reference()
+        .child("ValidEmailAdresses").once();
+    List<ValidEmailAddress> validEmails = List<ValidEmailAddress>();
+    emailSnapshot.value.forEach((element) {
+      ValidEmailAddress validEmailAddress = ValidEmailAddress.fromJson(element);
+      print(element);
+      validEmails.add(validEmailAddress);
+    });
+    return validEmails;
+  }
+
   Future<bool> checkIfAddressIsValid(String email) async {
     List<ValidEmailAddress> notValidatedValidEmails =
     await getNotValidatedEmailAddresses();
@@ -71,7 +84,17 @@ class ValidEmailAddressRepository {
       }
     }
     print(TRANSACTION_NOT_COMMITED_MSG + ": " + NO_OR_Validated_EMAIL_ADDRESS_MSG);
+  }
 
+  Future<UserType> getUserType(String email) async {
+    List<ValidEmailAddress> notValidatedValidEmails =
+    await getEmailAddresses();
+    for (ValidEmailAddress validEmailAddress in notValidatedValidEmails) {
+      if (validEmailAddress.email == email) {
+        return validEmailAddress.userType;
+      }
+    }
+    return null;
   }
 
 

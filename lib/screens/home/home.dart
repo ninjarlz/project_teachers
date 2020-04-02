@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_teachers/entities/user.dart';
+import 'package:project_teachers/entities/user_enums.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/services/index.dart';
 
@@ -107,7 +108,7 @@ class _HomeState extends State<Home> implements UserListListener, UserListener {
     setState(() {
       _usersInfo = "";
       users.forEach((user) {
-        _usersInfo += user.email + " " + user.name + "\n";
+        _usersInfo += user.email + " " + (user.userType != null ? user.userType.label : "") + "\n";
       });
     });
   }
