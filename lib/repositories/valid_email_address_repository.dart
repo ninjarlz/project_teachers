@@ -63,10 +63,10 @@ class ValidEmailAddressRepository {
   }
 
   Future<void> markAddressAsValidated(String email) async {
-    List<ValidEmailAddress> notValidatedValidEmails =
-    await getNotValidatedEmailAddresses();
-    for (int index = 0; index < notValidatedValidEmails.length; index++) {
-      if (notValidatedValidEmails[index].email == email) {
+    List<ValidEmailAddress> validEmails =
+    await getEmailAddresses();
+    for (int index = 0; index < validEmails.length; index++) {
+      if (validEmails[index].email == email) {
         TransactionResult transactionResult =
         await _database.reference().child("ValidEmailAdresses")
             .child(index.toString()).child("isValidated")
