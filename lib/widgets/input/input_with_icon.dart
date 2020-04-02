@@ -17,6 +17,18 @@ class InputWithIconWidget extends StatefulWidget {
 }
 
 class _InputWithIconWidgetState extends State<InputWithIconWidget> {
+  InputDecoration setDecoration(String hint, [Icon icon]) {
+    return InputDecoration(
+      labelText: hint,
+      prefixIcon: icon,
+      border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(6.0),
+          gapPadding: 3,
+          borderSide: BorderSide(color: Colors.black, style: BorderStyle.solid, width: 10.0)),
+      contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -26,10 +38,7 @@ class _InputWithIconWidgetState extends State<InputWithIconWidget> {
             maxLines: 1,
             keyboardType: widget.type != null ? widget.type : TextInputType.text,
             autofocus: false,
-            decoration: InputDecoration(
-                hintText: widget.hint,
-                icon:  Icon(widget.icon, color: Colors.grey)
-            ),
+            decoration: setDecoration(widget.hint, (widget.icon != null) ? Icon(widget.icon) : null),
             validator: (value) => value.isEmpty ? widget.error == null ? Translations.of(context).text("error_unknown") : widget.error : null,
         )
     );
