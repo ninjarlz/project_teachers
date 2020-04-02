@@ -16,8 +16,8 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   bool _isLoading = false;
-  String _email;
-  String _password;
+  TextEditingController _email = TextEditingController();
+  TextEditingController _password = TextEditingController();
   bool _isLoginForm = true;
   String _errorMessage;
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -46,7 +46,7 @@ class _LoginState extends State<Login> {
       });
       try {
         if (_isLoginForm) {
-          widget.auth.signIn(_email, _password).then((user) {
+          widget.auth.signIn(_email.text, _password.text).then((user) {
             if (user.isEmailVerified) {
               widget.loginCallback();
               userId = user.uid;
@@ -75,10 +75,10 @@ class _LoginState extends State<Login> {
           });
         }
         else {
-          bool isEmailValid = await _validEmailAddressRepository.checkIfAddressIsValid(_email);
+          bool isEmailValid = await _validEmailAddressRepository.checkIfAddressIsValid(_email.text);
           if (isEmailValid) {
-            userId = await widget.auth.signUp(_email, _password);
-            _validEmailAddressRepository.markAddressAsValidated(_email);
+            userId = await widget.auth.signUp(_email.text, _password.text);
+            _validEmailAddressRepository.markAddressAsValidated(_email.text);
             widget.auth.sendEmailVerification();
             _errorMessage = ACTIVATE_EMAIL_MSG;
             print('Signed up user: $userId');
@@ -134,8 +134,8 @@ class _LoginState extends State<Login> {
           shrinkWrap: true,
           children: <Widget>[
             _showLogo(),
-            InputWithIconWidget(val: _email, hint: Translations.of(context).text("login_email"), icon: Icons.email, type: TextInputType.emailAddress, error: Translations.of(context).text("error_email_empty")),
-            InputWithIconWidget(val: _password, hint: Translations.of(context).text("login_password"), icon: Icons.lock, type: TextInputType.visiblePassword, error: Translations.of(context).text("error_password_empty")),
+            InputWithIconWidget(ctrl: _email, hint: Translations.of(context).text("login_email"), icon: Icons.email, type: TextInputType.emailAddress, error: Translations.of(context).text("error_email_empty")),
+            InputWithIconWidget(ctrl: _password, hint: Translations.of(context).text("login_password"), icon: Icons.lock, type: TextInputType.visiblePassword, error: Translations.of(context).text("error_password_empty")),
             Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Center(child: TextErrorWidget(text: _errorMessage)),),
             ButtonPrimaryWidget(text: _isLoginForm ? Translations.of(context).text("login") : Translations.of(context).text("register"), submit: _validateAndSubmit),
             ButtonSecondaryWidget(text: _isLoginForm ? Translations.of(context).text("register") : Translations.of(context).text("login_have_account"), submit: _toggleFormMode),
