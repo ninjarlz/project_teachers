@@ -8,8 +8,9 @@ class ThemeGlobalColor {
   Color secondaryColorDark = Color(0xff03A9F4);
   Color buttonColor = Color(0xffFCC42C);
   Color textColor = Color(0xff403C3C);
-  Color titleColor = Color(0xffC4C4CC);
-  Color backgroundColor = Color(0xffCCECF4);
+  Color smallTextColor = Color(0xffC4C4CC);
+  Color containerColor = Color(0xffE0F7FA);
+  Color backgroundColor = Colors.white;
   Color appBarColor = Colors.white;
 }
 
@@ -19,26 +20,33 @@ class ThemeGlobalShape {
 }
 
 class ThemeGlobalText {
+  TextStyle titleText = TextStyle(
+      fontFamily: 'Montserrat',
+      fontSize: 20.0,
+      fontWeight: FontWeight.bold,
+      letterSpacing: 0.5,
+      color: ThemeGlobalColor().secondaryColorDark);
+
   TextStyle text = TextStyle(
       fontFamily: 'Montserrat',
       fontSize: 18.0,
       fontWeight: FontWeight.w300,
       letterSpacing: 0.5,
-      color: ThemeGlobalColor().secondaryColorDark);
+      color: ThemeGlobalColor().textColor);
 
   TextStyle inputText = TextStyle(
       fontFamily: 'Montserrat',
       fontSize: 16.0,
       fontWeight: FontWeight.w300,
       letterSpacing: 0,
-      color: ThemeGlobalColor().secondaryColorDark);
+      color: ThemeGlobalColor().textColor);
 
   TextStyle smallText = TextStyle(
       fontFamily: 'Montserrat',
       fontSize: 14.0,
       fontWeight: FontWeight.w300,
       letterSpacing: 0.5,
-      color: ThemeGlobalColor().secondaryColorDark);
+      color: ThemeGlobalColor().smallTextColor);
 
   TextStyle errorText = TextStyle(
     fontFamily: 'Montserrat',

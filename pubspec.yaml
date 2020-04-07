@@ -57,6 +57,8 @@ flutter:
     - assets/img/logo.png
     - assets/img/lang/lang_en.png
     - assets/img/lang/lang_nl.png
+    - assets/img/default_background.jpg
+    - assets/img/default_profile.png
     - locale/i18n_en.json
     - locale/i18n_nl.json
   # An image asset can refer to one or more resolution-specific "variants", see
