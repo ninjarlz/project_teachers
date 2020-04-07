@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
 class ThemeGlobalColor {
-  Color mainColor = Color(0xff84dd63);
-  Color mainColorLight = Color(0xffcbff4d);
-  Color mainColorDark = Color(0xff6baa75);
-  Color secondaryColor = Color(0xff69747c);
-  Color secondaryColorDark = Color(0xff545454);
+  Color mainColor = Color(0xffFCC42C);
+  Color mainColorLight = Color(0xffFFEB3B);
+  Color mainColorDark = Color(0xffF9A825);
+  Color secondaryColor = Color(0xff54CCE4);
+  Color secondaryColorDark = Color(0xff03A9F4);
+  Color buttonColor = Color(0xffFCC42C);
+  Color textColor = Color(0xff403C3C);
+  Color titleColor = Color(0xffC4C4CC);
+  Color backgroundColor = Color(0xffCCECF4);
   Color appBarColor = Colors.white;
 }
 

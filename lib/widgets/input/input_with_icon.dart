@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_teachers/translations/translations.dart';
+import 'package:project_teachers/themes/index.dart';
 
 // ignore: must_be_immutable
 class InputWithIconWidget extends StatefulWidget {
@@ -24,7 +25,7 @@ class _InputWithIconWidgetState extends State<InputWithIconWidget> {
       border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(6.0),
           gapPadding: 3,
-          borderSide: BorderSide(color: Colors.black, style: BorderStyle.solid, width: 10.0)),
+          borderSide: BorderSide(color: ThemeGlobalColor().textColor, style: BorderStyle.solid, width: 10.0)),
       contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
     );
   }

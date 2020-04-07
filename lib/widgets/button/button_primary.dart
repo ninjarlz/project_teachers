@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_teachers/repositories/valid_email_address_repository.dart';
-import 'package:project_teachers/services/index.dart';
+import 'package:project_teachers/themes/index.dart';
 
 // ignore: must_be_immutable
 class ButtonPrimaryWidget extends StatefulWidget {
@@ -24,7 +23,7 @@ class _ButtonPrimaryWidgetState extends State<ButtonPrimaryWidget> {
             child: RaisedButton(
                 elevation: 5.0,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
-                color: Colors.purpleAccent,
+                color: ThemeGlobalColor().buttonColor,
                 child: Text(
                     widget.text,
                     style: TextStyle(fontSize: 20.0, color: Colors.white)

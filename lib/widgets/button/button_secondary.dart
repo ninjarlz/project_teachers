@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_teachers/repositories/valid_email_address_repository.dart';
-import 'package:project_teachers/services/index.dart';
+import 'package:project_teachers/themes/index.dart';
 
 // ignore: must_be_immutable
 class ButtonSecondaryWidget extends StatefulWidget {
@@ -21,7 +20,7 @@ class _ButtonSecondaryWidgetState extends State<ButtonSecondaryWidget> {
     return FlatButton(
       child: Text(
           widget.text,
-          style: TextStyle(fontSize: widget.size != null ? widget.size : 18.0, fontWeight: FontWeight.w300)
+          style: TextStyle(fontSize: widget.size != null ? widget.size : 18.0, fontWeight: FontWeight.w300, color: ThemeGlobalColor().textColor)
       ),
       onPressed: () => widget.submit(),
     );
