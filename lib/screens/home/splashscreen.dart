@@ -68,7 +68,7 @@ class _SplashscreenState extends State<Splashscreen> {
         bool isInitialized = await _validEmailAddressRepository
             .checkIfAddressIsInitialized(user.email);
         setState(() {
-          if (isInitialized != null) {
+          if (isInitialized) {
             _userRepository.setCurrentUser(user.uid);
             _authStatus = AuthStatus.LOGGED_IN;
             widget.currentAppState = AppState.TIMELINE;
