@@ -1,15 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:project_teachers/entities/user.dart';
+import 'package:project_teachers/repositories/user_repository.dart';
+import 'package:project_teachers/screens/navigation_drawer/navigation_drawer.dart';
 import 'package:project_teachers/themes/index.dart';
 import 'package:project_teachers/widgets/index.dart';
 
 class Profile extends StatefulWidget {
+  static const String routeName = "/profile";
+
+  static const String TITLE = "Profile";
+
+  Profile._privateConstructor();
+
+  static Profile _instance;
+
+  static Profile instance() {
+    if (_instance == null) {
+      _instance = Profile._privateConstructor();
+    }
+    return _instance;
+  }
+
   @override
   State<StatefulWidget> createState() {
     return ProfileWidget();
   }
 }
 
-class ProfileWidget extends State<Profile> {
+class ProfileWidget extends State<Profile> implements UserListener {
+  UserRepository _userRepository;
+  String _userName = "";
+  String _email = "";
+  String _city = "";
+  String _school = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _userRepository = UserRepository.instance;
+    _userRepository.userListeners.add(this);
+    _initialUpdate();
+  }
+
+  Future<void> _initialUpdate() async {
+    Future.delayed(Duration(milliseconds: 200));
+    onUserDataChange();
+  }
+
   Widget _buildBackgroundImage() {
     return Container(
       width: MediaQuery.of(context).size.width,
@@ -27,11 +64,20 @@ class ProfileWidget extends State<Profile> {
       width: MediaQuery.of(context).size.width / 2.5,
       height: MediaQuery.of(context).size.width / 2.5,
       margin: EdgeInsets.only(bottom: 20),
-      child: Image.asset(
-        "assets/img/default_profile.png",
-        fit: BoxFit.cover,
-        alignment: Alignment.bottomCenter,
+      child: CircleAvatar(
+        backgroundColor: ThemeGlobalColor().mainColor,
+        child: _userName != ""
+            ? Text(
+                _userName[0].toUpperCase(),
+                style: TextStyle(fontSize: 40.0),
+              )
+            : null,
       ),
+//    Image.asset(
+//        "assets/img/default_profile.png",
+//        fit: BoxFit.cover,
+//        alignment: Alignment.bottomCenter,
+//      ),
     );
   }
 
@@ -52,8 +98,9 @@ class ProfileWidget extends State<Profile> {
       decoration: ThemeProfile().profileContainer,
       child: Column(
         children: <Widget>[
-          TextIconWidget(icon: Icons.school, text: "De Haagse Hogeschool"),
-          TextIconWidget(icon: Icons.location_city, text: "Den Haag"),
+          TextIconWidget(icon: Icons.email, text: _email),
+          TextIconWidget(icon: Icons.school, text: _school),
+          TextIconWidget(icon: Icons.location_city, text: _city),
         ],
       ),
     );
@@ -63,7 +110,7 @@ class ProfileWidget extends State<Profile> {
     return Column(
       children: <Widget>[
         _buildProfileImage(),
-        Text("Firstname Lastname", style: ThemeGlobalText().titleText),
+        Text(_userName, style: ThemeGlobalText().titleText),
         SizedBox(height: 15),
         _buildProfileButtons(),
         SizedBox(height: 15),
@@ -74,19 +121,46 @@ class ProfileWidget extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ThemeGlobalColor().backgroundColor,
-      body: Stack(
-        overflow: Overflow.visible,
-        children: <Widget>[
-          _buildBackgroundImage(),
-          Positioned(
-            top: MediaQuery.of(context).size.width / 1.5,
-            width: MediaQuery.of(context).size.width,
-            child: _buildProfile(),
-          ),
-        ],
-      ),
-    );
+    return WillPopScope(
+        onWillPop: () async => false,
+        child: Scaffold(
+            appBar: AppBar(title: Text(Profile.TITLE, style: TextStyle(color: Colors.white)), backgroundColor: ThemeGlobalColor().secondaryColor),
+            backgroundColor: ThemeGlobalColor().backgroundColor,
+            body: Stack(
+              overflow: Overflow.visible,
+              children: <Widget>[
+                _buildBackgroundImage(),
+                Positioned(
+                  top: MediaQuery.of(context).size.width / 1.5,
+                  width: MediaQuery.of(context).size.width,
+                  child: _buildProfile(),
+                ),
+              ],
+            ),
+            drawer: NavigationDrawer.instance));
+  }
+
+  @override
+  onUserDataChange() {
+    setState(() {
+      User user = _userRepository.currentUser;
+      if (user != null) {
+        _email = user.email;
+        _userName = user.name + " " + user.surname;
+        _city = user.city;
+        _school = user.school;
+      } else {
+        _email = "";
+        _userName = "";
+        _city = "";
+        _school = "";
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _userRepository.userListeners.remove(this);
   }
 }

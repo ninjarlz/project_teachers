@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_teachers/repositories/valid_email_address_repository.dart';
+import 'package:project_teachers/screens/home/index.dart';
 import 'package:project_teachers/services/index.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/widgets/index.dart';
@@ -25,6 +26,15 @@ class _LoginState extends State<Login> {
   String INVALID_EMAIL_MSG;
   String NOT_VERIFIED_EMAIL_MSG;
   String ACTIVATE_EMAIL_MSG;
+  Splashscreen _splashscreen;
+
+  @override
+  void initState() {
+    super.initState();
+    _splashscreen = Splashscreen.instance();
+    _validEmailAddressRepository = ValidEmailAddressRepository.instance;
+  }
+
 
   void _toggleFormMode() {
     setState(() {
@@ -35,9 +45,6 @@ class _LoginState extends State<Login> {
   void _goToPasswordRecovery() {}
 
   void _validateAndSubmit() async {
-    INVALID_EMAIL_MSG = Translations.of(context).text("error_email_invalid");
-    NOT_VERIFIED_EMAIL_MSG = Translations.of(context).text("error_email_unverified");
-    ACTIVATE_EMAIL_MSG = Translations.of(context).text("login_code_sent");
     if (_validateAndSave()) {
       String userId;
       setState(() {
@@ -62,6 +69,7 @@ class _LoginState extends State<Login> {
             }
             setState(() {
               _isLoading = false;
+              _formKey.currentState.reset();;
               FocusScope.of(context).unfocus();
             });
           }).catchError((e) {
@@ -70,6 +78,7 @@ class _LoginState extends State<Login> {
               _errorMessage = e.message;
               print(e.message);
               _isLoading = false;
+              _formKey.currentState.reset();
               FocusScope.of(context).unfocus();
             });
           });
@@ -91,6 +100,7 @@ class _LoginState extends State<Login> {
           }
           setState(() {
             _isLoading = false;
+            _formKey.currentState.reset();
             FocusScope.of(context).unfocus();
           });
         }
@@ -148,7 +158,9 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    _validEmailAddressRepository = ValidEmailAddressRepository.instance;
+    INVALID_EMAIL_MSG = Translations.of(context).text("error_email_invalid");
+    NOT_VERIFIED_EMAIL_MSG = Translations.of(context).text("error_email_unverified");
+    ACTIVATE_EMAIL_MSG = Translations.of(context).text("login_code_sent");
     return Scaffold(
       body: Stack(
         children: <Widget>[_showForm(), AnimationCircularProgressWidget(status: _isLoading)],

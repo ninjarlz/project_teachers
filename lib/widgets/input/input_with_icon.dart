@@ -41,6 +41,7 @@ class _InputWithIconWidgetState extends State<InputWithIconWidget> {
             autofocus: false,
             decoration: setDecoration(widget.hint, (widget.icon != null) ? Icon(widget.icon) : null),
             validator: (value) => value.isEmpty ? widget.error == null ? Translations.of(context).text("error_unknown") : widget.error : null,
+            obscureText: widget.type == TextInputType.visiblePassword,
         )
     );
   }

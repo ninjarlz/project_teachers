@@ -10,6 +10,7 @@ import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/translations/application.dart';
 
 class Routes extends StatefulWidget {
+
   final Widget testWidget;
   final FirebaseApp app;
 
@@ -35,7 +36,8 @@ class _RoutesState extends State<Routes> {
     });
 
     routes = <String, WidgetBuilder>{
-      '/login': (BuildContext context) => Login(),
+      Splashscreen.routeName: (BuildContext context) => Splashscreen.instance(),
+      Profile.routeName: (BuildContext context) => Profile.instance()
     };
   }
 
@@ -54,6 +56,7 @@ class _RoutesState extends State<Routes> {
     return MaterialApp(
       title: 'ProjectTeachers',
       routes: routes,
+      initialRoute: Splashscreen.routeName,
       debugShowCheckedModeBanner: false,
       // Custom Routes
       onGenerateRoute: (RouteSettings settings) {
@@ -80,7 +83,7 @@ class _RoutesState extends State<Routes> {
         GlobalWidgetsLocalizations.delegate,
       ],
       supportedLocales: applic.supportedLocales(),
-      home: Splashscreen(auth: Auth()),
+      //home: Splashscreen(auth: Auth.instance),
       //home: Home(),
     );
   }

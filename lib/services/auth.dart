@@ -21,6 +21,15 @@ abstract class BaseAuth {
 class Auth implements BaseAuth {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
+  Auth._privateConstructor();
+  static Auth _instance;
+  static Auth get instance {
+    if (_instance == null) {
+      _instance = Auth._privateConstructor();
+    }
+    return _instance;
+  }
+
   Future<FirebaseUser> signIn(String email, String password) async {
       AuthResult result = await _firebaseAuth.signInWithEmailAndPassword(
           email: email, password: password);
