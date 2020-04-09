@@ -142,9 +142,7 @@ class ProfileWidget extends State<Profile> implements UserListener {
         SizedBox(height: 5),
         Text(_school, style: ThemeGlobalText().text),
         SizedBox(height: 10),
-        Container(
-          child: _buildProfileCompetencies(),
-        ),
+        _buildProfileCompetencies(),
         SizedBox(height: 10),
         _buildProfileBio(),
         SizedBox(height: 100),
