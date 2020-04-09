@@ -23,29 +23,24 @@ class ThemeGlobalText {
   TextStyle titleText = TextStyle(
       fontFamily: 'Montserrat',
       fontSize: 20.0,
-      fontWeight: FontWeight.bold,
-      letterSpacing: 0.5,
-      color: ThemeGlobalColor().secondaryColorDark);
+      color: ThemeGlobalColor().textColor);
 
   TextStyle text = TextStyle(
       fontFamily: 'Montserrat',
-      fontSize: 18.0,
+      fontSize: 14.0,
       fontWeight: FontWeight.w300,
-      letterSpacing: 0.5,
       color: ThemeGlobalColor().textColor);
 
   TextStyle inputText = TextStyle(
       fontFamily: 'Montserrat',
-      fontSize: 16.0,
+      fontSize: 14.0,
       fontWeight: FontWeight.w300,
-      letterSpacing: 0,
       color: ThemeGlobalColor().textColor);
 
   TextStyle smallText = TextStyle(
       fontFamily: 'Montserrat',
-      fontSize: 14.0,
+      fontSize: 13.0,
       fontWeight: FontWeight.w300,
-      letterSpacing: 0.5,
       color: ThemeGlobalColor().smallTextColor);
 
   TextStyle errorText = TextStyle(

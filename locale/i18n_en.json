@@ -27,5 +27,6 @@
   "register": "Create an account",
   "login_have_account": "Have an account? Sign in",
   "login_password_forgotten": "Password forgotten?",
-  "login_code_sent": "The activation link was sent to your email address"
+  "login_code_sent": "The activation link was sent to your email address",
+  "profile": "Profile"
 }

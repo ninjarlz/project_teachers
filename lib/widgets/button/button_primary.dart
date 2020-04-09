@@ -22,7 +22,7 @@ class _ButtonPrimaryWidgetState extends State<ButtonPrimaryWidget> {
           height: 50,
             child: RaisedButton(
                 elevation: 5.0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7.0)),
                 color: ThemeGlobalColor().buttonColor,
                 child: Text(
                     widget.text,
