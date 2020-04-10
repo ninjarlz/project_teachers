@@ -9,24 +9,11 @@ import 'package:project_teachers/translations/translations.dart';
 class Profile extends StatefulWidget {
   static const String routeName = "/profile";
 
-  Profile._privateConstructor();
-
-  static Profile _instance;
-
-  static Profile instance() {
-    if (_instance == null) {
-      _instance = Profile._privateConstructor();
-    }
-    return _instance;
-  }
-
   @override
-  State<StatefulWidget> createState() {
-    return ProfileWidget();
-  }
+  State<StatefulWidget> createState() => _ProfileState();
 }
 
-class ProfileWidget extends State<Profile> implements UserListener {
+class _ProfileState extends State<Profile> implements UserListener {
   UserRepository _userRepository;
   String _userName = "";
   String _profilePicture = "";
@@ -167,7 +154,7 @@ class ProfileWidget extends State<Profile> implements UserListener {
             ],
           ),
         ),
-        drawer: NavigationDrawer.instance,
+        drawer: NavigationDrawer(),
         floatingActionButton: FloatingActionButton(
           onPressed: null,
           backgroundColor: ThemeGlobalColor().secondaryColor,

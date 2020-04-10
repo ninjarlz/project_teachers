@@ -1,31 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_teachers/entities/user.dart';
+import 'package:project_teachers/model/app_state_manager.dart';
+import 'package:project_teachers/model/auth_status_manager.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/screens/home/splashscreen.dart';
 import 'package:project_teachers/screens/profile/profile.dart';
 import 'package:project_teachers/services/auth.dart';
 import 'package:project_teachers/themes/global.dart';
+import 'package:provider/provider.dart';
 
 
 class NavigationDrawer extends StatefulWidget {
-
-  NavigationDrawer._privateConstructor();
-
-  VoidCallback _logoutCallback;
-
-  void setLogoutCallback(VoidCallback logoutCallback) {
-    _logoutCallback = logoutCallback;
-  }
-
-  static NavigationDrawer _instance;
-
-  static NavigationDrawer get instance {
-    if (_instance == null) {
-      _instance = NavigationDrawer._privateConstructor();
-    }
-    return _instance;
-  }
 
   @override
   State<StatefulWidget> createState() => _NavigationDrawerState();
@@ -36,17 +22,21 @@ class _NavigationDrawerState extends State<NavigationDrawer> implements UserList
   String _userName = "";
   String _userEmail = "";
   UserRepository _userRepository;
-  Auth _auth;
-  Splashscreen _splashscreen;
+  BaseAuth _auth;
+  AppStateManager _appStateManager;
+  AuthStatusManager _authStatusManager;
 
   @override
   void initState() {
     super.initState();
     _userRepository = UserRepository.instance;
     _auth = Auth.instance;
-    _splashscreen = Splashscreen.instance();
     _userRepository.userListeners.add(this);
     _initialUpdate();
+    Future.delayed(Duration.zero, () {
+      _appStateManager = Provider.of<AppStateManager>(context, listen: false);
+      _authStatusManager = Provider.of<AuthStatusManager>(context, listen: false);
+    });
   }
 
   Future<void> _initialUpdate() async {
@@ -57,11 +47,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> implements UserList
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      // Add a ListView to the drawer. This ensures the user can scroll
-      // through the options in the drawer if there isn't enough vertical
-      // space to fit everything.
       child: ListView(
-        // Important: Remove any padding from the ListView.
         padding: EdgeInsets.zero,
         children: <Widget>[
           UserAccountsDrawerHeader(
@@ -82,8 +68,8 @@ class _NavigationDrawerState extends State<NavigationDrawer> implements UserList
             title: Text('Timeline'),
             onTap: () {
               Navigator.of(context).pop();
-              if (_splashscreen.currentAppState != AppState.TIMELINE) {
-                _splashscreen.currentAppState = AppState.TIMELINE;
+              if (_appStateManager.appState != AppState.TIMELINE) {
+                _appStateManager.changeAppState(AppState.TIMELINE);
                 Navigator.of(context).pushNamed(Splashscreen.routeName);
               }
             },
@@ -92,9 +78,9 @@ class _NavigationDrawerState extends State<NavigationDrawer> implements UserList
             title: Text('Profile page'),
             onTap: () {
               Navigator.of(context).pop();
-              if (_splashscreen.currentAppState != AppState.PROFILE_PAGE) {
+              if (_appStateManager.appState != AppState.PROFILE_PAGE) {
+                _appStateManager.changeAppState(AppState.PROFILE_PAGE);
                 Navigator.of(context).pushNamed(Profile.routeName);
-                _splashscreen.currentAppState = AppState.PROFILE_PAGE;
               }
             },
           ),
@@ -125,15 +111,16 @@ class _NavigationDrawerState extends State<NavigationDrawer> implements UserList
           ListTile(
             title: Text('Log out'),
             onTap: () {
-              if (widget._logoutCallback != null) {
-                Navigator.of(context).pop();
-                _auth.signOut();
-                _splashscreen.currentAppState = AppState.LOGIN;
-                widget._logoutCallback();
-                if (_splashscreen.currentAppState != AppState.TIMELINE) {
-                  Navigator.of(context).pushNamed(Splashscreen.routeName);
-                }
+              Navigator.of(context).pop();
+              _auth.signOut();
+              _userRepository.logoutUser();
+              _authStatusManager.changeAuthState(AuthStatus.NOT_LOGGED_IN);
+              AppState oldState = _appStateManager.appState;
+              _appStateManager.changeAppState(AppState.LOGIN);
+              if (oldState != AppState.TIMELINE) {
+                Navigator.of(context).pushNamed(Splashscreen.routeName);
               }
+
             },
           ),
         ],

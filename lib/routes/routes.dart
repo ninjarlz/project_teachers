@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:project_teachers/utils/index.dart';
 import 'package:project_teachers/screens/index.dart';
-import 'package:project_teachers/services/index.dart';
 import 'package:project_teachers/themes/index.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/translations/application.dart';
@@ -36,8 +35,8 @@ class _RoutesState extends State<Routes> {
     });
 
     routes = <String, WidgetBuilder>{
-      Splashscreen.routeName: (BuildContext context) => Splashscreen.instance(),
-      Profile.routeName: (BuildContext context) => Profile.instance()
+      Splashscreen.routeName: (BuildContext context) => Splashscreen(),
+      Profile.routeName: (BuildContext context) => Profile()
     };
   }
 

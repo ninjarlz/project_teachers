@@ -7,13 +7,8 @@ import 'package:project_teachers/themes/global.dart';
 
 class Home extends StatefulWidget {
 
-  Home({Key key, this.title, this.auth, this.userId, this.logoutCallback})
-      : super(key: key);
 
-  final BaseAuth auth;
-  final VoidCallback logoutCallback;
-  final String userId;
-  final String title;
+  static const String TITLE = "Home";
 
   @override
   State<StatefulWidget> createState() => _HomeState();
@@ -41,9 +36,9 @@ class _HomeState extends State<Home> implements UserListListener {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.title, style: TextStyle(color: Colors.white)), backgroundColor: ThemeGlobalColor().secondaryColor),
+      appBar: AppBar(title: Text(Home.TITLE, style: TextStyle(color: Colors.white)), backgroundColor: ThemeGlobalColor().secondaryColor),
       body: Center(child: Text(_usersInfo)),
-      drawer: NavigationDrawer.instance
+      drawer: NavigationDrawer()
     );
   }
 

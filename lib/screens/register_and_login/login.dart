@@ -6,9 +6,8 @@ import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/widgets/index.dart';
 
 class Login extends StatefulWidget {
-  Login({this.auth, this.loginCallback});
+  Login({this.loginCallback});
 
-  final BaseAuth auth;
   final VoidCallback loginCallback;
 
   @override
@@ -16,6 +15,8 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+
+  BaseAuth _auth;
   bool _isLoading = false;
   TextEditingController _email = TextEditingController();
   TextEditingController _password = TextEditingController();
@@ -26,13 +27,17 @@ class _LoginState extends State<Login> {
   String INVALID_EMAIL_MSG;
   String NOT_VERIFIED_EMAIL_MSG;
   String ACTIVATE_EMAIL_MSG;
-  Splashscreen _splashscreen;
 
   @override
   void initState() {
     super.initState();
-    _splashscreen = Splashscreen.instance();
     _validEmailAddressRepository = ValidEmailAddressRepository.instance;
+    _auth = Auth.instance;
+    Future.delayed(Duration.zero, () {
+      INVALID_EMAIL_MSG = Translations.of(context).text("error_email_invalid");
+      NOT_VERIFIED_EMAIL_MSG = Translations.of(context).text("error_email_unverified");
+      ACTIVATE_EMAIL_MSG = Translations.of(context).text("login_code_sent");
+    });
   }
 
 
@@ -53,7 +58,7 @@ class _LoginState extends State<Login> {
       });
       try {
         if (_isLoginForm) {
-          widget.auth.signIn(_email.text, _password.text).then((user) {
+          _auth.signIn(_email.text, _password.text).then((user) {
             if (user.isEmailVerified) {
               widget.loginCallback();
               userId = user.uid;
@@ -64,7 +69,7 @@ class _LoginState extends State<Login> {
                 _isLoading = false;
                 _errorMessage = NOT_VERIFIED_EMAIL_MSG;
                 print(NOT_VERIFIED_EMAIL_MSG);
-                widget.auth.signOut();
+                _auth.signOut();
               });
             }
             setState(() {
@@ -86,9 +91,9 @@ class _LoginState extends State<Login> {
         else {
           bool isEmailValid = await _validEmailAddressRepository.checkIfAddressIsValid(_email.text);
           if (isEmailValid) {
-            userId = await widget.auth.signUp(_email.text, _password.text);
+            userId = await _auth.signUp(_email.text, _password.text);
             _validEmailAddressRepository.markAddressAsValidated(_email.text);
-            widget.auth.sendEmailVerification();
+            _auth.sendEmailVerification();
             _errorMessage = ACTIVATE_EMAIL_MSG;
             print('Signed up user: $userId');
           }
@@ -158,9 +163,6 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    INVALID_EMAIL_MSG = Translations.of(context).text("error_email_invalid");
-    NOT_VERIFIED_EMAIL_MSG = Translations.of(context).text("error_email_unverified");
-    ACTIVATE_EMAIL_MSG = Translations.of(context).text("login_code_sent");
     return Scaffold(
       body: Stack(
         children: <Widget>[_showForm(), AnimationCircularProgressWidget(status: _isLoading)],

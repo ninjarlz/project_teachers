@@ -1,36 +1,23 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_teachers/entities/user_enums.dart';
+import 'package:project_teachers/model/app_state_manager.dart';
+import 'package:project_teachers/model/auth_status_manager.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/repositories/valid_email_address_repository.dart';
-import 'package:project_teachers/screens/home/index.dart';
 import 'package:project_teachers/services/auth.dart';
 import 'package:project_teachers/themes/global.dart';
-import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/widgets/animation/animation_circular_progress.dart';
 import 'package:project_teachers/widgets/button/button_primary.dart';
 import 'package:project_teachers/widgets/button/button_secondary.dart';
 import 'package:project_teachers/widgets/input/input_with_icon.dart';
 import 'package:project_teachers/widgets/text/text_error.dart';
+import 'package:provider/provider.dart';
 
 enum InitialFormState { USER_TYPE_DETERMINED, USER_TYPE_NOT_DETERMINED }
 
-// ignore: must_be_immutable
 class InitialForm extends StatefulWidget {
-  VoidCallback _initializedCallback;
-  VoidCallback _logoutCallback;
-  FirebaseUser _user;
   static const String TITLE = "Initial data form";
-
-  InitialForm(VoidCallback initializedCallback, VoidCallback logoutCallback, FirebaseUser user) {
-    _initializedCallback = initializedCallback;
-    _logoutCallback = logoutCallback;
-    _user = user;
-  }
-
-  InitialFormState initialFormState = InitialFormState.USER_TYPE_NOT_DETERMINED;
-
   @override
   State<StatefulWidget> createState() => _InitialFormState();
 }
@@ -46,11 +33,11 @@ class _InitialFormState extends State<InitialForm> {
   static const String  LOG_OUT = "Log out"; // temporary
   static const String  SIGN_IN_ERROR = "Sign in error"; // temporary
 
+  InitialFormState _initialFormState = InitialFormState.USER_TYPE_NOT_DETERMINED;
   UserRepository _userRepository;
   ValidEmailAddressRepository _validEmailAddressRepository;
   BaseAuth _auth;
   UserType _userType;
-  Splashscreen _splashscreen;
   bool _isLoading;
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String _errorMessage;
@@ -58,6 +45,8 @@ class _InitialFormState extends State<InitialForm> {
   TextEditingController _surname = TextEditingController();
   TextEditingController _school = TextEditingController();
   TextEditingController _city = TextEditingController();
+  AuthStatusManager _authStatusManager;
+  AppStateManager _appStateManager;
 
   @override
   void initState() {
@@ -65,22 +54,25 @@ class _InitialFormState extends State<InitialForm> {
     _userRepository = UserRepository.instance;
     _validEmailAddressRepository = ValidEmailAddressRepository.instance;
     _auth = Auth.instance;
-    _splashscreen = Splashscreen.instance();
-    if (widget._user != null) {
+    if (_auth.currentUser != null) {
       _validEmailAddressRepository
-          .getUserType(widget._user.email)
+          .getUserType(_auth.currentUser.email)
           .then((userType) {
         setState(() {
           _userType = userType;
-          widget.initialFormState = InitialFormState.USER_TYPE_DETERMINED;
+          _initialFormState = InitialFormState.USER_TYPE_DETERMINED;
         });
       });
     }
+    Future.delayed(Duration.zero, () {
+      _authStatusManager = Provider.of<AuthStatusManager>(context,listen: false);
+      _appStateManager = Provider.of<AppStateManager>(context, listen: false);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    switch (widget.initialFormState) {
+    switch (_initialFormState) {
       case InitialFormState.USER_TYPE_NOT_DETERMINED:
         return _buildWaitingScreen();
       case InitialFormState.USER_TYPE_DETERMINED:
@@ -121,12 +113,12 @@ class _InitialFormState extends State<InitialForm> {
         });
 
         try {
-          if (widget._user != null) {
-            String email = widget._user.email;
+          if (_auth.currentUser != null) {
+            String email = _auth.currentUser.email;
             await _validEmailAddressRepository.markAddressAsInitialized(email);
-            await _userRepository.setInitializedCurrentUser(widget._user.uid, email,
+            await _userRepository.setInitializedCurrentUser(_auth.currentUser.uid, email,
                 _name.text, _surname.text, _city.text, _school.text);
-            widget._initializedCallback();
+            _onInitialization();
           } else {
             setState(() {
               _isLoading = false;
@@ -148,9 +140,16 @@ class _InitialFormState extends State<InitialForm> {
       }
   }
 
+  void _onInitialization() {
+
+    _authStatusManager.changeAuthState(AuthStatus.LOGGED_IN);
+    _appStateManager.changeAppState(AppState.TIMELINE);
+  }
+
   void _signOut() {
-    _splashscreen.currentAppState = AppState.LOGIN;
-    widget._logoutCallback();
+    _appStateManager.changeAppState(AppState.LOGIN);
+    _userRepository.logoutUser();
+    _authStatusManager.changeAuthState(AuthStatus.NOT_LOGGED_IN);
   }
 
   Widget _showForm() {
