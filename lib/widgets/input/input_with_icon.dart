@@ -33,7 +33,7 @@ class _InputWithIconWidgetState extends State<InputWithIconWidget> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: EdgeInsets.symmetric(vertical: 10),
+        padding: EdgeInsets.symmetric(vertical: 5),
         child: TextFormField(
             controller: widget.ctrl,
             maxLines: 1,

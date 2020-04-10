@@ -6,7 +6,7 @@ import 'package:project_teachers/model/auth_status_manager.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/repositories/valid_email_address_repository.dart';
 import 'package:project_teachers/services/auth.dart';
-import 'package:project_teachers/themes/global.dart';
+import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/widgets/animation/animation_circular_progress.dart';
 import 'package:project_teachers/widgets/button/button_primary.dart';
 import 'package:project_teachers/widgets/button/button_secondary.dart';
@@ -23,16 +23,6 @@ class InitialForm extends StatefulWidget {
 }
 
 class _InitialFormState extends State<InitialForm> {
-
-  static const String INVALID_VALUE = "Invalid value"; // temporary
-  static const String NAME = "Name"; // temporary
-  static const String SURNAME = "Surname"; // temporary
-  static const String CITY = "City"; // temporary
-  static const String SCHOOL = "School"; // temporary
-  static const String SUBMIT = "Submit"; // temporary
-  static const String  LOG_OUT = "Log out"; // temporary
-  static const String  SIGN_IN_ERROR = "Sign in error"; // temporary
-
   InitialFormState _initialFormState = InitialFormState.USER_TYPE_NOT_DETERMINED;
   UserRepository _userRepository;
   ValidEmailAddressRepository _validEmailAddressRepository;
@@ -70,23 +60,6 @@ class _InitialFormState extends State<InitialForm> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    switch (_initialFormState) {
-      case InitialFormState.USER_TYPE_NOT_DETERMINED:
-        return _buildWaitingScreen();
-      case InitialFormState.USER_TYPE_DETERMINED:
-        return Scaffold(
-          appBar: AppBar(title: Text(InitialForm.TITLE, style: TextStyle(color: Colors.white)), backgroundColor: ThemeGlobalColor().secondaryColor),
-          body: Stack(
-            children: <Widget>[_showForm(), AnimationCircularProgressWidget(status: _isLoading)],
-          ),
-        );
-      default:
-        return _buildWaitingScreen();
-    }
-  }
-
   Widget _buildWaitingScreen() {
     return Scaffold(
       body: Container(
@@ -112,32 +85,30 @@ class _InitialFormState extends State<InitialForm> {
           _isLoading = true;
         });
 
-        try {
-          if (_auth.currentUser != null) {
-            String email = _auth.currentUser.email;
-            await _validEmailAddressRepository.markAddressAsInitialized(email);
-            await _userRepository.setInitializedCurrentUser(_auth.currentUser.uid, email,
-                _name.text, _surname.text, _city.text, _school.text);
-            _onInitialization();
-          } else {
-            setState(() {
-              _isLoading = false;
-              _errorMessage = SIGN_IN_ERROR;
-              _formKey.currentState.reset();
-              FocusScope.of(context).unfocus();
-            });
-          }
-        } catch (e) {
-          print("Error: $e");
+      try {
+        if (_auth.currentUser != null) {
+          String email = _auth.currentUser.email;
+          await _validEmailAddressRepository.markAddressAsInitialized(email);
+          await _userRepository.setInitializedCurrentUser(_auth.currentUser.uid, email, _name.text, _surname.text, _city.text, _school.text);
+          _onInitialization();
+        } else {
           setState(() {
             _isLoading = false;
-            _errorMessage = e.message;
+            _errorMessage = Translations.of(context).text("error_unknown");
             _formKey.currentState.reset();
             FocusScope.of(context).unfocus();
           });
         }
-
+      } catch (e) {
+        print("Error: $e");
+        setState(() {
+          _isLoading = false;
+          _errorMessage = e.message;
+          _formKey.currentState.reset();
+          FocusScope.of(context).unfocus();
+        });
       }
+    }
   }
 
   void _onInitialization() {
@@ -161,16 +132,38 @@ class _InitialFormState extends State<InitialForm> {
         child: ListView(
           shrinkWrap: true,
           children: <Widget>[
-            InputWithIconWidget(ctrl: _name, hint: NAME, icon: Icons.person, type: TextInputType.text, error: INVALID_VALUE),
-            InputWithIconWidget(ctrl: _surname, hint: SURNAME, icon: Icons.person, type: TextInputType.text, error: INVALID_VALUE),
-            InputWithIconWidget(ctrl: _city, hint: CITY, icon: Icons.location_city, type: TextInputType.text, error: INVALID_VALUE),
-            InputWithIconWidget(ctrl: _school, hint: SCHOOL, icon: Icons.school, type: TextInputType.text, error: INVALID_VALUE),
-            Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Center(child: TextErrorWidget(text: _errorMessage)),),
-            ButtonPrimaryWidget(text: SUBMIT, submit: _validateAndSubmit),
-            ButtonSecondaryWidget(text: LOG_OUT, submit: _signOut),
+            Container(height: 150, margin: EdgeInsets.all(10), child: Image.asset("assets/img/icon_new.png")),
+            InputWithIconWidget(ctrl: _name, hint: Translations.of(context).text("register_firstname"), icon: Icons.person, type: TextInputType.text, error: Translations.of(context).text("error_firstname_empty")),
+            InputWithIconWidget(ctrl: _surname, hint: Translations.of(context).text("register_lastname"), icon: Icons.person, type: TextInputType.text, error: Translations.of(context).text("error_lastname_empty")),
+            InputWithIconWidget(ctrl: _city, hint: Translations.of(context).text("register_city"), icon: Icons.location_city, type: TextInputType.text, error: Translations.of(context).text("error_city_empty")),
+            InputWithIconWidget(ctrl: _school, hint: Translations.of(context).text("register_school"), icon: Icons.school, type: TextInputType.text, error: Translations.of(context).text("error_school_empty")),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 10),
+              child: Center(child: TextErrorWidget(text: _errorMessage)),
+            ),
+            ButtonPrimaryWidget(text: Translations.of(context).text("register_create"), submit: _validateAndSubmit),
+            ButtonSecondaryWidget(text: Translations.of(context).text("global_back"), submit: _signOut),
           ],
         ),
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    switch (_initialFormState) {
+      case InitialFormState.USER_TYPE_NOT_DETERMINED:
+        return _buildWaitingScreen();
+      case InitialFormState.USER_TYPE_DETERMINED:
+        return Scaffold(
+          body: SafeArea(
+            child: Stack(
+              children: <Widget>[_showForm(), AnimationCircularProgressWidget(status: _isLoading)],
+            ),
+          ),
+        );
+      default:
+        return _buildWaitingScreen();
+    }
   }
 }
