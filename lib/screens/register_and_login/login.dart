@@ -35,7 +35,6 @@ class _LoginState extends State<Login> {
     _validEmailAddressRepository = ValidEmailAddressRepository.instance;
   }
 
-
   void _toggleFormMode() {
     setState(() {
       _isLoginForm = !_isLoginForm;
@@ -58,8 +57,7 @@ class _LoginState extends State<Login> {
               widget.loginCallback();
               userId = user.uid;
               print('Signed in: $userId');
-            }
-            else {
+            } else {
               setState(() {
                 _isLoading = false;
                 _errorMessage = NOT_VERIFIED_EMAIL_MSG;
@@ -69,7 +67,8 @@ class _LoginState extends State<Login> {
             }
             setState(() {
               _isLoading = false;
-              _formKey.currentState.reset();;
+              _formKey.currentState.reset();
+              ;
               FocusScope.of(context).unfocus();
             });
           }).catchError((e) {
@@ -82,8 +81,7 @@ class _LoginState extends State<Login> {
               FocusScope.of(context).unfocus();
             });
           });
-        }
-        else {
+        } else {
           bool isEmailValid = await _validEmailAddressRepository.checkIfAddressIsValid(_email.text);
           if (isEmailValid) {
             userId = await widget.auth.signUp(_email.text, _password.text);
@@ -91,8 +89,7 @@ class _LoginState extends State<Login> {
             widget.auth.sendEmailVerification();
             _errorMessage = ACTIVATE_EMAIL_MSG;
             print('Signed up user: $userId');
-          }
-          else {
+          } else {
             setState(() {
               _errorMessage = INVALID_EMAIL_MSG;
               print(INVALID_EMAIL_MSG);
@@ -104,8 +101,7 @@ class _LoginState extends State<Login> {
             FocusScope.of(context).unfocus();
           });
         }
-      }
-      catch (e) {
+      } catch (e) {
         print("Error: $e");
         setState(() {
           _isLoading = false;
@@ -126,14 +122,6 @@ class _LoginState extends State<Login> {
     return false;
   }
 
-  Widget _showLogo() {
-    return Hero(
-        tag: 'hero',
-        child: Padding(
-            padding: EdgeInsets.fromLTRB(0.0, 30.0, 0.0, 0.0),
-            child: CircleAvatar(backgroundColor: Colors.transparent, radius: 100.0, child: Image.asset("assets/img/logo.png"))));
-  }
-
   Widget _showForm() {
     return Container(
       padding: EdgeInsets.all(16.0),
@@ -143,13 +131,34 @@ class _LoginState extends State<Login> {
         child: ListView(
           shrinkWrap: true,
           children: <Widget>[
-            _showLogo(),
-            InputWithIconWidget(ctrl: _email, hint: Translations.of(context).text("login_email"), icon: Icons.email, type: TextInputType.emailAddress, error: Translations.of(context).text("error_email_empty")),
-            InputWithIconWidget(ctrl: _password, hint: Translations.of(context).text("login_password"), icon: Icons.lock, type: TextInputType.visiblePassword, error: Translations.of(context).text("error_password_empty")),
-            Padding(padding: EdgeInsets.symmetric(vertical: 10), child: Center(child: TextErrorWidget(text: _errorMessage)),),
-            ButtonPrimaryWidget(text: _isLoginForm ? Translations.of(context).text("login") : Translations.of(context).text("register"), submit: _validateAndSubmit),
-            ButtonSecondaryWidget(text: _isLoginForm ? Translations.of(context).text("register") : Translations.of(context).text("login_have_account"), submit: _toggleFormMode),
-            ButtonSecondaryWidget(text: Translations.of(context).text("login_password_forgotten"), submit: _goToPasswordRecovery, size: 12,),
+            Image.asset("assets/img/logo.png"),
+            InputWithIconWidget(
+                ctrl: _email,
+                hint: Translations.of(context).text("login_email"),
+                icon: Icons.email,
+                type: TextInputType.emailAddress,
+                error: Translations.of(context).text("error_email_empty")),
+            InputWithIconWidget(
+                ctrl: _password,
+                hint: Translations.of(context).text("login_password"),
+                icon: Icons.lock,
+                type: TextInputType.visiblePassword,
+                error: Translations.of(context).text("error_password_empty")),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 10),
+              child: Center(child: TextErrorWidget(text: _errorMessage)),
+            ),
+            ButtonPrimaryWidget(
+                text: _isLoginForm ? Translations.of(context).text("login") : Translations.of(context).text("register"),
+                submit: _validateAndSubmit),
+            ButtonSecondaryWidget(
+                text: _isLoginForm ? Translations.of(context).text("register") : Translations.of(context).text("login_have_account"),
+                submit: _toggleFormMode),
+            ButtonSecondaryWidget(
+              text: Translations.of(context).text("login_password_forgotten"),
+              submit: _goToPasswordRecovery,
+              size: 12,
+            ),
           ],
         ),
       ),
@@ -162,8 +171,10 @@ class _LoginState extends State<Login> {
     NOT_VERIFIED_EMAIL_MSG = Translations.of(context).text("error_email_unverified");
     ACTIVATE_EMAIL_MSG = Translations.of(context).text("login_code_sent");
     return Scaffold(
-      body: Stack(
-        children: <Widget>[_showForm(), AnimationCircularProgressWidget(status: _isLoading)],
+      body: SafeArea(
+        child: Stack(
+          children: <Widget>[_showForm(), AnimationCircularProgressWidget(status: _isLoading)],
+        ),
       ),
     );
   }
