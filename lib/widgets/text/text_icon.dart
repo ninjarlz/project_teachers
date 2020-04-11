@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:project_teachers/themes/index.dart';
 
-// ignore: must_be_immutable
 class TextIconWidget extends StatefulWidget {
-  IconData icon;
-  String text;
+  final IconData icon;
+  final String text;
 
   TextIconWidget({@required this.icon, @required this.text});
 

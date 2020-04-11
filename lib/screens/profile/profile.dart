@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_teachers/entities/user.dart';
+import 'package:project_teachers/entities/user_entity.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/screens/navigation_drawer/navigation_drawer.dart';
 import 'package:project_teachers/themes/index.dart';
@@ -18,9 +18,16 @@ class _ProfileState extends State<Profile> implements UserListener {
   String _userName = "";
   String _profilePicture = "";
   String _backgroundPicture = "";
-  List<String> _competencies = ["Compentency 1", "Compentency 2", "Compentency 3", "Compentency 4", "Compentency 5"]; // TODO: change to user competencies
-  String _profession = "Docent Engels op het Haags"; // TODO: change to user profession
-  String _bio = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."; // TODO: change to user bio
+  List<String> _competencies = [
+    "Compentency 1",
+    "Compentency 2",
+    "Compentency 3",
+    "Compentency 4",
+    "Compentency 5"
+  ]; // TODO: change to user competencies
+  String _profession = "";
+  String _bio =
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."; // TODO: change to user bio
   String _city = "";
   String _school = "";
 
@@ -29,21 +36,23 @@ class _ProfileState extends State<Profile> implements UserListener {
     super.initState();
     _userRepository = UserRepository.instance;
     _userRepository.userListeners.add(this);
-    _initialUpdate();
+    onUserDataChange();
   }
 
   @override
   onUserDataChange() {
     setState(() {
-      User user = _userRepository.currentUser;
+      UserEntity user = _userRepository.currentUser;
       if (user != null) {
         _userName = user.name + " " + user.surname;
         _city = user.city;
         _school = user.school;
+        _profession = user.profession;
       } else {
         _userName = "";
         _city = "";
         _school = "";
+        _profession = "";
       }
     });
   }
@@ -54,16 +63,13 @@ class _ProfileState extends State<Profile> implements UserListener {
     _userRepository.userListeners.remove(this);
   }
 
-  Future<void> _initialUpdate() async {
-    Future.delayed(Duration(milliseconds: 200));
-    onUserDataChange();
-  }
 
   Widget _buildBackgroundImage() {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height / 2,
-      child: Image.asset( // TODO: change to user background if not null
+      child: Image.asset(
+        // TODO: change to user background if not null
         "assets/img/default_background.jpg",
         fit: BoxFit.cover,
         alignment: Alignment.bottomCenter,
@@ -77,7 +83,8 @@ class _ProfileState extends State<Profile> implements UserListener {
       height: MediaQuery.of(context).size.width / 2,
       margin: EdgeInsets.only(bottom: 10),
       child: Material(
-        child: Image.asset( // TODO: change to user picture if not null
+        child: Image.asset(
+          // TODO: change to user picture if not null
           "assets/img/default_profile.png",
           fit: BoxFit.cover,
           alignment: Alignment.bottomCenter,
@@ -92,7 +99,8 @@ class _ProfileState extends State<Profile> implements UserListener {
   Widget _buildProfileBio() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
-      child: Text(_bio, style: ThemeGlobalText().text, textAlign: TextAlign.center),
+      child: Text(_bio,
+          style: ThemeGlobalText().text, textAlign: TextAlign.center),
     );
   }
 
@@ -102,7 +110,8 @@ class _ProfileState extends State<Profile> implements UserListener {
     _competencies.forEach((competency) {
       if (_count++ < 3) _rowElements.add(PillProfileWidget(text: competency));
     });
-    return Row(mainAxisAlignment: MainAxisAlignment.center, children: _rowElements);
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.center, children: _rowElements);
   }
 
   Widget _buildProfileCompetencies() {
@@ -139,27 +148,13 @@ class _ProfileState extends State<Profile> implements UserListener {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async => false,
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(title: Text(Translations.of(context).text("profile"), style: TextStyle(color: Colors.white)), backgroundColor: Colors.transparent),
-        backgroundColor: ThemeGlobalColor().backgroundColor,
-        body: SingleChildScrollView(
-          child: Stack(
-            overflow: Overflow.visible,
-            children: <Widget>[
-              _buildBackgroundImage(),
-              _buildProfile(),
-            ],
-          ),
-        ),
-        drawer: NavigationDrawer(),
-        floatingActionButton: FloatingActionButton(
-          onPressed: null,
-          backgroundColor: ThemeGlobalColor().secondaryColor,
-          child: Icon(Icons.message),
-        ),
+    return SingleChildScrollView(
+      child: Stack(
+        overflow: Overflow.visible,
+        children: <Widget>[
+          _buildBackgroundImage(),
+          _buildProfile(),
+        ],
       ),
     );
   }

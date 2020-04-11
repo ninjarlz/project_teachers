@@ -1,40 +1,42 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'user_enums.dart';
-import 'user.dart';
+import 'user_entity.dart';
 
 
-class Expert extends User {
+class ExpertEntity extends UserEntity {
 
   List<SchoolSubject> schoolSubjects;
   List<Specialization> specializations;
 
-  Expert(String name, String surname, String city, String school, String email,
+  ExpertEntity(String name, String surname, String city, String school, String email, String profession,
       List<SchoolSubject> schoolSubjects, List<Specialization> specializations) : super(
-      name, surname, city, school, email, UserType.EXPERT) {
+      name, surname, city, school, email, profession, UserType.EXPERT) {
       this.schoolSubjects = schoolSubjects;
       this.specializations = specializations;
   }
 
-  factory Expert.fromJson(Map<dynamic, dynamic> json) {
-    return Expert(
-      json["name"],
-      json["surname"],
-      json["email"],
-      json["city"],
-      json["school"],
+  factory ExpertEntity.fromJson(Map<dynamic, dynamic> json) {
+    return ExpertEntity(
+        json["name"],
+        json["surname"],
+        json["email"],
+        json["city"],
+        json["school"],
+        json["profession"],
       subjectsListFromSnapshot(json),
       specializationListFromSnapshot(json)
     );
   }
 
-  factory Expert.fromSnapshot(DocumentSnapshot documentSnapshot) {
-    return Expert(
+  factory ExpertEntity.fromSnapshot(DocumentSnapshot documentSnapshot) {
+    return ExpertEntity(
         documentSnapshot.data["name"],
         documentSnapshot.data["surname"],
         documentSnapshot.data["email"],
         documentSnapshot.data["city"],
         documentSnapshot.data["school"],
+        documentSnapshot.data["profession"],
         subjectsListFromSnapshot(documentSnapshot.data),
         specializationListFromSnapshot(documentSnapshot.data)
     );
@@ -48,6 +50,7 @@ class Expert extends User {
       "city" : city,
       "school" : school,
       "email": email,
+      "profession": profession,
       "userType": userType.label,
       "schoolSubjects": getSubjectsLabels(schoolSubjects),
       "specializations": getSpecializationsLabels(specializations)

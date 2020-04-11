@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/themes/index.dart';
 
-// ignore: must_be_immutable
 class InputWithIconWidget extends StatefulWidget {
-  TextEditingController ctrl;
+  final TextEditingController ctrl;
   final IconData icon;
   final String hint;
   final String error;

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-// ignore: must_be_immutable
 class AnimationCircularProgressWidget extends StatefulWidget {
-  bool status;
+  final bool status;
 
   AnimationCircularProgressWidget({this.status});
 

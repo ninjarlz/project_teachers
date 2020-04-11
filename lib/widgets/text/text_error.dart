@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:project_teachers/themes/index.dart';
 
-// ignore: must_be_immutable
 class TextErrorWidget extends StatefulWidget {
-  String text;
+  final String text;
 
   TextErrorWidget({@required this.text});
 

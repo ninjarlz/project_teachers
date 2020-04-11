@@ -1,56 +1,52 @@
 import 'dart:async';
-import 'package:project_teachers/entities/user.dart';
+import 'package:project_teachers/entities/coach_entity.dart';
+import 'package:project_teachers/entities/user_entity.dart';
 import 'package:project_teachers/entities/user_enums.dart';
 import 'package:project_teachers/repositories/valid_email_address_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserRepository {
-
   UserRepository._privateConstructor();
 
   static const String DB_ERROR_MSG = "An error with database occured: ";
 
-
   static UserRepository _instance;
+
   static UserRepository get instance {
     if (_instance == null) {
       _instance = UserRepository._privateConstructor();
       _instance._database = Firestore.instance;
-      _instance._validEmailAddressRepository = ValidEmailAddressRepository.instance;
-      _instance._userListRef =  _instance._database.collection("Users");
-      _instance._usersMap = new Map<String, User>();
-      _instance._userListSub = _instance._userListRef.snapshots().listen((event) {
-        event.documentChanges.forEach((element) {
-          DocumentSnapshot documentSnapshot = element.document;
-          _instance._usersMap[documentSnapshot.documentID] = User.fromJson(documentSnapshot.data);
-        });
-        _instance._userListListeners.forEach((userListListener) {
-          userListListener.onUsersListChange();
-        });
-      } , onError: (o) {
-        print(DB_ERROR_MSG + o.message);
-      });
+      _instance._validEmailAddressRepository =
+          ValidEmailAddressRepository.instance;
+      _instance._userListRef = _instance._database.collection("Users");
     }
     return _instance;
   }
 
-  List<UserListListener> _userListListeners = List<UserListListener>();
-  List<UserListListener> get userListListeners => _userListListeners;
+  List<CoachPageListener> _coachPageListeners = List<CoachPageListener>();
+  StreamSubscription<QuerySnapshot> _coachListSub;
+  bool _hasMoreCoaches = true;
+  bool get hasMoreCoaches => _hasMoreCoaches;
+  int _coachesLimit = 10;
+  int _coachesOffset = 0;
+  List<UserEntity> _coachList;
+  List<UserEntity> get coachList => _coachList;
+  List<CoachPageListener> get coachPageListeners => _coachPageListeners;
   List<UserListener> _userListeners = List<UserListener>();
   List<UserListener> get userListeners => _userListeners;
-  Map<String, User> _usersMap;
-  Map<String, User> get usersMap => _usersMap;
-  StreamSubscription<QuerySnapshot> _userListSub;
   StreamSubscription<DocumentSnapshot> _userSub;
-  User _currentUser;
+  UserEntity _currentUser;
   UserType _currentUserType;
   UserType get currentUserType => _currentUserType;
-  User get currentUser => _currentUser;
+  UserEntity get currentUser => _currentUser;
   CollectionReference _userListRef;
   DocumentReference _userRef;
   Firestore _database;
   ValidEmailAddressRepository _validEmailAddressRepository;
 
+  void initRestrictedData() {
+    updateCoachList();
+  }
 
   void logoutUser() {
     _currentUser = null;
@@ -58,14 +54,51 @@ class UserRepository {
       _userSub.cancel();
     }
     _userListeners.clear();
+    _coachList.clear();
   }
 
+  Future<void> updateCoachList() async {
+    if (_coachListSub != null) {
+      _coachListSub.cancel();
+    }
+    _coachesOffset += _coachesLimit;
+    _coachListSub = _userListRef
+        .orderBy("surname")
+        .where("userType", isEqualTo: "Coach")
+        .limit(_coachesOffset)
+        .snapshots()
+        .listen((event) {
+      _coachList = List<UserEntity>();
+      if (event.documents.length < _coachesOffset) {
+        _hasMoreCoaches = false;
+      }
+      event.documents.forEach((element) {
+        _coachList.add(UserEntity.fromJson(element.data));
+        for (CoachPageListener coachPageListener in _coachPageListeners) {
+          coachPageListener.onCoachListChange();
+        }
+      });
+    });
+  }
 
+  Future<void> resetCoachList() async {
+    _coachesOffset = 0;
+    _hasMoreCoaches = true;
+    updateCoachList();
+  }
 
-  Future<void> setInitializedCurrentUser(String userId, String email, String name, String surname,
-      String city, String school) async {
+  Future<void> setInitializedCurrentUser(
+      String userId,
+      String email,
+      String name,
+      String surname,
+      String city,
+      String school,
+      String profession) async {
     UserType userType = await _validEmailAddressRepository.getUserType(email);
-    await _userListRef.document(userId).setData(User(name, surname, email, city, school, userType).toJson());
+    await _userListRef.document(userId).setData(
+        UserEntity(name, surname, email, city, school, profession, userType)
+            .toJson());
     setCurrentUser(userId);
   }
 
@@ -73,9 +106,26 @@ class UserRepository {
     if (_userSub != null) {
       _userSub.cancel();
     }
+
+//FOR ADDING TEST DATA
+//    for (int i = 0; i < 300; i++) {
+//      _userListRef.add(UserEntity("test", "test" + (i + 20).toString(), "test" + (i + 20).toString() + "@test.com", "test", "test", "test", UserType.COACH).toJson());
+//    }
+
+// FOR REMOVING TEST DATA
+//
+//    _userListRef
+//        .where("name", isEqualTo: "test")
+//        .getDocuments()
+//        .then((querySnapshot) => {
+//              querySnapshot.documents.forEach((element) {
+//                _userListRef.document(element.documentID).delete();
+//              })
+//            });
+
     _userRef = _userListRef.document(userId);
     _userSub = _userRef.snapshots().listen((event) {
-      _currentUser = User.fromJson(event.data);
+      _currentUser = UserEntity.fromJson(event.data);
       _userListeners.forEach((userListener) {
         userListener.onUserDataChange();
       });
@@ -83,14 +133,12 @@ class UserRepository {
       print(DB_ERROR_MSG + o.message);
     });
   }
-
 }
-
 
 abstract class UserListener {
-  onUserDataChange();
+  void onUserDataChange();
 }
 
-abstract class UserListListener {
-  onUsersListChange();
+abstract class CoachPageListener {
+  void onCoachListChange();
 }

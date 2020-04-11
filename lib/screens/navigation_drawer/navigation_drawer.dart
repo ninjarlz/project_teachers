@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:project_teachers/entities/user.dart';
+import 'package:project_teachers/entities/user_entity.dart';
 import 'package:project_teachers/model/app_state_manager.dart';
 import 'package:project_teachers/model/auth_status_manager.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
@@ -32,16 +32,11 @@ class _NavigationDrawerState extends State<NavigationDrawer> implements UserList
     _userRepository = UserRepository.instance;
     _auth = Auth.instance;
     _userRepository.userListeners.add(this);
-    _initialUpdate();
+    onUserDataChange();
     Future.delayed(Duration.zero, () {
       _appStateManager = Provider.of<AppStateManager>(context, listen: false);
       _authStatusManager = Provider.of<AuthStatusManager>(context, listen: false);
     });
-  }
-
-  Future<void> _initialUpdate() async {
-    Future.delayed(Duration(milliseconds: 200));
-    onUserDataChange();
   }
 
   @override
@@ -68,11 +63,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> implements UserList
             title: Text('Timeline'),
             onTap: () {
               Navigator.of(context).pop();
-              if (_appStateManager.appState != AppState.TIMELINE) {
-                _appStateManager.changeAppState(AppState.TIMELINE);
-                Navigator.of(context).pushNamed(Splashscreen.routeName);
-              }
-            },
+              },
           ),
           ListTile(
             title: Text('Profile page'),
@@ -80,7 +71,6 @@ class _NavigationDrawerState extends State<NavigationDrawer> implements UserList
               Navigator.of(context).pop();
               if (_appStateManager.appState != AppState.PROFILE_PAGE) {
                 _appStateManager.changeAppState(AppState.PROFILE_PAGE);
-                Navigator.of(context).pushNamed(Profile.routeName);
               }
             },
           ),
@@ -88,6 +78,9 @@ class _NavigationDrawerState extends State<NavigationDrawer> implements UserList
             title: Text('Coach'),
             onTap: () {
               Navigator.of(context).pop();
+              if (_appStateManager.appState != AppState.COACH) {
+                _appStateManager.changeAppState(AppState.COACH);
+              }
             },
           ),
           ListTile(
@@ -115,13 +108,8 @@ class _NavigationDrawerState extends State<NavigationDrawer> implements UserList
               _auth.signOut();
               _userRepository.logoutUser();
               _authStatusManager.changeAuthState(AuthStatus.NOT_LOGGED_IN);
-              AppState oldState = _appStateManager.appState;
               _appStateManager.changeAppState(AppState.LOGIN);
-              if (oldState != AppState.TIMELINE) {
-                Navigator.of(context).pushNamed(Splashscreen.routeName);
-              }
-
-            },
+              },
           ),
         ],
       ),
@@ -131,7 +119,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> implements UserList
   @override
   onUserDataChange() {
     setState(() {
-      User user = _userRepository.currentUser;
+      UserEntity user = _userRepository.currentUser;
       if (user != null) {
         _userEmail = user.email;
         _userName = user.name + " " + user.surname;

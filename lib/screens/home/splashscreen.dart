@@ -9,6 +9,8 @@ import 'package:project_teachers/services/index.dart';
 import 'package:project_teachers/screens/index.dart';
 import 'package:provider/provider.dart';
 
+import 'home.dart';
+
 
 
 class Splashscreen extends StatefulWidget {
@@ -48,7 +50,7 @@ class _SplashscreenState extends State<Splashscreen> {
         if (isInitialized) {
           _userRepository.setCurrentUser(user.uid);
           _authStatusManager.changeAuthState(AuthStatus.LOGGED_IN);
-          _appStateManager.changeAppState(AppState.TIMELINE);
+          _appStateManager.changeAppState(AppState.COACH);
         } else {
           _authStatusManager.changeAuthState(AuthStatus.INITIAL_FORM);
           _appStateManager.changeAppState(AppState.INITIAL_FORM);
@@ -65,6 +67,7 @@ class _SplashscreenState extends State<Splashscreen> {
 
   void _loginCallback() {
     _determineLoginState(_auth.currentUser);
+    _userRepository.initRestrictedData();
   }
 
   @override
@@ -74,20 +77,16 @@ class _SplashscreenState extends State<Splashscreen> {
         switch (manager.authStatus) {
           case AuthStatus.NOT_DETERMINED:
             return _buildWaitingScreen();
-            break;
-          case AuthStatus.NOT_LOGGED_IN:
+         case AuthStatus.NOT_LOGGED_IN:
             return WillPopScope(
                 onWillPop: () async => false,
                 child: Login(loginCallback: _loginCallback));
-            break;
           case AuthStatus.LOGGED_IN:
             return WillPopScope(
                   onWillPop: () async => false,
                   child: Home());
-            break;
           case AuthStatus.INITIAL_FORM:
             return WillPopScope(onWillPop: () async => false, child: InitialForm());
-            break;
           default:
             return _buildWaitingScreen();
         }

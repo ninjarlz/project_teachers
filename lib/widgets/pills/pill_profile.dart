@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_teachers/themes/index.dart';
 
-// ignore: must_be_immutable
 class PillProfileWidget extends StatefulWidget {
   final Color color;
   final String text;

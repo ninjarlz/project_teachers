@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_teachers/themes/index.dart';
 
-// ignore: must_be_immutable
 class ButtonCircledIconWidget extends StatefulWidget {
   final IconData icon;
   final Function submit;

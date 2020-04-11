@@ -1,62 +1,62 @@
 import 'package:flutter/material.dart';
-import 'package:project_teachers/entities/user_enums.dart';
-import 'package:project_teachers/repositories/user_repository.dart';
+import 'package:project_teachers/model/app_state_manager.dart';
+import 'package:project_teachers/screens/coach/coach.dart';
 import 'package:project_teachers/screens/navigation_drawer/navigation_drawer.dart';
-import 'package:project_teachers/services/index.dart';
+import 'package:project_teachers/screens/profile/profile.dart';
 import 'package:project_teachers/themes/global.dart';
+import 'package:project_teachers/translations/translations.dart';
+import 'package:provider/provider.dart';
 
-class Home extends StatefulWidget {
-
-
-  static const String TITLE = "Home";
-
-  @override
-  State<StatefulWidget> createState() => _HomeState();
-
-}
-
-class _HomeState extends State<Home> implements UserListListener {
-
-  UserRepository _userRepository;
-  String _usersInfo = "";
-
-  @override
-  void initState() {
-    super.initState();
-    _userRepository = UserRepository.instance;
-    _userRepository.userListListeners.add(this);
-    _initialUpdate();
-  }
-
-  Future<void> _initialUpdate() async {
-    Future.delayed(Duration(milliseconds: 200));
-    onUsersListChange();
-  }
-
+class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    AppState appState = Provider.of<AppStateManager>(context).appState;
+    Widget body = null;
+    Widget appBar = null;
+    Widget floatingButton = null;
+    bool extendBodyBehindAppBar = false;
+
+    switch (appState) {
+
+      case AppState.PROFILE_PAGE:
+        body = Profile();
+        appBar = AppBar(
+            title: Text(Translations.of(context).text("profile"),
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: Colors.transparent);
+        floatingButton = FloatingActionButton(
+          onPressed: null,
+          backgroundColor: ThemeGlobalColor().secondaryColor,
+          child: Icon(Icons.message),
+        );
+        extendBodyBehindAppBar = true;
+        break;
+
+      case AppState.COACH:
+        body = Coach();
+        appBar = AppBar(
+            title: Text(Coach.TITLE, style: TextStyle(color: Colors.white)),
+            backgroundColor: ThemeGlobalColor().secondaryColor);
+        break;
+
+      default:
+        body = _buildWaitingScreen();
+    }
+
     return Scaffold(
-      appBar: AppBar(title: Text(Home.TITLE, style: TextStyle(color: Colors.white)), backgroundColor: ThemeGlobalColor().secondaryColor),
-      body: Center(child: Text(_usersInfo)),
-      drawer: NavigationDrawer()
+      extendBodyBehindAppBar: extendBodyBehindAppBar,
+      appBar: appBar,
+      backgroundColor: ThemeGlobalColor().backgroundColor,
+      body: body,
+      floatingActionButton: floatingButton,
+      drawer: NavigationDrawer(),
     );
   }
 
-
-  @override
-  onUsersListChange() {
-    setState(() {
-      _usersInfo = "";
-      _userRepository.usersMap.forEach((key, user) {
-        _usersInfo += user.email + " " + (user.userType != null ? user.userType.label : "") + "\n";
-      });
-    });
+  Widget _buildWaitingScreen() {
+    return Container(
+      alignment: Alignment.center,
+      child: CircularProgressIndicator(),
+    );
   }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _userRepository.userListListeners.remove(this);
-  }
-
 }

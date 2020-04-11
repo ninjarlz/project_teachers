@@ -16,6 +16,7 @@
   "error_lastname_empty": "Lastname can not be empty",
   "error_city_empty": "City can not be empty",
   "error_school_empty": "School can not be empty",
+  "error_profession_empty": "Profession can not be empty",
   "error_password_empty": "Password can not be empty",
   "error_email_invalid": "Email is not registered or the verification email has been already sent",
   "error_email_unverified": "Email is unverified",
@@ -36,6 +37,7 @@
   "register_lastname": "Lastname",
   "register_city": "City",
   "register_school": "School",
+  "register_profession": "Profession",
   "register_create": "Create my account",
   "profile": "Profile"
 }
