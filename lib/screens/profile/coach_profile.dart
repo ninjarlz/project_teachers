@@ -6,6 +6,7 @@ import 'package:project_teachers/model/app_state_manager.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/screens/profile/profile.dart';
 import 'package:project_teachers/themes/global.dart';
+import 'package:project_teachers/translations/translations.dart';
 import 'package:provider/provider.dart';
 
 class CoachProfile extends StatefulWidget {
@@ -30,14 +31,14 @@ class CoachProfile extends StatefulWidget {
           onTap: () {
             Provider.of<AppStateManager>(context, listen: false).changeAppState(AppState.COACH);
           },
-          label: 'Back',
+          label: Translations.of(context).text("back"),
           labelStyle: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
           labelBackgroundColor: ThemeGlobalColor().secondaryColor,
         ),
         SpeedDialChild(
           child: Icon(Icons.message, color: Colors.white),
           backgroundColor: ThemeGlobalColor().secondaryColor,
-          label: 'Message',
+          label: Translations.of(context).text("message"),
           labelStyle: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
           labelBackgroundColor: ThemeGlobalColor().secondaryColor,
         )

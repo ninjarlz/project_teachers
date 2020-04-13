@@ -40,5 +40,7 @@
   "register_profession": "Profession",
   "register_create": "Create my account",
   "profile": "Profile",
-  "coach": "Coach"
+  "coach": "Coach",
+  "message": "Message",
+  "back": "Back"
 }
