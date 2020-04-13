@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:project_teachers/entities/user_enums.dart';
+import 'package:project_teachers/model/app_state_manager.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
-import 'package:project_teachers/screens/navigation_drawer/navigation_drawer.dart';
-import 'package:project_teachers/themes/global.dart';
+import 'package:provider/provider.dart';
+
 
 class Coach extends StatefulWidget {
   static const String TITLE = "Coach";
@@ -16,6 +16,7 @@ class _CoachState extends State<Coach> implements CoachPageListener {
   UserRepository _userRepository;
   ScrollController _scrollController = ScrollController();
   bool _isLoading;
+  AppStateManager _appStateManager;
 
   @override
   void initState() {
@@ -31,7 +32,11 @@ class _CoachState extends State<Coach> implements CoachPageListener {
         _loadMoreCoaches();
       }
     });
+    Future.delayed(Duration.zero,() {
+      _appStateManager = Provider.of<AppStateManager>(context, listen: false);
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +54,10 @@ class _CoachState extends State<Coach> implements CoachPageListener {
               contentPadding: EdgeInsets.all(5),
               title: Text(_userRepository.coachList[index].name + " " + _userRepository.coachList[index].surname),
               subtitle: Text(_userRepository.coachList[index].profession),
+              onTap: (){
+                _userRepository.setCurrentCoach(_userRepository.coachList[index]);
+                _appStateManager.changeAppState(AppState.COACH_PROFILE_PAGE);
+              }
             );
           },
         ),

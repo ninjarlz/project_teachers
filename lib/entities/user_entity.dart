@@ -3,6 +3,7 @@ import 'user_enums.dart';
 
 class UserEntity {
 
+  String uid;
   String name;
   String surname;
   String city;
@@ -21,6 +22,7 @@ class UserEntity {
     this.profession = profession;
     this.userType = userType;
   }
+
 
   factory UserEntity.fromJson(Map<String, dynamic> json) {
     return UserEntity(

@@ -1,66 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:project_teachers/entities/user_entity.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
-import 'package:project_teachers/screens/navigation_drawer/navigation_drawer.dart';
 import 'package:project_teachers/themes/index.dart';
 import 'package:project_teachers/widgets/index.dart';
-import 'package:project_teachers/translations/translations.dart';
 
-class Profile extends StatefulWidget {
-  static const String routeName = "/profile";
 
-  @override
-  State<StatefulWidget> createState() => _ProfileState();
-}
+abstract class ProfileState<T extends StatefulWidget> extends State<T> {
 
-class _ProfileState extends State<Profile> implements UserListener {
-  UserRepository _userRepository;
-  String _userName = "";
-  String _profilePicture = "";
-  String _backgroundPicture = "";
-  List<String> _competencies = [
+  @protected
+  UserRepository userRepository;
+  @protected
+  String userName = "";
+  @protected
+  String profilePicture = "";
+  @protected
+  String backgroundPicture = "";
+  @protected
+  List<String> competencies = [
     "Compentency 1",
     "Compentency 2",
     "Compentency 3",
     "Compentency 4",
     "Compentency 5"
   ]; // TODO: change to user competencies
-  String _profession = "";
-  String _bio =
+  @protected
+  String profession = "";
+  @protected
+  String bio =
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."; // TODO: change to user bio
-  String _city = "";
-  String _school = "";
+  @protected
+  String city = "";
+  @protected
+  String school = "";
 
   @override
   void initState() {
     super.initState();
-    _userRepository = UserRepository.instance;
-    _userRepository.userListeners.add(this);
-    onUserDataChange();
-  }
-
-  @override
-  onUserDataChange() {
-    setState(() {
-      UserEntity user = _userRepository.currentUser;
-      if (user != null) {
-        _userName = user.name + " " + user.surname;
-        _city = user.city;
-        _school = user.school;
-        _profession = user.profession;
-      } else {
-        _userName = "";
-        _city = "";
-        _school = "";
-        _profession = "";
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _userRepository.userListeners.remove(this);
+    userRepository = UserRepository.instance;
   }
 
 
@@ -99,7 +74,7 @@ class _ProfileState extends State<Profile> implements UserListener {
   Widget _buildProfileBio() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
-      child: Text(_bio,
+      child: Text(bio,
           style: ThemeGlobalText().text, textAlign: TextAlign.center),
     );
   }
@@ -107,7 +82,7 @@ class _ProfileState extends State<Profile> implements UserListener {
   Widget _buildProfileCompetencyRow() {
     List<Widget> _rowElements = List<Widget>();
     int _count = 0;
-    _competencies.forEach((competency) {
+    competencies.forEach((competency) {
       if (_count++ < 3) _rowElements.add(PillProfileWidget(text: competency));
     });
     return Row(
@@ -119,7 +94,7 @@ class _ProfileState extends State<Profile> implements UserListener {
         shrinkWrap: true,
         physics: NeverScrollableScrollPhysics(),
         padding: EdgeInsets.all(0),
-        itemCount: (_competencies.length / 3).ceil(),
+        itemCount: (competencies.length / 3).ceil(),
         itemBuilder: (context, index) {
           return _buildProfileCompetencyRow();
         });
@@ -130,13 +105,13 @@ class _ProfileState extends State<Profile> implements UserListener {
       children: <Widget>[
         SizedBox(height: MediaQuery.of(context).size.height / 3),
         _buildProfileImage(),
-        Text(_userName, style: ThemeGlobalText().titleText),
+        Text(userName, style: ThemeGlobalText().titleText),
         SizedBox(height: 5),
-        Text(_city, style: ThemeGlobalText().smallText),
+        Text(city, style: ThemeGlobalText().smallText),
         SizedBox(height: 5),
-        Text(_profession, style: ThemeGlobalText().text),
+        Text(profession, style: ThemeGlobalText().text),
         SizedBox(height: 5),
-        Text(_school, style: ThemeGlobalText().text),
+        Text(school, style: ThemeGlobalText().text),
         SizedBox(height: 10),
         _buildProfileCompetencies(),
         SizedBox(height: 10),

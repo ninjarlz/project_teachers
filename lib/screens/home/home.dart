@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:project_teachers/model/app_state_manager.dart';
 import 'package:project_teachers/screens/coach/coach.dart';
 import 'package:project_teachers/screens/navigation_drawer/navigation_drawer.dart';
-import 'package:project_teachers/screens/profile/profile.dart';
+import 'package:project_teachers/screens/profile/coach_profile.dart';
+import 'package:project_teachers/screens/profile/user_profile.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +21,7 @@ class Home extends StatelessWidget {
     switch (appState) {
 
       case AppState.PROFILE_PAGE:
-        body = Profile();
+        body = UserProfile();
         appBar = AppBar(
             title: Text(Translations.of(context).text("profile"),
                 style: TextStyle(color: Colors.white)),
@@ -35,8 +37,17 @@ class Home extends StatelessWidget {
       case AppState.COACH:
         body = Coach();
         appBar = AppBar(
-            title: Text(Coach.TITLE, style: TextStyle(color: Colors.white)),
+            title: Text(Translations.of(context).text("coach"), style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
+        break;
+
+      case AppState.COACH_PROFILE_PAGE:
+        body = CoachProfile();
+        appBar = AppBar(
+            title: Text(Translations.of(context).text("coach"), style: TextStyle(color: Colors.white)),
+            backgroundColor: Colors.transparent);
+        floatingButton = CoachProfile.buildSpeedDial(context);
+        extendBodyBehindAppBar = true;
         break;
 
       default:
@@ -59,4 +70,6 @@ class Home extends StatelessWidget {
       child: CircularProgressIndicator(),
     );
   }
+
+  
 }

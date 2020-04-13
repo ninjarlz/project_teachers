@@ -24,14 +24,21 @@ class UserRepository {
   }
 
   List<CoachPageListener> _coachPageListeners = List<CoachPageListener>();
+  List<CoachPageListener> get coachPageListeners => _coachPageListeners;
+  List<CoachListener> _coachListeners = List<CoachListener>();
+  List<CoachListener> get coachListeners => _coachListeners;
   StreamSubscription<QuerySnapshot> _coachListSub;
+  StreamSubscription<DocumentSnapshot> _coachSub;
+  DocumentReference _coachRef;
+  UserEntity _currentCoach;
+  UserEntity get currentCoach => _currentCoach;
   bool _hasMoreCoaches = true;
   bool get hasMoreCoaches => _hasMoreCoaches;
   int _coachesLimit = 10;
   int _coachesOffset = 0;
   List<UserEntity> _coachList;
   List<UserEntity> get coachList => _coachList;
-  List<CoachPageListener> get coachPageListeners => _coachPageListeners;
+
   List<UserListener> _userListeners = List<UserListener>();
   List<UserListener> get userListeners => _userListeners;
   StreamSubscription<DocumentSnapshot> _userSub;
@@ -73,7 +80,9 @@ class UserRepository {
         _hasMoreCoaches = false;
       }
       event.documents.forEach((element) {
-        _coachList.add(UserEntity.fromJson(element.data));
+        UserEntity coach = UserEntity.fromJson(element.data);
+        coach.uid = element.documentID;
+        _coachList.add(coach);
         for (CoachPageListener coachPageListener in _coachPageListeners) {
           coachPageListener.onCoachListChange();
         }
@@ -85,6 +94,30 @@ class UserRepository {
     _coachesOffset = 0;
     _hasMoreCoaches = true;
     updateCoachList();
+  }
+
+  void setCurrentCoach(UserEntity coach) {
+    if (_coachSub != null) {
+      _coachSub.cancel();
+    }
+    if (coach == null) {
+      _currentCoach = null;
+      return;
+    }
+    _currentCoach = coach;
+    _coachRef = _userListRef.document(coach.uid);
+    _coachSub = _coachRef.snapshots().listen((event) {
+      if (!event.exists) {
+        _currentCoach = null;
+      } else {
+        _currentCoach = UserEntity.fromJson(event.data);
+      }
+      _coachListeners.forEach((coachListener) {
+        coachListener.onCoachDataChange();
+      });
+    }, onError: (o) {
+      print(DB_ERROR_MSG + o.message);
+    });
   }
 
   Future<void> setInitializedCurrentUser(
@@ -101,6 +134,7 @@ class UserRepository {
             .toJson());
     setCurrentUser(userId);
   }
+
 
   void setCurrentUser(String userId) {
     if (_userSub != null) {
@@ -126,6 +160,7 @@ class UserRepository {
     _userRef = _userListRef.document(userId);
     _userSub = _userRef.snapshots().listen((event) {
       _currentUser = UserEntity.fromJson(event.data);
+      _currentUser.uid = event.documentID;
       _userListeners.forEach((userListener) {
         userListener.onUserDataChange();
       });
@@ -141,4 +176,8 @@ abstract class UserListener {
 
 abstract class CoachPageListener {
   void onCoachListChange();
+}
+
+abstract class CoachListener {
+  void onCoachDataChange();
 }
