@@ -83,9 +83,9 @@ class _CoachState extends State<Coach> implements CoachPageListener {
     if (!_userRepository.hasMoreCoaches || _isLoading) {
       return;
     }
+    _userRepository.updateCoachList();
     setState(() {
       _isLoading = true;
-      _userRepository.updateCoachList();
     });
   }
 

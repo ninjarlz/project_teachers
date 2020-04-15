@@ -2,14 +2,17 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 
 abstract class BaseAuth {
-
   FirebaseUser get currentUser;
+
+  Future<FirebaseUser> loadCurrentUser();
 
   Future<FirebaseUser> signIn(String email, String password);
 
   Future<String> signUp(String email, String password);
 
   Future<void> sendEmailVerification();
+
+  Future<void> sendResetPasswordEmail(String email);
 
   Future<void> signOut();
 
@@ -26,7 +29,9 @@ class Auth implements BaseAuth {
   FirebaseUser get currentUser => _currentUser;
 
   Auth._privateConstructor();
+
   static Auth _instance;
+
   static Auth get instance {
     if (_instance == null) {
       _instance = Auth._privateConstructor();
@@ -35,10 +40,10 @@ class Auth implements BaseAuth {
   }
 
   Future<FirebaseUser> signIn(String email, String password) async {
-      AuthResult result = await _firebaseAuth.signInWithEmailAndPassword(
-          email: email, password: password);
-      _currentUser = result.user;
-      return _currentUser;
+    AuthResult result = await _firebaseAuth.signInWithEmailAndPassword(
+        email: email, password: password);
+    _currentUser = result.user;
+    return _currentUser;
   }
 
   Future<String> signUp(String email, String password) async {
@@ -66,5 +71,16 @@ class Auth implements BaseAuth {
   Future<void> deleteUser() async {
     FirebaseUser user = await _firebaseAuth.currentUser();
     await user.delete();
+  }
+
+  @override
+  Future<void> sendResetPasswordEmail(String email) async {
+    _firebaseAuth.sendPasswordResetEmail(email: email);
+  }
+
+  @override
+  Future<FirebaseUser> loadCurrentUser() async {
+    FirebaseUser user = await _firebaseAuth.currentUser();
+    return user;
   }
 }
