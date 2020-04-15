@@ -88,6 +88,7 @@ class UserRepository {
   }
 
   void _onCoachesChange(QuerySnapshot event, int cnt) {
+    int size = _coachList != null ? _coachList.length : 0;
     _coachList = List<UserEntity>();
     if (cnt == 1) {
       _coachesOffset += _coachesLimit;
@@ -112,13 +113,17 @@ class UserRepository {
 
     Function onCoachesChangeWithCounter =
         _createFunctionCounter(_onCoachesChange, 0);
-
+    print("k");
     _coachListSub = _userListRef
-        .orderBy("surname")
         .where("userType", isEqualTo: "Coach")
-        .limit(_coachesOffset + 10)
+        .orderBy("surname")
+        .limit(_coachesOffset + _coachesLimit)
         .snapshots()
-        .listen(onCoachesChangeWithCounter);
+        .listen(onCoachesChangeWithCounter, onError: (o) {
+      {
+        print(DB_ERROR_MSG + o.message);
+      }
+    });
   }
 
   Future<void> resetCoachList() async {
