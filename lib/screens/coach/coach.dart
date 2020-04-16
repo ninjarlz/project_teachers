@@ -51,6 +51,7 @@ class _CoachState extends State<Coach> implements CoachPageListener {
           itemCount: _userRepository.coachList.length,
           itemBuilder: (context, index) {
             return ListTile(
+              leading: Icon(Icons.school),
               contentPadding: EdgeInsets.all(5),
               title: Text(_userRepository.coachList[index].name + " " + _userRepository.coachList[index].surname),
               subtitle: Text(_userRepository.coachList[index].profession),

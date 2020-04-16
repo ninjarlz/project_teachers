@@ -60,12 +60,14 @@ class _NavigationDrawerState extends State<NavigationDrawer> implements UserList
             ),
           ),
           ListTile(
+            leading: Icon(Icons.access_time),
             title: Text('Timeline'),
             onTap: () {
               Navigator.of(context).pop();
               },
           ),
           ListTile(
+            leading: Icon(Icons.person),
             title: Text('Profile page'),
             onTap: () {
               Navigator.of(context).pop();
@@ -75,6 +77,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> implements UserList
             },
           ),
           ListTile(
+            leading: Icon(Icons.school),
             title: Text('Coach'),
             onTap: () {
               Navigator.of(context).pop();
@@ -84,24 +87,28 @@ class _NavigationDrawerState extends State<NavigationDrawer> implements UserList
             },
           ),
           ListTile(
+            leading: Icon(Icons.access_alarms),
             title: Text('Events'),
             onTap: () {
               Navigator.of(context).pop();
             },
           ),
           ListTile(
+            leading: Icon(Icons.event_available),
             title: Text('Calendar'),
             onTap: () {
               Navigator.of(context).pop();
             },
           ),
           ListTile(
+            leading: Icon(Icons.people),
             title: Text('Other Experts'),
             onTap: () {
               Navigator.of(context).pop();
             },
           ),
           ListTile(
+            leading: Icon(Icons.arrow_back),
             title: Text('Log out'),
             onTap: () {
               Navigator.of(context).pop();
