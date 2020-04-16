@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:project_teachers/model/app_state_manager.dart';
 import 'package:project_teachers/screens/coach/coach.dart';
+import 'package:project_teachers/screens/edit_profile/edit_profile.dart';
 import 'package:project_teachers/screens/navigation_drawer/navigation_drawer.dart';
 import 'package:project_teachers/screens/profile/coach_profile.dart';
 import 'package:project_teachers/screens/profile/user_profile.dart';
@@ -26,11 +27,7 @@ class Home extends StatelessWidget {
             title: Text(Translations.of(context).text("profile"),
                 style: TextStyle(color: Colors.white)),
             backgroundColor: Colors.transparent);
-        floatingButton = FloatingActionButton(
-          onPressed: null,
-          backgroundColor: ThemeGlobalColor().secondaryColor,
-          child: Icon(Icons.message),
-        );
+        floatingButton = UserProfile.buildSpeedDial(context);
         extendBodyBehindAppBar = true;
         break;
 
@@ -48,6 +45,13 @@ class Home extends StatelessWidget {
             backgroundColor: Colors.transparent);
         floatingButton = CoachProfile.buildSpeedDial(context);
         extendBodyBehindAppBar = true;
+        break;
+
+      case AppState.EDIT_PROFILE:
+        body = EditProfile();
+        appBar = AppBar(
+            title: Text(Translations.of(context).text("edit_profile"), style: TextStyle(color: Colors.white)),
+            backgroundColor: ThemeGlobalColor().secondaryColor);
         break;
 
       default:

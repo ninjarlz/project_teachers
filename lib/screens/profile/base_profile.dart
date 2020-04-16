@@ -4,7 +4,7 @@ import 'package:project_teachers/themes/index.dart';
 import 'package:project_teachers/widgets/index.dart';
 
 
-abstract class ProfileState<T extends StatefulWidget> extends State<T> {
+abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
 
   @protected
   UserRepository userRepository;

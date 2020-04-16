@@ -15,7 +15,7 @@ class _CoachState extends State<Coach> implements CoachPageListener {
 
   UserRepository _userRepository;
   ScrollController _scrollController = ScrollController();
-  bool _isLoading;
+  bool _isLoading = false;
   AppStateManager _appStateManager;
 
   @override
@@ -23,7 +23,7 @@ class _CoachState extends State<Coach> implements CoachPageListener {
     super.initState();
     _userRepository = UserRepository.instance;
     _userRepository.coachPageListeners.add(this);
-    onCoachListChange();
+    _userRepository.updateCoachList();
     _scrollController.addListener(() {
       double maxScroll = _scrollController.position.maxScrollExtent;
       double currentScroll = _scrollController.position.pixels;
@@ -42,7 +42,7 @@ class _CoachState extends State<Coach> implements CoachPageListener {
   Widget build(BuildContext context) {
     return Column(children: [
       Expanded(
-        child: _userRepository.coachList.length == 0
+        child: _userRepository.coachList == null || _userRepository.coachList.length == 0
             ? Center(
           child: Text('No Data...'),
         )

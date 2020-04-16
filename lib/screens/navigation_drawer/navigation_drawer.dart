@@ -5,7 +5,7 @@ import 'package:project_teachers/model/app_state_manager.dart';
 import 'package:project_teachers/model/auth_status_manager.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/screens/home/splashscreen.dart';
-import 'package:project_teachers/screens/profile/profile.dart';
+import 'package:project_teachers/screens/profile/base_profile.dart';
 import 'package:project_teachers/services/auth.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:provider/provider.dart';

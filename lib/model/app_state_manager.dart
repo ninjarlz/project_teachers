@@ -10,6 +10,7 @@ enum AppState {
   OTHER_EXPERTS,
   LOGIN,
   INITIAL_FORM,
+  EDIT_PROFILE
 }
 
 

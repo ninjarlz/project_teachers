@@ -4,6 +4,7 @@ import 'package:project_teachers/entities/user_entity.dart';
 import 'package:project_teachers/entities/user_enums.dart';
 import 'package:project_teachers/repositories/valid_email_address_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:project_teachers/services/auth.dart';
 import 'package:synchronized/synchronized.dart';
 
 class UserRepository {
@@ -19,6 +20,7 @@ class UserRepository {
       _instance._database = Firestore.instance;
       _instance._validEmailAddressRepository =
           ValidEmailAddressRepository.instance;
+      _instance._auth = Auth.instance;
       _instance._userListRef = _instance._database.collection("Users");
     }
     return _instance;
@@ -40,7 +42,7 @@ class UserRepository {
   Lock _coachesLock = new Lock();
 
   bool get hasMoreCoaches => _hasMoreCoaches;
-  int _coachesLimit = 10;
+  int _coachesLimit = 20;
   int _coachesOffset = 0;
   List<UserEntity> _coachList;
 
@@ -60,10 +62,8 @@ class UserRepository {
   DocumentReference _userRef;
   Firestore _database;
   ValidEmailAddressRepository _validEmailAddressRepository;
+  BaseAuth _auth;
 
-  void initRestrictedData() {
-    updateCoachList();
-  }
 
   void logoutUser() {
     _currentUser = null;
@@ -74,52 +74,81 @@ class UserRepository {
     _coachList.clear();
   }
 
-  Function _createFunctionCounter(
-      void function(QuerySnapshot event, int cnt), int invokeBeforeExecution) {
-    int count = 0;
-    return (args) {
-      count++;
-      if (count <= invokeBeforeExecution) {
-        return;
-      } else {
-        return function(args, count);
-      }
-    };
-  }
-
-  void _onCoachesChange(QuerySnapshot event, int cnt) {
-    int size = _coachList != null ? _coachList.length : 0;
-    _coachList = List<UserEntity>();
-    if (cnt == 1) {
-      _coachesOffset += _coachesLimit;
-      if (event.documents.length < _coachesOffset) {
-        _hasMoreCoaches = false;
-      }
-    }
-    event.documents.forEach((element) {
-      UserEntity coach = UserEntity.fromJson(element.data);
-      coach.uid = element.documentID;
-      _coachList.add(coach);
-      for (CoachPageListener coachPageListener in _coachPageListeners) {
-        coachPageListener.onCoachListChange();
-      }
-    });
-  }
+//  Function _createFunctionCounter(
+//      void function(QuerySnapshot event, int cnt), int invokeBeforeExecution) {
+//    int count = 0;
+//    return (args) {
+//      count++;
+//      if (count <= invokeBeforeExecution) {
+//        return;
+//      } else {
+//        return function(args, count);
+//      }
+//    };
+//  }
+//
+//  void _onCoachesChange(QuerySnapshot event, int cnt) {
+//    //int size = _coachList != null ? _coachList.length : 0;
+//    _coachList = List<UserEntity>();
+//    if (cnt == 1) {
+//      _coachesOffset += _coachesLimit;
+//      if (event.documents.length < _coachesOffset) {
+//        _hasMoreCoaches = false;
+//      }
+//    }
+//    event.documents.forEach((element) {
+//      UserEntity coach = UserEntity.fromJson(element.data);
+//      coach.uid = element.documentID;
+//      _coachList.add(coach);
+//      for (CoachPageListener coachPageListener in _coachPageListeners) {
+//        coachPageListener.onCoachListChange();
+//      }
+//    });
+//  }
 
   Future<void> updateCoachList() async {
     if (_coachListSub != null) {
       _coachListSub.cancel();
+      _coachListSub = null;
     }
-
-    Function onCoachesChangeWithCounter =
-        _createFunctionCounter(_onCoachesChange, 0);
-    print("k");
+    //    Function onCoachesChangeWithCounter =
+//        _createFunctionCounter(_onCoachesChange, 0);
+//
+//    _coachListSub = _userListRef
+//        .where("userType", isEqualTo: "Coach")
+//        .orderBy("surname")
+//        .limit(_coachesOffset + _coachesLimit)
+//        .snapshots()
+//        .listen(onCoachesChangeWithCounter, onError: (o) {
+//      {
+//        print(DB_ERROR_MSG + o.message);
+//      }
+//    });
+    _coachesOffset += _coachesLimit;
     _coachListSub = _userListRef
         .where("userType", isEqualTo: "Coach")
         .orderBy("surname")
-        .limit(_coachesOffset + _coachesLimit)
+        .limit(_coachesOffset)
         .snapshots()
-        .listen(onCoachesChangeWithCounter, onError: (o) {
+        .listen((event) {
+      _coachList = List<UserEntity>();
+
+      if (event.documents.length < _coachesOffset) {
+        _hasMoreCoaches = false;
+      } else {
+        _hasMoreCoaches = true;
+      }
+      event.documents.forEach((element) {
+        UserEntity coach = UserEntity.fromJson(element.data);
+        coach.uid = element.documentID;
+        if (coach.uid != _auth.currentUser.uid) {
+          _coachList.add(coach);
+        }
+      });
+      for (CoachPageListener coachPageListener in _coachPageListeners) {
+        coachPageListener.onCoachListChange();
+      }
+    }, onError: (o) {
       {
         print(DB_ERROR_MSG + o.message);
       }
@@ -128,8 +157,12 @@ class UserRepository {
 
   Future<void> resetCoachList() async {
     _coachesOffset = 0;
+    _coachList.clear();
     _hasMoreCoaches = true;
-    updateCoachList();
+    if (_coachListSub != null) {
+      _coachListSub.cancel();
+      _coachListSub = null;
+    }
   }
 
   void setCurrentCoach(UserEntity coach) {
@@ -202,6 +235,25 @@ class UserRepository {
     }, onError: (o) {
       print(DB_ERROR_MSG + o.message);
     });
+  }
+
+  Future<void> updateUser(UserEntity user) async {
+    await _userListRef.document(user.uid).setData(user.toJson());
+  }
+
+  Future<void> updateUserFromData(
+      String userId,
+      String email,
+      String name,
+      String surname,
+      String city,
+      String school,
+      String profession,
+      UserType userType) async {
+    UserEntity userEntity =
+        UserEntity(name, surname, email, city, school, profession, userType);
+    userEntity.uid = userId;
+    await updateUser(userEntity);
   }
 }
 
