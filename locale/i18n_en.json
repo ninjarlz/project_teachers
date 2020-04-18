@@ -15,7 +15,7 @@
   "error_firstname_empty": "Firstname can not be empty",
   "error_lastname_empty": "Lastname can not be empty",
   "error_city_empty": "City can not be empty",
-  "error_school_empty": "School can not be empty",
+  "error_school": "Enter valid school name",
   "error_profession_empty": "Profession can not be empty",
   "error_password_empty": "Password can not be empty",
   "error_email_invalid": "Email is not registered or the verification email has been already sent",
@@ -48,5 +48,6 @@
   "settings" : "Settings",
   "edit" : "Edit",
   "edit_profile" : "Edit profile",
-  "save" : "Save"
+  "save" : "Save",
+  "language" : "en"
 }

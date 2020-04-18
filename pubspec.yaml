@@ -32,7 +32,8 @@ dependencies:
   provider: ^4.0.4
   flutter_speed_dial: ^1.2.5
   synchronized: ^2.2.0
-
+  flutter_google_places: ^0.2.4
+  google_maps_webservice: ^0.0.16
 
 dev_dependencies:
   flutter_test:

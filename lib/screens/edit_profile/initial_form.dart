@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:project_teachers/model/app_state_manager.dart';
-import 'package:project_teachers/model/auth_status_manager.dart';
+import 'package:project_teachers/services/app_state_manager.dart';
+import 'package:project_teachers/services/auth_status_manager.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/widgets/animation/animation_circular_progress.dart';
 import 'base_edit_form.dart';

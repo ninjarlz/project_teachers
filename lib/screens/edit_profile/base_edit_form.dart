@@ -1,15 +1,20 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:google_maps_webservice/places.dart';
 import 'package:project_teachers/entities/user_enums.dart';
-import 'package:project_teachers/model/app_state_manager.dart';
-import 'package:project_teachers/model/auth_status_manager.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/repositories/valid_email_address_repository.dart';
+import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:project_teachers/services/auth.dart';
+import 'package:project_teachers/services/auth_status_manager.dart';
 import 'package:project_teachers/translations/translations.dart';
+import 'package:project_teachers/utils/constants/constants.dart';
 import 'package:project_teachers/widgets/button/button_primary.dart';
 import 'package:project_teachers/widgets/button/button_secondary.dart';
 import 'package:project_teachers/widgets/input/input_with_icon.dart';
+import 'package:project_teachers/widgets/input/places_input_with_icon.dart';
 import 'package:project_teachers/widgets/text/text_error.dart';
 import 'package:provider/provider.dart';
 
@@ -46,6 +51,8 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
   String imagePath;
   @protected
   String submitLabel;
+  @protected
+  GoogleMapsPlaces places = GoogleMapsPlaces(apiKey: Constants.API_KEY);
 
   @override
   void initState() {
@@ -148,12 +155,13 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
                 icon: Icons.location_city,
                 type: TextInputType.text,
                 error: Translations.of(context).text("error_city_empty")),
-            InputWithIconWidget(
+            PlacesInputWithIconWidget(
                 ctrl: school,
                 hint: Translations.of(context).text("register_school"),
                 icon: Icons.school,
-                type: TextInputType.text,
-                error: Translations.of(context).text("error_school_empty")),
+                error: Translations.of(context).text("error_school"),
+                placesTypes: ["school", "university"],
+                language: Translations.of(context).text("language")),
             InputWithIconWidget(
                 ctrl: profession,
                 hint: Translations.of(context).text("register_profession"),

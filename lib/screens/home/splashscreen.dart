@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:project_teachers/model/app_state_manager.dart';
-import 'package:project_teachers/model/auth_status_manager.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/repositories/valid_email_address_repository.dart';
 import 'package:project_teachers/screens/edit_profile/initial_form.dart';
+import 'package:project_teachers/services/app_state_manager.dart';
+import 'package:project_teachers/services/auth_status_manager.dart';
 import 'package:project_teachers/services/index.dart';
 import 'package:project_teachers/screens/index.dart';
 import 'package:provider/provider.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:project_teachers/entities/user_entity.dart';
-import 'package:project_teachers/model/app_state_manager.dart';
+import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:project_teachers/widgets/animation/animation_circular_progress.dart';
 
 import 'base_edit_form.dart';

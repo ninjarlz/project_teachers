@@ -8,6 +8,7 @@ class UserEntity {
   String surname;
   String city;
   String school;
+  //Map<String, dynamic>
   String email;
   String profession;
   UserType userType;

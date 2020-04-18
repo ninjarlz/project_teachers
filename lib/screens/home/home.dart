@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:project_teachers/model/app_state_manager.dart';
 import 'package:project_teachers/screens/coach/coach.dart';
 import 'package:project_teachers/screens/edit_profile/edit_profile.dart';
 import 'package:project_teachers/screens/navigation_drawer/navigation_drawer.dart';
 import 'package:project_teachers/screens/profile/coach_profile.dart';
 import 'package:project_teachers/screens/profile/user_profile.dart';
+import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:provider/provider.dart';

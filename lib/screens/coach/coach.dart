@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:project_teachers/model/app_state_manager.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
+import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:provider/provider.dart';
 
 

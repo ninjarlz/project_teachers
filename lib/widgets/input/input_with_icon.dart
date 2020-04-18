@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/themes/index.dart';
+import 'package:project_teachers/widgets/input/base_input_with_icon.dart';
 
 class InputWithIconWidget extends StatefulWidget {
   final TextEditingController ctrl;
@@ -16,18 +17,7 @@ class InputWithIconWidget extends StatefulWidget {
 
 }
 
-class _InputWithIconWidgetState extends State<InputWithIconWidget> {
-  InputDecoration setDecoration(String hint, [Icon icon]) {
-    return InputDecoration(
-      labelText: hint,
-      prefixIcon: icon,
-      border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(6.0),
-          gapPadding: 3,
-          borderSide: BorderSide(color: ThemeGlobalColor().textColor, style: BorderStyle.solid, width: 10.0)),
-      contentPadding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-    );
-  }
+class  _InputWithIconWidgetState extends BaseInputWithIconWidgetState<InputWithIconWidget> {
 
   @override
   Widget build(BuildContext context) {
