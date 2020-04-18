@@ -44,6 +44,8 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
   @protected
   TextEditingController profession = TextEditingController();
   @protected
+  TextEditingController bio = TextEditingController();
+  @protected
   AuthStatusManager authStatusManager;
   @protected
   AppStateManager appStateManager;
@@ -142,19 +144,22 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
                 hint: Translations.of(context).text("register_firstname"),
                 icon: Icons.person,
                 type: TextInputType.text,
-                error: Translations.of(context).text("error_firstname_empty")),
+                error: Translations.of(context).text("error_firstname_empty"),
+                maxLines: 1),
             InputWithIconWidget(
                 ctrl: surname,
                 hint: Translations.of(context).text("register_lastname"),
                 icon: Icons.person,
                 type: TextInputType.text,
-                error: Translations.of(context).text("error_lastname_empty")),
+                error: Translations.of(context).text("error_lastname_empty"),
+                maxLines: 1),
             InputWithIconWidget(
                 ctrl: city,
                 hint: Translations.of(context).text("register_city"),
                 icon: Icons.location_city,
                 type: TextInputType.text,
-                error: Translations.of(context).text("error_city_empty")),
+                error: Translations.of(context).text("error_city_empty"),
+                maxLines: 1),
             PlacesInputWithIconWidget(
                 ctrl: school,
                 hint: Translations.of(context).text("register_school"),
@@ -167,7 +172,14 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
                 hint: Translations.of(context).text("register_profession"),
                 icon: Icons.work,
                 type: TextInputType.text,
-                error: Translations.of(context).text("error_profession_empty")),
+                error: Translations.of(context).text("error_profession_empty"),
+                maxLines: 1),
+            InputWithIconWidget(
+                ctrl: bio,
+                hint: Translations.of(context).text("register_bio"),
+                icon: Icons.edit,
+                type: TextInputType.multiline,
+                error: Translations.of(context).text("error_bio_empty")),
             Padding(
               padding: EdgeInsets.symmetric(vertical: 10),
               child: Center(child: TextErrorWidget(text: errorMessage)),

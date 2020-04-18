@@ -4,13 +4,21 @@ import 'package:project_teachers/entities/user_enums.dart';
 import 'expert_entity.dart';
 
 class CoachEntity extends ExpertEntity {
-
   CoachType coachType;
 
-  CoachEntity(String name, String surname, String city, String school, String email, String profession,
-      List<SchoolSubject> schoolSubjects, List<Specialization> specializations,
-      CoachType coachType) : super(
-      name, surname, city, school, email, profession, schoolSubjects, specializations) {
+  CoachEntity(
+      String name,
+      String surname,
+      String email,
+      String city,
+      String school,
+      String profession,
+      String bio,
+      List<SchoolSubject> schoolSubjects,
+      List<Specialization> specializations,
+      CoachType coachType)
+      : super(name, surname, email, city, school, profession, bio,
+            schoolSubjects, specializations) {
     userType = UserType.COACH;
     this.coachType = coachType;
   }
@@ -23,10 +31,10 @@ class CoachEntity extends ExpertEntity {
         json["city"],
         json["school"],
         json["profession"],
+        json["bio"],
         ExpertEntity.subjectsListFromSnapshot(json),
         ExpertEntity.specializationListFromSnapshot(json),
-        json["coachType"]
-    );
+        json["coachType"]);
   }
 
   factory CoachEntity.fromSnapshot(DocumentSnapshot documentSnapshot) {
@@ -37,10 +45,10 @@ class CoachEntity extends ExpertEntity {
         documentSnapshot.data["city"],
         documentSnapshot.data["school"],
         documentSnapshot.data["profession"],
+        documentSnapshot.data["bio"],
         ExpertEntity.subjectsListFromSnapshot(documentSnapshot.data),
         ExpertEntity.specializationListFromSnapshot(documentSnapshot.data),
-        CoachTypeExtension.getValue(documentSnapshot.data["coachType"])
-    );
+        CoachTypeExtension.getValue(documentSnapshot.data["coachType"]));
   }
 
   @override
@@ -48,15 +56,15 @@ class CoachEntity extends ExpertEntity {
     return {
       "name": name,
       "surname": surname,
-      "city" : city,
-      "school" : school,
+      "city": city,
+      "school": school,
       "email": email,
       "profession": profession,
+      "bio": bio,
       "userType": userType.label,
       "schoolSubjects": ExpertEntity.getSubjectsLabels(schoolSubjects),
       "specializations": ExpertEntity.getSpecializationsLabels(specializations),
       "coach": coachType.label
     };
   }
-
 }

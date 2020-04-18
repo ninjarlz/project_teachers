@@ -25,8 +25,7 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
   @protected
   String profession = "";
   @protected
-  String bio =
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."; // TODO: change to user bio
+  String bio = "";
   @protected
   String city = "";
   @protected

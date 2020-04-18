@@ -15,13 +15,14 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
   @override
   void initState() {
     super.initState();
-    submitLabel = "save";
+    submitLabel = "global_save";
     UserEntity currUser = userRepository.currentUser;
     name.text = currUser.name;
     surname.text = currUser.surname;
     city.text = currUser.city;
     school.text = currUser.school;
     profession.text = currUser.profession;
+    bio.text = currUser.bio;
   }
 
   @override
@@ -53,6 +54,7 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
         city.text,
         school.text,
         profession.text,
+        bio.text,
         userRepository.currentUser.userType);
     appStateManager.changeAppState(AppState.PROFILE_PAGE);
   }

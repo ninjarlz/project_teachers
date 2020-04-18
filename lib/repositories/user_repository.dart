@@ -64,7 +64,6 @@ class UserRepository {
   ValidEmailAddressRepository _validEmailAddressRepository;
   BaseAuth _auth;
 
-
   void logoutUser() {
     _currentUser = null;
     if (_userSub != null) {
@@ -196,11 +195,12 @@ class UserRepository {
       String surname,
       String city,
       String school,
-      String profession) async {
+      String profession,
+      String bio) async {
     UserType userType = await _validEmailAddressRepository.getUserType(email);
-    await _userListRef.document(userId).setData(
-        UserEntity(name, surname, email, city, school, profession, userType)
-            .toJson());
+    await _userListRef.document(userId).setData(UserEntity(
+            name, surname, email, city, school, profession, bio, userType)
+        .toJson());
     setCurrentUser(userId);
   }
 
@@ -249,9 +249,10 @@ class UserRepository {
       String city,
       String school,
       String profession,
+      String bio,
       UserType userType) async {
-    UserEntity userEntity =
-        UserEntity(name, surname, email, city, school, profession, userType);
+    UserEntity userEntity = UserEntity(
+        name, surname, email, city, school, profession, bio, userType);
     userEntity.uid = userId;
     await updateUser(userEntity);
   }

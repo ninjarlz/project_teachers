@@ -41,8 +41,15 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
   Future<void> onSubmit() async {
     String email = auth.currentUser.email;
     await validEmailAddressRepository.markAddressAsInitialized(email);
-    await userRepository.setInitializedCurrentUser(auth.currentUser.uid, email,
-        name.text, surname.text, city.text, school.text, profession.text);
+    await userRepository.setInitializedCurrentUser(
+        auth.currentUser.uid,
+        email,
+        name.text,
+        surname.text,
+        city.text,
+        school.text,
+        profession.text,
+        bio.text);
     authStatusManager.changeAuthState(AuthStatus.LOGGED_IN);
     appStateManager.changeAppState(AppState.COACH);
   }

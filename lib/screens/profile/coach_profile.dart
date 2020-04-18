@@ -31,7 +31,7 @@ class CoachProfile extends StatefulWidget {
           onTap: () {
             Provider.of<AppStateManager>(context, listen: false).changeAppState(AppState.COACH);
           },
-          label: Translations.of(context).text("back"),
+          label: Translations.of(context).text("global_back"),
           labelStyle: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
           labelBackgroundColor: ThemeGlobalColor().secondaryColor,
         ),
@@ -69,8 +69,9 @@ class _CoachProfileState extends BaseProfileState<CoachProfile> implements Coach
       setState(() {
         userName = coach.name + " " + coach.surname;
         city = coach.city;
-        school = coach.school;
+        school = coach.school + " | Coach";
         profession = coach.profession;
+        bio = coach.bio;
       });
     } else {
       _appStateManager.changeAppState(AppState.COACH);

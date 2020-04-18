@@ -45,6 +45,7 @@ class PlacesInputWithIconWidgetState
         mode: Mode.overlay,
         language: widget.language,
         types: ["establishment"],
+        hint: Translations.of(context).text("global_search"),
         components: [
           Component(Component.country, "nl"),
           Component(Component.country, "pl")

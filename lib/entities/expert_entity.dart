@@ -3,17 +3,24 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'user_enums.dart';
 import 'user_entity.dart';
 
-
 class ExpertEntity extends UserEntity {
-
   List<SchoolSubject> schoolSubjects;
   List<Specialization> specializations;
 
-  ExpertEntity(String name, String surname, String city, String school, String email, String profession,
-      List<SchoolSubject> schoolSubjects, List<Specialization> specializations) : super(
-      name, surname, city, school, email, profession, UserType.EXPERT) {
-      this.schoolSubjects = schoolSubjects;
-      this.specializations = specializations;
+  ExpertEntity(
+      String name,
+      String surname,
+      String email,
+      String city,
+      String school,
+      String profession,
+      String bio,
+      List<SchoolSubject> schoolSubjects,
+      List<Specialization> specializations)
+      : super(name, surname, email, city, school, profession, bio,
+            UserType.EXPERT) {
+    this.schoolSubjects = schoolSubjects;
+    this.specializations = specializations;
   }
 
   factory ExpertEntity.fromJson(Map<dynamic, dynamic> json) {
@@ -24,9 +31,9 @@ class ExpertEntity extends UserEntity {
         json["city"],
         json["school"],
         json["profession"],
-      subjectsListFromSnapshot(json),
-      specializationListFromSnapshot(json)
-    );
+        json["bio"],
+        subjectsListFromSnapshot(json),
+        specializationListFromSnapshot(json));
   }
 
   factory ExpertEntity.fromSnapshot(DocumentSnapshot documentSnapshot) {
@@ -37,9 +44,9 @@ class ExpertEntity extends UserEntity {
         documentSnapshot.data["city"],
         documentSnapshot.data["school"],
         documentSnapshot.data["profession"],
+        documentSnapshot.data["bio"],
         subjectsListFromSnapshot(documentSnapshot.data),
-        specializationListFromSnapshot(documentSnapshot.data)
-    );
+        specializationListFromSnapshot(documentSnapshot.data));
   }
 
   @override
@@ -47,17 +54,19 @@ class ExpertEntity extends UserEntity {
     return {
       "name": name,
       "surname": surname,
-      "city" : city,
-      "school" : school,
+      "city": city,
+      "school": school,
       "email": email,
       "profession": profession,
+      "bio": bio,
       "userType": userType.label,
       "schoolSubjects": getSubjectsLabels(schoolSubjects),
       "specializations": getSpecializationsLabels(specializations)
     };
   }
 
-  static List<String> getSpecializationsLabels(List<Specialization> specializations) {
+  static List<String> getSpecializationsLabels(
+      List<Specialization> specializations) {
     List<String> specializationsLabels = List<String>();
     for (Specialization specialization in specializations) {
       specializationsLabels.add(specialization.label);
@@ -73,8 +82,8 @@ class ExpertEntity extends UserEntity {
     return subjectsLabels;
   }
 
-
-  static List<Specialization> specializationListFromSnapshot(Map<dynamic, dynamic> snapshotMap) {
+  static List<Specialization> specializationListFromSnapshot(
+      Map<dynamic, dynamic> snapshotMap) {
     List<Specialization> specializations = null;
     if (snapshotMap.containsKey("specializations")) {
       List<String> specializationLabels = new List<String>();
@@ -87,7 +96,8 @@ class ExpertEntity extends UserEntity {
     return specializations;
   }
 
-  static List<SchoolSubject> subjectsListFromSnapshot(Map<dynamic, dynamic> snapshotMap) {
+  static List<SchoolSubject> subjectsListFromSnapshot(
+      Map<dynamic, dynamic> snapshotMap) {
     List<SchoolSubject> subjects = null;
     if (snapshotMap.containsKey("schoolSubjects")) {
       List<String> subjectsLabels = new List<String>();
