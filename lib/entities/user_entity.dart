@@ -12,10 +12,21 @@ class UserEntity {
   String email;
   String profession;
   String bio;
+  String profileImageName;
+  String backgroundImageName;
   UserType userType;
 
-  UserEntity(String name, String surname, String email, String city,
-      String school, String profession, String bio, UserType userType) {
+  UserEntity(
+      String name,
+      String surname,
+      String email,
+      String city,
+      String school,
+      String profession,
+      String bio,
+      String profileImageName,
+      String backgroundImageName,
+      UserType userType) {
     this.name = name;
     this.surname = surname;
     this.school = school;
@@ -23,6 +34,8 @@ class UserEntity {
     this.email = email;
     this.profession = profession;
     this.bio = bio;
+    this.profileImageName = profileImageName;
+    this.backgroundImageName = backgroundImageName;
     this.userType = userType;
   }
 
@@ -35,6 +48,8 @@ class UserEntity {
         json["school"],
         json["profession"],
         json["bio"],
+        json["profileImageName"],
+        json["backgroundImageName"],
         UserTypeExtension.getValue(json["userType"]));
   }
 
@@ -47,6 +62,8 @@ class UserEntity {
         documentSnapshot.data["school"],
         documentSnapshot.data["profession"],
         documentSnapshot.data["bio"],
+        documentSnapshot.data["profileImageName"],
+        documentSnapshot.data["backgroundImageName"],
         UserTypeExtension.getValue(documentSnapshot.data["userType"]));
   }
 
@@ -59,6 +76,8 @@ class UserEntity {
       "email": email,
       "profession": profession,
       "bio": bio,
+      "profileImageName" : profileImageName,
+      "backgroundImageName" : backgroundImageName,
       "userType": userType.label
     };
   }

@@ -50,5 +50,7 @@
   "settings" : "Settings",
   "edit" : "Edit",
   "edit_profile" : "Edit profile",
-  "language" : "en"
+  "language" : "en",
+  "profile_picture" : "Profile picture",
+  "background_picture" : "Background picture"
 }

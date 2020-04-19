@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'package:project_teachers/entities/coach_entity.dart';
 import 'package:project_teachers/entities/user_entity.dart';
 import 'package:project_teachers/entities/user_enums.dart';
+import 'package:project_teachers/repositories/storage_repository.dart';
 import 'package:project_teachers/repositories/valid_email_address_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project_teachers/services/auth.dart';
@@ -21,6 +21,7 @@ class UserRepository {
       _instance._validEmailAddressRepository =
           ValidEmailAddressRepository.instance;
       _instance._auth = Auth.instance;
+      _instance._storageRepository = StorageRepository.instance;
       _instance._userListRef = _instance._database.collection("Users");
     }
     return _instance;
@@ -63,6 +64,7 @@ class UserRepository {
   Firestore _database;
   ValidEmailAddressRepository _validEmailAddressRepository;
   BaseAuth _auth;
+  StorageRepository _storageRepository;
 
   void logoutUser() {
     _currentUser = null;
@@ -71,6 +73,7 @@ class UserRepository {
     }
     _userListeners.clear();
     _coachList.clear();
+    _storageRepository.logoutUser();
   }
 
 //  Function _createFunctionCounter(
@@ -104,6 +107,32 @@ class UserRepository {
 //      }
 //    });
 //  }
+
+
+    Function _createFunctionCounterWithDocumentSnapshot(
+      void function(DocumentSnapshot event, int cnt), int invokeBeforeExecution) {
+    int count = 0;
+    return (args) {
+      count++;
+      if (count <= invokeBeforeExecution) {
+        return;
+      } else {
+        return function(args, count);
+      }
+    };
+  }
+
+  void _onUserDataChange(DocumentSnapshot event, int cnt) {
+    _currentUser = UserEntity.fromJson(event.data);
+    _currentUser.uid = event.documentID;
+    if (cnt == 1) {
+      _storageRepository.getUserProfileImage();
+      _storageRepository.getUserBackgroundImage();
+    }
+    _userListeners.forEach((userListener) {
+      userListener.onUserDataChange();
+    });
+  }
 
   Future<void> updateCoachList() async {
     if (_coachListSub != null) {
@@ -164,6 +193,22 @@ class UserRepository {
     }
   }
 
+  void _onCoachDataChange(DocumentSnapshot event, int cnt) {
+    if (!event.exists) {
+      _currentCoach = null;
+    } else {
+      _currentCoach = UserEntity.fromJson(event.data);
+      _currentCoach.uid = event.documentID;
+      if (cnt == 1) {
+        _storageRepository.getCoachBackgroundImage(_currentCoach);
+        _storageRepository.getCoachProfileImage(_currentCoach);
+      }
+    }
+    _coachListeners.forEach((coachListener) {
+      coachListener.onCoachDataChange();
+    });
+  }
+
   void setCurrentCoach(UserEntity coach) {
     if (_coachSub != null) {
       _coachSub.cancel();
@@ -174,17 +219,11 @@ class UserRepository {
     }
     _currentCoach = coach;
     _coachRef = _userListRef.document(coach.uid);
-    _coachSub = _coachRef.snapshots().listen((event) {
-      if (!event.exists) {
-        _currentCoach = null;
-      } else {
-        _currentCoach = UserEntity.fromJson(event.data);
-      }
-      _coachListeners.forEach((coachListener) {
-        coachListener.onCoachDataChange();
-      });
-    }, onError: (o) {
-      print(DB_ERROR_MSG + o.message);
+    Function onCoachDataChangeWithCounter =
+    _createFunctionCounterWithDocumentSnapshot(_onCoachDataChange, 0);
+    _coachSub = _coachRef.snapshots().listen(onCoachDataChangeWithCounter);
+    _coachSub.onError((error) {
+      print(DB_ERROR_MSG + error.message);
     });
   }
 
@@ -198,8 +237,8 @@ class UserRepository {
       String profession,
       String bio) async {
     UserType userType = await _validEmailAddressRepository.getUserType(email);
-    await _userListRef.document(userId).setData(UserEntity(
-            name, surname, email, city, school, profession, bio, userType)
+    await _userListRef.document(userId).setData(UserEntity(name, surname, email,
+            city, school, profession, bio, null, null, userType)
         .toJson());
     setCurrentUser(userId);
   }
@@ -226,14 +265,11 @@ class UserRepository {
 //            });
 
     _userRef = _userListRef.document(userId);
-    _userSub = _userRef.snapshots().listen((event) {
-      _currentUser = UserEntity.fromJson(event.data);
-      _currentUser.uid = event.documentID;
-      _userListeners.forEach((userListener) {
-        userListener.onUserDataChange();
-      });
-    }, onError: (o) {
-      print(DB_ERROR_MSG + o.message);
+    Function onUserDataChangeWithCounter =
+        _createFunctionCounterWithDocumentSnapshot(_onUserDataChange, 0);
+    _userSub = _userRef.snapshots().listen(onUserDataChangeWithCounter);
+    _userSub.onError((error) {
+      print(DB_ERROR_MSG + error.message);
     });
   }
 
@@ -251,8 +287,10 @@ class UserRepository {
       String profession,
       String bio,
       UserType userType) async {
-    UserEntity userEntity = UserEntity(
-        name, surname, email, city, school, profession, bio, userType);
+    String profileImageName = _currentUser.profileImageName;
+    String backgroundImageName = _currentUser.backgroundImageName;
+    UserEntity userEntity = UserEntity(name, surname, email, city, school,
+        profession, bio, profileImageName, backgroundImageName, userType);
     userEntity.uid = userId;
     await updateUser(userEntity);
   }

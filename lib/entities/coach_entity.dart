@@ -14,11 +14,23 @@ class CoachEntity extends ExpertEntity {
       String school,
       String profession,
       String bio,
+      String profileImageName,
+      String backgroundImageName,
       List<SchoolSubject> schoolSubjects,
       List<Specialization> specializations,
       CoachType coachType)
-      : super(name, surname, email, city, school, profession, bio,
-            schoolSubjects, specializations) {
+      : super(
+            name,
+            surname,
+            email,
+            city,
+            school,
+            profession,
+            bio,
+            profileImageName,
+            backgroundImageName,
+            schoolSubjects,
+            specializations) {
     userType = UserType.COACH;
     this.coachType = coachType;
   }
@@ -32,9 +44,11 @@ class CoachEntity extends ExpertEntity {
         json["school"],
         json["profession"],
         json["bio"],
+        json["profileImageName"],
+        json["backgroundImageName"],
         ExpertEntity.subjectsListFromSnapshot(json),
         ExpertEntity.specializationListFromSnapshot(json),
-        json["coachType"]);
+        CoachTypeExtension.getValue(json["coachType"]));
   }
 
   factory CoachEntity.fromSnapshot(DocumentSnapshot documentSnapshot) {
@@ -46,6 +60,8 @@ class CoachEntity extends ExpertEntity {
         documentSnapshot.data["school"],
         documentSnapshot.data["profession"],
         documentSnapshot.data["bio"],
+        documentSnapshot.data["profileImageName"],
+        documentSnapshot.data["backgroundImageName"],
         ExpertEntity.subjectsListFromSnapshot(documentSnapshot.data),
         ExpertEntity.specializationListFromSnapshot(documentSnapshot.data),
         CoachTypeExtension.getValue(documentSnapshot.data["coachType"]));
@@ -61,6 +77,8 @@ class CoachEntity extends ExpertEntity {
       "email": email,
       "profession": profession,
       "bio": bio,
+      "profileImageName" : profileImageName,
+      "backgroundImageName" : backgroundImageName,
       "userType": userType.label,
       "schoolSubjects": ExpertEntity.getSubjectsLabels(schoolSubjects),
       "specializations": ExpertEntity.getSpecializationsLabels(specializations),

@@ -159,7 +159,7 @@ class _LoginState extends State<Login> {
     switch (_currentLoginState) {
       case LoginState.FORGOT_PASSWORD_FORM:
         firstButtonTxt = Translations.of(context).text("reset_email");
-        secondButtonTxt = Translations.of(context).text("back");
+        secondButtonTxt = Translations.of(context).text("global_back");
         onSecondButton = () { _setFormMode(LoginState.LOGIN_FORM); };
         break;
       case LoginState.REGISTER_FORM:

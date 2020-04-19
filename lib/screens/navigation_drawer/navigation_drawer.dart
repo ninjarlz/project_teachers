@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_teachers/entities/user_entity.dart';
+import 'package:project_teachers/repositories/storage_repository.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:project_teachers/services/auth.dart';
@@ -8,32 +9,45 @@ import 'package:project_teachers/services/auth_status_manager.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:provider/provider.dart';
 
-
 class NavigationDrawer extends StatefulWidget {
-
   @override
   State<StatefulWidget> createState() => _NavigationDrawerState();
 }
 
-class _NavigationDrawerState extends State<NavigationDrawer> implements UserListener {
-
+class _NavigationDrawerState extends State<NavigationDrawer>
+    implements UserListener, UserProfileImageListener {
   String _userName = "";
   String _userEmail = "";
   UserRepository _userRepository;
   BaseAuth _auth;
   AppStateManager _appStateManager;
   AuthStatusManager _authStatusManager;
+  StorageRepository _storageRepository;
+  Widget _profileImage;
 
   @override
   void initState() {
     super.initState();
     _userRepository = UserRepository.instance;
     _auth = Auth.instance;
+    _storageRepository = StorageRepository.instance;
     _userRepository.userListeners.add(this);
+    _storageRepository.userProfileImageListeners.add(this);
     onUserDataChange();
+    _profileImage = CircleAvatar(
+      backgroundColor: Colors.white,
+      child: _userName != ""
+          ? Text(
+              _userName[0].toUpperCase(),
+              style: TextStyle(fontSize: 40.0),
+            )
+          : null,
+    );
+    onUserProfileImageChange();
     Future.delayed(Duration.zero, () {
       _appStateManager = Provider.of<AppStateManager>(context, listen: false);
-      _authStatusManager = Provider.of<AuthStatusManager>(context, listen: false);
+      _authStatusManager =
+          Provider.of<AuthStatusManager>(context, listen: false);
     });
   }
 
@@ -46,13 +60,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> implements UserList
           UserAccountsDrawerHeader(
             accountEmail: Text(_userEmail),
             accountName: Text(_userName),
-            currentAccountPicture: CircleAvatar(
-              backgroundColor: Colors.white,
-              child: _userName != "" ? Text(
-                _userName[0].toUpperCase(),
-                style: TextStyle(fontSize: 40.0),
-              ) : null,
-            ),
+            currentAccountPicture: _profileImage,
             decoration: BoxDecoration(
               color: ThemeGlobalColor().secondaryColor,
             ),
@@ -62,7 +70,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> implements UserList
             title: Text('Timeline'),
             onTap: () {
               Navigator.of(context).pop();
-              },
+            },
           ),
           ListTile(
             leading: Icon(Icons.person),
@@ -114,7 +122,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> implements UserList
               _userRepository.logoutUser();
               _authStatusManager.changeAuthState(AuthStatus.NOT_LOGGED_IN);
               _appStateManager.changeAppState(AppState.LOGIN);
-              },
+            },
           ),
         ],
       ),
@@ -139,6 +147,15 @@ class _NavigationDrawerState extends State<NavigationDrawer> implements UserList
   void dispose() {
     super.dispose();
     _userRepository.userListeners.remove(this);
+    _storageRepository.userProfileImageListeners.remove(this);
   }
 
+  @override
+  void onUserProfileImageChange() {
+    setState(() {
+      if (_storageRepository.userProfileImage != null) {
+        _profileImage = ClipOval(child: _storageRepository.userProfileImage);
+      }
+    });
+  }
 }

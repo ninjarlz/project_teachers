@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:project_teachers/repositories/storage_repository.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/themes/index.dart';
 import 'package:project_teachers/widgets/index.dart';
 
-
 abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
-
   @protected
   UserRepository userRepository;
+  @protected
+  StorageRepository storageRepository;
   @protected
   String userName = "";
   @protected
@@ -30,25 +31,33 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
   String city = "";
   @protected
   String school = "";
+  @protected
+  Image profileImage;
+  @protected
+  Image backgroundImage;
 
   @override
   void initState() {
     super.initState();
     userRepository = UserRepository.instance;
+    storageRepository = StorageRepository.instance;
+    backgroundImage = Image.asset(
+      "assets/img/default_background.jpg",
+      fit: BoxFit.cover,
+      alignment: Alignment.bottomCenter,
+    );
+    profileImage = Image.asset(
+      "assets/img/default_profile.png",
+      fit: BoxFit.cover,
+      alignment: Alignment.bottomCenter,
+    );
   }
-
 
   Widget _buildBackgroundImage() {
     return Container(
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height / 2,
-      child: Image.asset(
-        // TODO: change to user background if not null
-        "assets/img/default_background.jpg",
-        fit: BoxFit.cover,
-        alignment: Alignment.bottomCenter,
-      ),
-    );
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height / 2,
+        child: backgroundImage);
   }
 
   Widget _buildProfileImage() {
@@ -57,12 +66,7 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
       height: MediaQuery.of(context).size.width / 2,
       margin: EdgeInsets.only(bottom: 10),
       child: Material(
-        child: Image.asset(
-          // TODO: change to user picture if not null
-          "assets/img/default_profile.png",
-          fit: BoxFit.cover,
-          alignment: Alignment.bottomCenter,
-        ),
+        child: profileImage,
         elevation: 4.0,
         shape: CircleBorder(),
         clipBehavior: Clip.antiAlias,
@@ -73,8 +77,8 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
   Widget _buildProfileBio() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
-      child: Text(bio,
-          style: ThemeGlobalText().text, textAlign: TextAlign.center),
+      child:
+          Text(bio, style: ThemeGlobalText().text, textAlign: TextAlign.center),
     );
   }
 

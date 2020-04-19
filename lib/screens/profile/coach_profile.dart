@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:project_teachers/entities/user_entity.dart';
+import 'package:project_teachers/repositories/storage_repository.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/screens/profile/base_profile.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
@@ -10,7 +11,6 @@ import 'package:project_teachers/translations/translations.dart';
 import 'package:provider/provider.dart';
 
 class CoachProfile extends StatefulWidget {
-
   @override
   State<StatefulWidget> createState() => _CoachProfileState();
 
@@ -29,17 +29,20 @@ class CoachProfile extends StatefulWidget {
           child: Icon(Icons.arrow_back),
           backgroundColor: ThemeGlobalColor().secondaryColor,
           onTap: () {
-            Provider.of<AppStateManager>(context, listen: false).changeAppState(AppState.COACH);
+            Provider.of<AppStateManager>(context, listen: false)
+                .changeAppState(AppState.COACH);
           },
           label: Translations.of(context).text("global_back"),
-          labelStyle: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
+          labelStyle:
+              TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
           labelBackgroundColor: ThemeGlobalColor().secondaryColor,
         ),
         SpeedDialChild(
           child: Icon(Icons.message, color: Colors.white),
           backgroundColor: ThemeGlobalColor().secondaryColor,
           label: Translations.of(context).text("message"),
-          labelStyle: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
+          labelStyle:
+              TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
           labelBackgroundColor: ThemeGlobalColor().secondaryColor,
         )
       ],
@@ -47,9 +50,11 @@ class CoachProfile extends StatefulWidget {
   }
 }
 
-class _CoachProfileState extends BaseProfileState<CoachProfile> implements CoachListener {
-
-
+class _CoachProfileState extends BaseProfileState<CoachProfile>
+    implements
+        CoachListener,
+        CoachProfileImageListener,
+        CoachBackgroundImageListener {
   AppStateManager _appStateManager;
 
   @override
@@ -59,6 +64,10 @@ class _CoachProfileState extends BaseProfileState<CoachProfile> implements Coach
     Future.delayed(Duration.zero, () {
       _appStateManager = Provider.of<AppStateManager>(context, listen: false);
       onCoachDataChange();
+      storageRepository.coachBackgroundImageListeners.add(this);
+      storageRepository.coachProfileImageListeners.add(this);
+      onCoachBackgroundImageChange();
+      onCoachProfileImageChange();
     });
   }
 
@@ -82,5 +91,24 @@ class _CoachProfileState extends BaseProfileState<CoachProfile> implements Coach
   void dispose() {
     super.dispose();
     userRepository.coachListeners.remove(this);
+    storageRepository.disposeCoachImages();
+  }
+
+  @override
+  void onCoachBackgroundImageChange() {
+    if (storageRepository.coachBackgroundImage != null) {
+      setState(() {
+        backgroundImage = storageRepository.coachBackgroundImage;
+      });
+    }
+  }
+
+  @override
+  void onCoachProfileImageChange() {
+    if (storageRepository.coachProfileImage != null) {
+      setState(() {
+        profileImage = storageRepository.coachProfileImage;
+      });
+    }
   }
 }

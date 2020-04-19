@@ -7,18 +7,28 @@ class ExpertEntity extends UserEntity {
   List<SchoolSubject> schoolSubjects;
   List<Specialization> specializations;
 
-  ExpertEntity(
-      String name,
+  ExpertEntity(String name,
       String surname,
       String email,
       String city,
       String school,
       String profession,
       String bio,
+      String profileImageName,
+      String backgroundImageName,
       List<SchoolSubject> schoolSubjects,
       List<Specialization> specializations)
-      : super(name, surname, email, city, school, profession, bio,
-            UserType.EXPERT) {
+      : super(
+      name,
+      surname,
+      email,
+      city,
+      school,
+      profession,
+      bio,
+      profileImageName,
+      backgroundImageName,
+      UserType.EXPERT) {
     this.schoolSubjects = schoolSubjects;
     this.specializations = specializations;
   }
@@ -32,6 +42,8 @@ class ExpertEntity extends UserEntity {
         json["school"],
         json["profession"],
         json["bio"],
+        json["profileImageName"],
+        json["backgroundImageName"],
         subjectsListFromSnapshot(json),
         specializationListFromSnapshot(json));
   }
@@ -45,6 +57,8 @@ class ExpertEntity extends UserEntity {
         documentSnapshot.data["school"],
         documentSnapshot.data["profession"],
         documentSnapshot.data["bio"],
+        documentSnapshot.data["profileImageName"],
+        documentSnapshot.data["backgroundImageName"],
         subjectsListFromSnapshot(documentSnapshot.data),
         specializationListFromSnapshot(documentSnapshot.data));
   }
@@ -59,6 +73,8 @@ class ExpertEntity extends UserEntity {
       "email": email,
       "profession": profession,
       "bio": bio,
+      "profileImageName" : profileImageName,
+      "backgroundImageName" : backgroundImageName,
       "userType": userType.label,
       "schoolSubjects": getSubjectsLabels(schoolSubjects),
       "specializations": getSpecializationsLabels(specializations)
