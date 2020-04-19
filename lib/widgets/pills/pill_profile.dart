@@ -1,17 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:project_teachers/themes/index.dart';
 
-class PillProfileWidget extends StatefulWidget {
+class PillProfileWidget extends StatelessWidget {
   final Color color;
   final String text;
 
   PillProfileWidget({@required this.text, this.color});
-
-  @override
-  State<StatefulWidget> createState() => __PillProfileWidgetState();
-}
-
-class __PillProfileWidgetState extends State<PillProfileWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -20,11 +14,11 @@ class __PillProfileWidgetState extends State<PillProfileWidget> {
       height: 40,
       child: Material(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(7.0)),
-        color: widget.color == null ? ThemeGlobalColor().buttonColor : widget.color,
+        color: color == null ? ThemeGlobalColor().buttonColor : color,
         child: Padding(padding: EdgeInsets.all(5), child: Align(
           alignment: Alignment.center,
           child: Text(
-            widget.text,
+            text,
             style: TextStyle(fontSize: 10.0, color: Colors.white),
             textAlign: TextAlign.center,
           ),
