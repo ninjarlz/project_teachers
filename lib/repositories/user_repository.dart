@@ -194,15 +194,14 @@ class UserRepository {
   }
 
   void _onCoachDataChange(DocumentSnapshot event, int cnt) {
+    if (cnt == 1) {
+      return;
+    }
     if (!event.exists) {
       _currentCoach = null;
     } else {
       _currentCoach = UserEntity.fromJson(event.data);
       _currentCoach.uid = event.documentID;
-      if (cnt == 1) {
-        _storageRepository.getCoachBackgroundImage(_currentCoach);
-        _storageRepository.getCoachProfileImage(_currentCoach);
-      }
     }
     _coachListeners.forEach((coachListener) {
       coachListener.onCoachDataChange();
@@ -218,6 +217,8 @@ class UserRepository {
       return;
     }
     _currentCoach = coach;
+    _storageRepository.getCoachBackgroundImage(_currentCoach);
+    _storageRepository.getCoachProfileImage(_currentCoach);
     _coachRef = _userListRef.document(coach.uid);
     Function onCoachDataChangeWithCounter =
     _createFunctionCounterWithDocumentSnapshot(_onCoachDataChange, 0);
