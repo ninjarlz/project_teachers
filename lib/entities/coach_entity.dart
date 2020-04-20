@@ -80,9 +80,9 @@ class CoachEntity extends ExpertEntity {
       "profileImageName" : profileImageName,
       "backgroundImageName" : backgroundImageName,
       "userType": userType.label,
-      "schoolSubjects": ExpertEntity.getSubjectsLabels(schoolSubjects),
-      "specializations": ExpertEntity.getSpecializationsLabels(specializations),
-      "coach": coachType.label
+      "schoolSubjects": SchoolSubjectExtension.getLabelsFromList(schoolSubjects),
+      "specializations": SpecializationExtension.getLabelsFromList(specializations),
+      "coachType": coachType.label
     };
   }
 }

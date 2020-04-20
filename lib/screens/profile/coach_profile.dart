@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:project_teachers/entities/user_entity.dart';
+import 'package:project_teachers/entities/coach_entity.dart';
+import 'package:project_teachers/entities/user_enums.dart';
 import 'package:project_teachers/repositories/storage_repository.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/screens/profile/base_profile.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
+import 'package:project_teachers/utils/translations/translation_mapper.dart';
 import 'package:provider/provider.dart';
 
 class CoachProfile extends StatefulWidget {
@@ -73,14 +75,31 @@ class _CoachProfileState extends BaseProfileState<CoachProfile>
 
   @override
   void onCoachDataChange() {
-    UserEntity coach = userRepository.currentCoach;
+    CoachEntity coach = userRepository.selectedCoach;
     if (coach != null) {
       setState(() {
         userName = coach.name + " " + coach.surname;
         city = coach.city;
-        school = coach.school + " | Coach";
-        profession = coach.profession;
+        school = coach.school;
+        if (coach.schoolSubjects != null && coach.schoolSubjects.isNotEmpty) {
+          school += " - ";
+          for (int i = 0; i < coach.schoolSubjects.length - 1; i++) {
+            school +=
+                Translations.of(context).text(coach.schoolSubjects[i].label) +
+                    ", ";
+          }
+          school += Translations.of(context).text(
+              coach.schoolSubjects[coach.schoolSubjects.length - 1].label);
+        }
+        profession = coach.profession +
+            " | Coach - " +
+            Translations.of(context).text(coach.coachType.label);
         bio = coach.bio;
+        if (coach.specializations != null && coach.specializations.isNotEmpty) {
+          competencies = TranslationMapper.translateList(
+              SpecializationExtension.getShortcutsFromList(coach.specializations),
+              context);
+        }
       });
     } else {
       _appStateManager.changeAppState(AppState.COACH);

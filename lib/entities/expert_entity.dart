@@ -76,37 +76,23 @@ class ExpertEntity extends UserEntity {
       "profileImageName" : profileImageName,
       "backgroundImageName" : backgroundImageName,
       "userType": userType.label,
-      "schoolSubjects": getSubjectsLabels(schoolSubjects),
-      "specializations": getSpecializationsLabels(specializations)
+      "schoolSubjects": SchoolSubjectExtension.getLabelsFromList(schoolSubjects),
+      "specializations": SpecializationExtension.getLabelsFromList(specializations)
     };
   }
 
-  static List<String> getSpecializationsLabels(
-      List<Specialization> specializations) {
-    List<String> specializationsLabels = List<String>();
-    for (Specialization specialization in specializations) {
-      specializationsLabels.add(specialization.label);
-    }
-    return specializationsLabels;
-  }
 
-  static List<String> getSubjectsLabels(List<SchoolSubject> schoolSubjects) {
-    List<String> subjectsLabels = List<String>();
-    for (SchoolSubject schoolSubject in schoolSubjects) {
-      subjectsLabels.add(schoolSubject.label);
-    }
-    return subjectsLabels;
-  }
+
+
 
   static List<Specialization> specializationListFromSnapshot(
       Map<dynamic, dynamic> snapshotMap) {
     List<Specialization> specializations = null;
     if (snapshotMap.containsKey("specializations")) {
-      List<String> specializationLabels = new List<String>();
       specializations = new List<Specialization>();
-      specializationLabels = snapshotMap["specializations"];
+      List<dynamic> specializationLabels = snapshotMap["specializations"];
       specializationLabels.forEach((label) {
-        specializations.add(SpecializationExtension.getValue(label));
+        specializations.add(SpecializationExtension.getValueFromLabel(label));
       });
     }
     return specializations;
@@ -116,9 +102,8 @@ class ExpertEntity extends UserEntity {
       Map<dynamic, dynamic> snapshotMap) {
     List<SchoolSubject> subjects = null;
     if (snapshotMap.containsKey("schoolSubjects")) {
-      List<String> subjectsLabels = new List<String>();
       subjects = new List<SchoolSubject>();
-      subjectsLabels = snapshotMap["schoolSubjects"];
+      List<dynamic> subjectsLabels = snapshotMap["schoolSubjects"];
       subjectsLabels.forEach((label) {
         subjects.add(SchoolSubjectExtension.getValue(label));
       });

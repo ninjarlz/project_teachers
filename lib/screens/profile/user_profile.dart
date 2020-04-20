@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:project_teachers/entities/expert_entity.dart';
 import 'package:project_teachers/entities/user_entity.dart';
 import 'package:project_teachers/entities/user_enums.dart';
 import 'package:project_teachers/repositories/storage_repository.dart';
@@ -8,6 +9,7 @@ import 'package:project_teachers/screens/profile/base_profile.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
+import 'package:project_teachers/utils/translations/translation_mapper.dart';
 import 'package:provider/provider.dart';
 
 class UserProfile extends StatefulWidget {
@@ -82,13 +84,35 @@ class _UserProfileState extends BaseProfileState<UserProfile>
   @override
   onUserDataChange() {
     setState(() {
-      UserEntity user = userRepository.currentUser;
-      if (user != null) {
-        userName = user.name + " " + user.surname;
-        city = user.city;
-        school = user.school + " | " + user.userType.label;
-        profession = user.profession;
-        bio = user.bio;
+      ExpertEntity expert = userRepository.currentExpert;
+      if (expert != null) {
+        userName = expert.name + " " + expert.surname;
+        city = expert.city;
+        school = expert.school;
+        if (expert.schoolSubjects != null && expert.schoolSubjects.isNotEmpty) {
+          school += " - ";
+          for (int i = 0; i < expert.schoolSubjects.length - 1; i++) {
+            school +=
+                Translations.of(context).text(expert.schoolSubjects[i].label) +
+                    ", ";
+          }
+          school += Translations.of(context).text(
+              expert.schoolSubjects[expert.schoolSubjects.length - 1].label);
+        }
+        profession = expert.profession + " | " + expert.userType.label;
+        if (expert.userType == UserType.COACH) {
+          profession += " - " +
+              Translations.of(context)
+                  .text(userRepository.currentCoach.coachType.label);
+        }
+        bio = expert.bio;
+        if (expert.specializations != null &&
+            expert.specializations.isNotEmpty) {
+          competencies = TranslationMapper.translateList(
+              SpecializationExtension.getShortcutsFromList(
+                  expert.specializations),
+              context);
+        }
       } else {
         userName = "";
         city = "";

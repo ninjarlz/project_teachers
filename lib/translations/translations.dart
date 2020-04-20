@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show  rootBundle;
+import 'package:flutter/services.dart' show rootBundle;
 import 'application.dart';
 
 class Translations {
@@ -15,19 +15,25 @@ class Translations {
   static String lang;
   static Map<dynamic, dynamic> _localizedValues;
 
-  static Translations of(BuildContext context){
+  static Translations of(BuildContext context) {
     return Localizations.of<Translations>(context, Translations);
   }
 
   String text(String key) {
-    if (_localizedValues == null)
-      return "";
+    if (_localizedValues == null) return "";
     return _localizedValues[key] ?? '** $key not found';
+  }
+
+  String key(String text) {
+    if (_localizedValues == null) return "";
+    return _localizedValues.keys
+        .firstWhere((key) => _localizedValues[key] == text, orElse: () => null);
   }
 
   static Future<Translations> load(Locale locale, Locale oldLocale) async {
     if (locale.languageCode != lang || _localizedValues == null) {
-      String jsonContent = await rootBundle.loadString("locale/i18n_${locale.languageCode}.json");
+      String jsonContent = await rootBundle
+          .loadString("locale/i18n_${locale.languageCode}.json");
       _localizedValues = json.decode(jsonContent);
     }
     Translations translations = new Translations(locale, _localizedValues);
@@ -41,7 +47,8 @@ class TranslationsDelegate extends LocalizationsDelegate<Translations> {
   const TranslationsDelegate();
 
   @override
-  bool isSupported(Locale locale) => applic.supportedLanguages.contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      applic.supportedLanguages.contains(locale.languageCode);
 
   @override
   Future<Translations> load(Locale locale) => Translations.load(locale, locale);
@@ -59,7 +66,8 @@ class SpecificLocalizationDelegate extends LocalizationsDelegate<Translations> {
   bool isSupported(Locale locale) => overriddenLocale != null;
 
   @override
-  Future<Translations> load(Locale locale) => Translations.load(overriddenLocale, locale);
+  Future<Translations> load(Locale locale) =>
+      Translations.load(overriddenLocale, locale);
 
   @override
   bool shouldReload(LocalizationsDelegate<Translations> old) => true;

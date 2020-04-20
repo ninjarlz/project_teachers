@@ -3,16 +3,20 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
+import 'package:grouped_buttons/grouped_buttons.dart';
 import 'package:project_teachers/entities/user_enums.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/repositories/valid_email_address_repository.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:project_teachers/services/auth.dart';
 import 'package:project_teachers/services/auth_status_manager.dart';
+import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/utils/constants/constants.dart';
+import 'package:project_teachers/utils/translations/translation_mapper.dart';
 import 'package:project_teachers/widgets/button/button_primary.dart';
 import 'package:project_teachers/widgets/button/button_secondary.dart';
+import 'package:project_teachers/widgets/index.dart';
 import 'package:project_teachers/widgets/input/input_with_icon.dart';
 import 'package:project_teachers/widgets/input/places_input_with_icon.dart';
 import 'package:project_teachers/widgets/text/text_error.dart';
@@ -45,6 +49,12 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
   TextEditingController profession = TextEditingController();
   @protected
   TextEditingController bio = TextEditingController();
+  @protected
+  String pickedCoachTypeTranslation;
+  @protected
+  List<String> pickedSubjectsTranslation;
+  @protected
+  List<String> pickedSpecializationsTranslation;
   @protected
   AuthStatusManager authStatusManager;
   @protected
@@ -255,6 +265,34 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
               padding: EdgeInsets.symmetric(vertical: 10),
               child: Center(child: TextErrorWidget(text: errorMessage)),
             ),
+            Text(Translations.of(context).text("subjects"),
+                style: ThemeGlobalText().titleText),
+            CheckboxGroup(
+              onSelected: onSubjectsValuesChanged,
+              labels: TranslationMapper.translateList(SchoolSubjectExtension.labels, context),
+              checked: pickedSubjectsTranslation,
+              activeColor: ThemeGlobalColor().secondaryColorDark,
+              labelStyle: ThemeGlobalText().text,
+            ),
+            Text(Translations.of(context).text("specializations"),
+                style: ThemeGlobalText().titleText),
+            CheckboxGroup(
+              onSelected: onSpecializationsValuesChanged,
+              labels: TranslationMapper.translateList(SpecializationExtension.labels, context),
+              checked: pickedSpecializationsTranslation,
+              activeColor: ThemeGlobalColor().secondaryColorDark,
+              labelStyle: ThemeGlobalText().text,
+            ),
+            Text(Translations.of(context).text("coach_type"),
+                style: ThemeGlobalText().titleText),
+            RadioButtonGroup(
+              labels: TranslationMapper.translateList(
+                  CoachTypeExtension.labels, context),
+              onSelected: onCoachTypeValueChanged,
+              labelStyle: ThemeGlobalText().text,
+              picked: pickedCoachTypeTranslation,
+              activeColor: ThemeGlobalColor().secondaryColorDark,
+            ),
             ButtonPrimaryWidget(
                 text: Translations.of(context).text(submitLabel),
                 submit: validateAndSubmit),
@@ -326,6 +364,24 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
               padding: EdgeInsets.symmetric(vertical: 10),
               child: Center(child: TextErrorWidget(text: errorMessage)),
             ),
+            Text(Translations.of(context).text("subjects"),
+                style: ThemeGlobalText().titleText),
+            CheckboxGroup(
+              onSelected: onSubjectsValuesChanged,
+              labels: TranslationMapper.translateList(SchoolSubjectExtension.labels, context),
+              checked: pickedSubjectsTranslation,
+              activeColor: ThemeGlobalColor().secondaryColorDark,
+              labelStyle: ThemeGlobalText().text,
+            ),
+            Text(Translations.of(context).text("specializations"),
+                style: ThemeGlobalText().titleText),
+            CheckboxGroup(
+              onSelected: onSpecializationsValuesChanged,
+              labels: TranslationMapper.translateList(SpecializationExtension.labels, context),
+              checked: pickedSpecializationsTranslation,
+              activeColor: ThemeGlobalColor().secondaryColorDark,
+              labelStyle: ThemeGlobalText().text,
+            ),
             ButtonPrimaryWidget(
                 text: Translations.of(context).text(submitLabel),
                 submit: validateAndSubmit),
@@ -336,5 +392,23 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
         ),
       ),
     );
+  }
+
+  void onCoachTypeValueChanged(String newValue) {
+    setState(() {
+      pickedCoachTypeTranslation = newValue;
+    });
+  }
+
+  void onSpecializationsValuesChanged(List<String> selected) {
+    setState(() {
+      pickedSpecializationsTranslation = selected;
+    });
+  }
+
+  void onSubjectsValuesChanged(List<String> selected) {
+    setState(() {
+      pickedSubjectsTranslation = selected;
+    });
   }
 }

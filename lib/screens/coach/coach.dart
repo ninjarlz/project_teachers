@@ -56,7 +56,7 @@ class _CoachState extends State<Coach> implements CoachPageListener {
               title: Text(_userRepository.coachList[index].name + " " + _userRepository.coachList[index].surname),
               subtitle: Text(_userRepository.coachList[index].profession),
               onTap: (){
-                _userRepository.setCurrentCoach(_userRepository.coachList[index]);
+                _userRepository.setSelectedCoach(_userRepository.coachList[index]);
                 _appStateManager.changeAppState(AppState.COACH_PROFILE_PAGE);
               }
             );

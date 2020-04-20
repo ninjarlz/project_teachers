@@ -39,7 +39,8 @@ class _LoginState extends State<Login> {
       NOT_VERIFIED_EMAIL_MSG =
           Translations.of(context).text("error_email_unverified");
       ACTIVATE_EMAIL_MSG = Translations.of(context).text("login_code_sent");
-      PASSWORD_RESET_EMAIL_MSG = Translations.of(context).text("reset_email_sent");
+      PASSWORD_RESET_EMAIL_MSG =
+          Translations.of(context).text("reset_email_sent");
     });
   }
 
@@ -151,7 +152,6 @@ class _LoginState extends State<Login> {
   }
 
   Widget _showForm() {
-
     String firstButtonTxt;
     String secondButtonTxt;
     Function onSecondButton;
@@ -160,17 +160,23 @@ class _LoginState extends State<Login> {
       case LoginState.FORGOT_PASSWORD_FORM:
         firstButtonTxt = Translations.of(context).text("reset_email");
         secondButtonTxt = Translations.of(context).text("global_back");
-        onSecondButton = () { _setFormMode(LoginState.LOGIN_FORM); };
+        onSecondButton = () {
+          _setFormMode(LoginState.LOGIN_FORM);
+        };
         break;
       case LoginState.REGISTER_FORM:
-        firstButtonTxt =  Translations.of(context).text("register");
+        firstButtonTxt = Translations.of(context).text("register");
         secondButtonTxt = Translations.of(context).text("login_have_account");
-        onSecondButton = () { _setFormMode(LoginState.LOGIN_FORM); };
+        onSecondButton = () {
+          _setFormMode(LoginState.LOGIN_FORM);
+        };
         break;
       case LoginState.LOGIN_FORM:
         firstButtonTxt = Translations.of(context).text("login");
         secondButtonTxt = Translations.of(context).text("register");
-        onSecondButton = () { _setFormMode(LoginState.REGISTER_FORM); };
+        onSecondButton = () {
+          _setFormMode(LoginState.REGISTER_FORM);
+        };
         break;
     }
 
@@ -188,7 +194,8 @@ class _LoginState extends State<Login> {
                 hint: Translations.of(context).text("login_email"),
                 icon: Icons.email,
                 type: TextInputType.emailAddress,
-                error: Translations.of(context).text("error_email_empty")),
+                error: Translations.of(context).text("error_email_empty"),
+                maxLines: 1),
             Visibility(
                 visible: _currentLoginState != LoginState.FORGOT_PASSWORD_FORM,
                 child: InputWithIconWidget(
@@ -196,6 +203,7 @@ class _LoginState extends State<Login> {
                     hint: Translations.of(context).text("login_password"),
                     icon: Icons.lock,
                     type: TextInputType.visiblePassword,
+                    maxLines: 1,
                     error:
                         Translations.of(context).text("error_password_empty"))),
             Padding(
@@ -203,11 +211,9 @@ class _LoginState extends State<Login> {
               child: Center(child: TextErrorWidget(text: _errorMessage)),
             ),
             ButtonPrimaryWidget(
-                text: firstButtonTxt,
-                submit: _validateAndSubmit),
+                text: firstButtonTxt, submit: _validateAndSubmit),
             ButtonSecondaryWidget(
-                text: secondButtonTxt,
-                submit: onSecondButton),
+                text: secondButtonTxt, submit: onSecondButton),
             Visibility(
                 visible: _currentLoginState != LoginState.FORGOT_PASSWORD_FORM,
                 child: ButtonSecondaryWidget(

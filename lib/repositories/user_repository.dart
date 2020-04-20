@@ -1,11 +1,12 @@
 import 'dart:async';
+import 'package:project_teachers/entities/coach_entity.dart';
+import 'package:project_teachers/entities/expert_entity.dart';
 import 'package:project_teachers/entities/user_entity.dart';
 import 'package:project_teachers/entities/user_enums.dart';
 import 'package:project_teachers/repositories/storage_repository.dart';
 import 'package:project_teachers/repositories/valid_email_address_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project_teachers/services/auth.dart';
-import 'package:synchronized/synchronized.dart';
 
 class UserRepository {
   UserRepository._privateConstructor();
@@ -36,29 +37,32 @@ class UserRepository {
   StreamSubscription<QuerySnapshot> _coachListSub;
   StreamSubscription<DocumentSnapshot> _coachSub;
   DocumentReference _coachRef;
-  UserEntity _currentCoach;
+  CoachEntity _selectedCoach;
 
-  UserEntity get currentCoach => _currentCoach;
+  CoachEntity get selectedCoach => _selectedCoach;
   bool _hasMoreCoaches = true;
-  Lock _coachesLock = new Lock();
 
   bool get hasMoreCoaches => _hasMoreCoaches;
   int _coachesLimit = 20;
   int _coachesOffset = 0;
-  List<UserEntity> _coachList;
+  List<CoachEntity> _coachList;
 
-  List<UserEntity> get coachList => _coachList;
+  List<CoachEntity> get coachList => _coachList;
 
   List<UserListener> _userListeners = List<UserListener>();
 
   List<UserListener> get userListeners => _userListeners;
   StreamSubscription<DocumentSnapshot> _userSub;
   UserEntity _currentUser;
-  UserType _currentUserType;
-
-  UserType get currentUserType => _currentUserType;
 
   UserEntity get currentUser => _currentUser;
+  ExpertEntity _currentExpert;
+
+  ExpertEntity get currentExpert => _currentExpert;
+  CoachEntity _currentCoach;
+
+  CoachEntity get currentCoach => _currentCoach;
+
   CollectionReference _userListRef;
   DocumentReference _userRef;
   Firestore _database;
@@ -68,6 +72,8 @@ class UserRepository {
 
   void logoutUser() {
     _currentUser = null;
+    _currentCoach = null;
+    _currentExpert = null;
     if (_userSub != null) {
       _userSub.cancel();
     }
@@ -108,9 +114,9 @@ class UserRepository {
 //    });
 //  }
 
-
-    Function _createFunctionCounterWithDocumentSnapshot(
-      void function(DocumentSnapshot event, int cnt), int invokeBeforeExecution) {
+  Function _createFunctionCounterWithDocumentSnapshot(
+      void function(DocumentSnapshot event, int cnt),
+      int invokeBeforeExecution) {
     int count = 0;
     return (args) {
       count++;
@@ -123,8 +129,19 @@ class UserRepository {
   }
 
   void _onUserDataChange(DocumentSnapshot event, int cnt) {
-    _currentUser = UserEntity.fromJson(event.data);
-    _currentUser.uid = event.documentID;
+    UserType userType = UserTypeExtension.getValue(event.data["userType"]);
+    switch (userType) {
+      case UserType.COACH:
+        _currentUser = _currentCoach = CoachEntity.fromJson(event.data);
+        _currentCoach.uid = event.documentID;
+        _currentUser = _currentExpert = _currentCoach;
+        break;
+      case UserType.EXPERT:
+        _currentExpert = ExpertEntity.fromJson(event.data);
+        _currentExpert.uid = event.documentID;
+        _currentUser = _currentExpert;
+        break;
+    }
     if (cnt == 1) {
       _storageRepository.getUserProfileImage();
       _storageRepository.getUserBackgroundImage();
@@ -159,7 +176,7 @@ class UserRepository {
         .limit(_coachesOffset)
         .snapshots()
         .listen((event) {
-      _coachList = List<UserEntity>();
+      _coachList = List<CoachEntity>();
 
       if (event.documents.length < _coachesOffset) {
         _hasMoreCoaches = false;
@@ -167,7 +184,7 @@ class UserRepository {
         _hasMoreCoaches = true;
       }
       event.documents.forEach((element) {
-        UserEntity coach = UserEntity.fromJson(element.data);
+        CoachEntity coach = CoachEntity.fromJson(element.data);
         coach.uid = element.documentID;
         if (coach.uid != _auth.currentUser.uid) {
           _coachList.add(coach);
@@ -198,37 +215,65 @@ class UserRepository {
       return;
     }
     if (!event.exists) {
-      _currentCoach = null;
+      _selectedCoach = null;
     } else {
-      _currentCoach = UserEntity.fromJson(event.data);
-      _currentCoach.uid = event.documentID;
+      _selectedCoach = UserEntity.fromJson(event.data);
+      _selectedCoach.uid = event.documentID;
     }
     _coachListeners.forEach((coachListener) {
       coachListener.onCoachDataChange();
     });
   }
 
-  void setCurrentCoach(UserEntity coach) {
+  void setSelectedCoach(UserEntity coach) {
     if (_coachSub != null) {
       _coachSub.cancel();
     }
     if (coach == null) {
-      _currentCoach = null;
+      _selectedCoach = null;
       return;
     }
-    _currentCoach = coach;
-    _storageRepository.getCoachBackgroundImage(_currentCoach);
-    _storageRepository.getCoachProfileImage(_currentCoach);
+    _selectedCoach = coach;
+    _storageRepository.getCoachBackgroundImage(_selectedCoach);
+    _storageRepository.getCoachProfileImage(_selectedCoach);
     _coachRef = _userListRef.document(coach.uid);
     Function onCoachDataChangeWithCounter =
-    _createFunctionCounterWithDocumentSnapshot(_onCoachDataChange, 0);
+        _createFunctionCounterWithDocumentSnapshot(_onCoachDataChange, 0);
     _coachSub = _coachRef.snapshots().listen(onCoachDataChangeWithCounter);
     _coachSub.onError((error) {
       print(DB_ERROR_MSG + error.message);
     });
   }
 
-  Future<void> setInitializedCurrentUser(
+  Future<void> setInitializedCurrentExpert(
+    String userId,
+    String email,
+    String name,
+    String surname,
+    String city,
+    String school,
+    String profession,
+    String bio,
+    List<SchoolSubject> schoolSubjects,
+    List<Specialization> specializations,
+  ) async {
+    await _userListRef.document(userId).setData(ExpertEntity(
+            name,
+            surname,
+            email,
+            city,
+            school,
+            profession,
+            bio,
+            null,
+            null,
+            schoolSubjects,
+            specializations)
+        .toJson());
+    setCurrentUser(userId);
+  }
+
+  Future<void> setInitializedCurrentCoach(
       String userId,
       String email,
       String name,
@@ -236,10 +281,23 @@ class UserRepository {
       String city,
       String school,
       String profession,
-      String bio) async {
-    UserType userType = await _validEmailAddressRepository.getUserType(email);
-    await _userListRef.document(userId).setData(UserEntity(name, surname, email,
-            city, school, profession, bio, null, null, userType)
+      String bio,
+      List<SchoolSubject> schoolSubjects,
+      List<Specialization> specializations,
+      CoachType coachType) async {
+    await _userListRef.document(userId).setData(CoachEntity(
+            name,
+            surname,
+            email,
+            city,
+            school,
+            profession,
+            bio,
+            null,
+            null,
+            schoolSubjects,
+            specializations,
+            coachType)
         .toJson());
     setCurrentUser(userId);
   }
@@ -294,6 +352,74 @@ class UserRepository {
         profession, bio, profileImageName, backgroundImageName, userType);
     userEntity.uid = userId;
     await updateUser(userEntity);
+  }
+
+  Future<void> updateExpert(ExpertEntity expert) async {
+    await _userListRef.document(expert.uid).setData(expert.toJson());
+  }
+
+  Future<void> updateExpertFromData(
+      String userId,
+      String email,
+      String name,
+      String surname,
+      String city,
+      String school,
+      String profession,
+      String bio,
+      List<SchoolSubject> schoolSubjects,
+      List<Specialization> specializations) async {
+    String profileImageName = _currentUser.profileImageName;
+    String backgroundImageName = _currentUser.backgroundImageName;
+    ExpertEntity expert = ExpertEntity(
+        name,
+        surname,
+        email,
+        city,
+        school,
+        profession,
+        bio,
+        profileImageName,
+        backgroundImageName,
+        schoolSubjects,
+        specializations);
+    expert.uid = userId;
+    await updateExpert(expert);
+  }
+
+  Future<void> updateCoach(CoachEntity coach) async {
+    await _userListRef.document(coach.uid).setData(coach.toJson());
+  }
+
+  Future<void> updateCoachFromData(
+      String userId,
+      String email,
+      String name,
+      String surname,
+      String city,
+      String school,
+      String profession,
+      String bio,
+      List<SchoolSubject> schoolSubjects,
+      List<Specialization> specializations,
+      CoachType coachType) async {
+    String profileImageName = _currentUser.profileImageName;
+    String backgroundImageName = _currentUser.backgroundImageName;
+    CoachEntity coach = CoachEntity(
+        name,
+        surname,
+        email,
+        city,
+        school,
+        profession,
+        bio,
+        profileImageName,
+        backgroundImageName,
+        schoolSubjects,
+        specializations,
+        coachType);
+    coach.uid = userId;
+    await updateCoach(coach);
   }
 }
 

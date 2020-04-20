@@ -16,13 +16,7 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
   @protected
   String backgroundPicture = "";
   @protected
-  List<String> competencies = [
-    "Compentency 1",
-    "Compentency 2",
-    "Compentency 3",
-    "Compentency 4",
-    "Compentency 5"
-  ]; // TODO: change to user competencies
+  List<String> competencies = List<String>();
   @protected
   String profession = "";
   @protected
@@ -82,12 +76,11 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
     );
   }
 
-  Widget _buildProfileCompetencyRow() {
+  Widget _buildProfileCompetencyRow(int rowIndex) {
     List<Widget> _rowElements = List<Widget>();
-    int _count = 0;
-    competencies.forEach((competency) {
-      if (_count++ < 3) _rowElements.add(PillProfileWidget(text: competency));
-    });
+    for (int i = 0; i < 3 && (3 * rowIndex + i) < competencies.length; i++) {
+      _rowElements.add(PillProfileWidget(text: competencies[3 * rowIndex + i]));
+    }
     return Row(
         mainAxisAlignment: MainAxisAlignment.center, children: _rowElements);
   }
@@ -99,7 +92,7 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
         padding: EdgeInsets.all(0),
         itemCount: (competencies.length / 3).ceil(),
         itemBuilder: (context, index) {
-          return _buildProfileCompetencyRow();
+          return _buildProfileCompetencyRow(index);
         });
   }
 
