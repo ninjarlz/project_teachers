@@ -7,7 +7,8 @@ class ExpertEntity extends UserEntity {
   List<SchoolSubject> schoolSubjects;
   List<Specialization> specializations;
 
-  ExpertEntity(String name,
+  ExpertEntity(
+      String name,
       String surname,
       String email,
       String city,
@@ -18,17 +19,8 @@ class ExpertEntity extends UserEntity {
       String backgroundImageName,
       List<SchoolSubject> schoolSubjects,
       List<Specialization> specializations)
-      : super(
-      name,
-      surname,
-      email,
-      city,
-      school,
-      profession,
-      bio,
-      profileImageName,
-      backgroundImageName,
-      UserType.EXPERT) {
+      : super(name, surname, email, city, school, profession, bio,
+            profileImageName, backgroundImageName, UserType.EXPERT) {
     this.schoolSubjects = schoolSubjects;
     this.specializations = specializations;
   }
@@ -73,26 +65,43 @@ class ExpertEntity extends UserEntity {
       "email": email,
       "profession": profession,
       "bio": bio,
-      "profileImageName" : profileImageName,
-      "backgroundImageName" : backgroundImageName,
+      "profileImageName": profileImageName,
+      "backgroundImageName": backgroundImageName,
       "userType": userType.label,
-      "schoolSubjects": SchoolSubjectExtension.getLabelsFromList(schoolSubjects),
-      "specializations": SpecializationExtension.getLabelsFromList(specializations)
+      "schoolSubjects": schoolSubjectsMapFromList(schoolSubjects),
+      "specializations": specializationsMapFromList(specializations)
     };
   }
 
+  static Map<String, bool> schoolSubjectsMapFromList(
+      List<SchoolSubject> schoolSubjects) {
+    Map<String, bool> map = Map<String, bool>();
+    for (SchoolSubject schoolSubject in SchoolSubject.values) {
+      map[schoolSubject.label] = schoolSubjects.contains(schoolSubject);
+    }
+    return map;
+  }
 
-
-
+  static Map<String, bool> specializationsMapFromList(
+      List<Specialization> specializations) {
+    Map<String, bool> map = Map<String, bool>();
+    for (Specialization specialization in Specialization.values) {
+      map[specialization.label] = specializations.contains(specialization);
+    }
+    return map;
+  }
 
   static List<Specialization> specializationListFromSnapshot(
       Map<dynamic, dynamic> snapshotMap) {
     List<Specialization> specializations = null;
     if (snapshotMap.containsKey("specializations")) {
       specializations = new List<Specialization>();
-      List<dynamic> specializationLabels = snapshotMap["specializations"];
-      specializationLabels.forEach((label) {
-        specializations.add(SpecializationExtension.getValueFromLabel(label));
+      Map<dynamic, dynamic> specializationsLabels =
+          snapshotMap["specializations"];
+      specializationsLabels.forEach((key, value) {
+        if (value) {
+          specializations.add(SpecializationExtension.getValueFromLabel(key));
+        }
       });
     }
     return specializations;
@@ -103,9 +112,11 @@ class ExpertEntity extends UserEntity {
     List<SchoolSubject> subjects = null;
     if (snapshotMap.containsKey("schoolSubjects")) {
       subjects = new List<SchoolSubject>();
-      List<dynamic> subjectsLabels = snapshotMap["schoolSubjects"];
-      subjectsLabels.forEach((label) {
-        subjects.add(SchoolSubjectExtension.getValue(label));
+      Map<dynamic, dynamic> subjectsLabels = snapshotMap["schoolSubjects"];
+      subjectsLabels.forEach((key, value) {
+        if (value) {
+          subjects.add(SchoolSubjectExtension.getValue(key));
+        }
       });
     }
     return subjects;

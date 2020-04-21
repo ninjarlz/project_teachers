@@ -83,5 +83,8 @@
   "physics": "Physics",
   "chemistry": "Chemistry",
   "subjects": "Subjects",
-  "specializations": "Specializations"
+  "specializations": "Specializations",
+  "filter_coaches": "Filter coaches",
+  "apply": "Apply",
+  "all": "All"
 }

@@ -4,9 +4,9 @@ import 'package:project_teachers/entities/expert_entity.dart';
 import 'package:project_teachers/entities/user_entity.dart';
 import 'package:project_teachers/entities/user_enums.dart';
 import 'package:project_teachers/repositories/storage_repository.dart';
-import 'package:project_teachers/repositories/valid_email_address_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project_teachers/services/auth.dart';
+import 'package:project_teachers/services/filtering_serivce.dart';
 
 class UserRepository {
   UserRepository._privateConstructor();
@@ -19,8 +19,7 @@ class UserRepository {
     if (_instance == null) {
       _instance = UserRepository._privateConstructor();
       _instance._database = Firestore.instance;
-      _instance._validEmailAddressRepository =
-          ValidEmailAddressRepository.instance;
+      _instance._filteringService = FilteringService.instance;
       _instance._auth = Auth.instance;
       _instance._storageRepository = StorageRepository.instance;
       _instance._userListRef = _instance._database.collection("Users");
@@ -66,7 +65,7 @@ class UserRepository {
   CollectionReference _userListRef;
   DocumentReference _userRef;
   Firestore _database;
-  ValidEmailAddressRepository _validEmailAddressRepository;
+  FilteringService _filteringService;
   BaseAuth _auth;
   StorageRepository _storageRepository;
 
@@ -79,6 +78,8 @@ class UserRepository {
     }
     _userListeners.clear();
     _coachList.clear();
+    _filteringService.resetFilters();
+    resetCoachList();
     _storageRepository.logoutUser();
   }
 
@@ -170,12 +171,11 @@ class UserRepository {
 //      }
 //    });
     _coachesOffset += _coachesLimit;
-    _coachListSub = _userListRef
-        .where("userType", isEqualTo: "Coach")
-        .orderBy("surname")
-        .limit(_coachesOffset)
-        .snapshots()
-        .listen((event) {
+    Query query = _userListRef.where("userType", isEqualTo: "Coach");
+    query = _filteringService.prepareQuery(query);
+    query = query.limit(_coachesOffset);
+    //query = query.orderBy("surname").limit(_coachesOffset);
+    _coachListSub = query.snapshots().listen((event) {
       _coachList = List<CoachEntity>();
 
       if (event.documents.length < _coachesOffset) {
@@ -208,6 +208,10 @@ class UserRepository {
       _coachListSub.cancel();
       _coachListSub = null;
     }
+    if (_coachSub != null) {
+      _coachSub.cancel();
+      _coachSub = null;
+    }
   }
 
   void _onCoachDataChange(DocumentSnapshot event, int cnt) {
@@ -217,7 +221,7 @@ class UserRepository {
     if (!event.exists) {
       _selectedCoach = null;
     } else {
-      _selectedCoach = UserEntity.fromJson(event.data);
+      _selectedCoach = CoachEntity.fromJson(event.data);
       _selectedCoach.uid = event.documentID;
     }
     _coachListeners.forEach((coachListener) {

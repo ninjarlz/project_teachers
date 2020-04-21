@@ -53,27 +53,23 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
   Widget build(BuildContext context) {
     switch (userRepository.currentUser.userType) {
       case UserType.COACH:
-        return Scaffold(
-          body: SafeArea(
+        return  SafeArea(
             child: Stack(
               children: <Widget>[
                 showCoachForm(),
                 AnimationCircularProgressWidget(status: isLoading)
               ],
             ),
-          ),
-        );
+          );
       default:
-        return Scaffold(
-          body: SafeArea(
+        return SafeArea(
             child: Stack(
               children: <Widget>[
                 showExpertForm(),
                 AnimationCircularProgressWidget(status: isLoading)
               ],
             ),
-          ),
-        );
+          );
     }
   }
 

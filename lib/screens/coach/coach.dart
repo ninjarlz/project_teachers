@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
+import 'package:project_teachers/themes/global.dart';
 import 'package:provider/provider.dart';
 
 
 class Coach extends StatefulWidget {
   static const String TITLE = "Coach";
+
+  static FloatingActionButton getFloatingActionButton (BuildContext context){
+    return FloatingActionButton(
+        onPressed: () {
+          Provider.of<AppStateManager>(context, listen: false)
+              .changeAppState(AppState.FILTER_COACH);
+        },
+        backgroundColor: ThemeGlobalColor().secondaryColor,
+        child: Icon(Icons.filter_list));
+  }
 
   @override
   State<StatefulWidget> createState() => _CoachState();
@@ -54,7 +65,7 @@ class _CoachState extends State<Coach> implements CoachPageListener {
               leading: Icon(Icons.school),
               contentPadding: EdgeInsets.all(5),
               title: Text(_userRepository.coachList[index].name + " " + _userRepository.coachList[index].surname),
-              subtitle: Text(_userRepository.coachList[index].profession),
+              subtitle: Text(_userRepository.coachList[index].school),
               onTap: (){
                 _userRepository.setSelectedCoach(_userRepository.coachList[index]);
                 _appStateManager.changeAppState(AppState.COACH_PROFILE_PAGE);

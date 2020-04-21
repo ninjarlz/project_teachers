@@ -106,27 +106,23 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
       case EditFormStateEnum.USER_TYPE_DETERMINED:
         switch (userType) {
           case UserType.COACH:
-            return Scaffold(
-              body: SafeArea(
+            return SafeArea(
                 child: Stack(
                   children: <Widget>[
                     showCoachForm(),
                     AnimationCircularProgressWidget(status: isLoading)
                   ],
                 ),
-              ),
-            );
+              );
           default:
-            return Scaffold(
-              body: SafeArea(
+            return SafeArea(
                 child: Stack(
                   children: <Widget>[
                     showExpertForm(),
                     AnimationCircularProgressWidget(status: isLoading)
                   ],
                 ),
-              ),
-            );
+              );
         }
         break;
       default:

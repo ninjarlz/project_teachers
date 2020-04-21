@@ -60,6 +60,12 @@ extension CoachTypeExtension on CoachType {
         return null;
     }
   }
+
+  static List<CoachType> getValuesFromLabels(List<String> labels) {
+    return labels.map((label) {
+      return getValue(label);
+    }).toList();
+  }
 }
 
 enum SchoolSubject { MATHS, ENGLISH, PHYSICS, CHEMISTRY, IT }

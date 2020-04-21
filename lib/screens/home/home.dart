@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:project_teachers/screens/coach/coach.dart';
 import 'package:project_teachers/screens/edit_profile/edit_profile.dart';
+import 'package:project_teachers/screens/filter/filter_page.dart';
 import 'package:project_teachers/screens/navigation_drawer/navigation_drawer.dart';
 import 'package:project_teachers/screens/profile/coach_profile.dart';
 import 'package:project_teachers/screens/profile/user_profile.dart';
@@ -20,7 +20,6 @@ class Home extends StatelessWidget {
     bool extendBodyBehindAppBar = false;
 
     switch (appState) {
-
       case AppState.PROFILE_PAGE:
         body = UserProfile();
         appBar = AppBar(
@@ -34,14 +33,17 @@ class Home extends StatelessWidget {
       case AppState.COACH:
         body = Coach();
         appBar = AppBar(
-            title: Text(Translations.of(context).text("coach"), style: TextStyle(color: Colors.white)),
+            title: Text(Translations.of(context).text("coach"),
+                style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
+        floatingButton = Coach.getFloatingActionButton(context);
         break;
 
       case AppState.COACH_PROFILE_PAGE:
         body = CoachProfile();
         appBar = AppBar(
-            title: Text(Translations.of(context).text("coach"), style: TextStyle(color: Colors.white)),
+            title: Text(Translations.of(context).text("coach"),
+                style: TextStyle(color: Colors.white)),
             backgroundColor: Colors.transparent);
         floatingButton = CoachProfile.buildSpeedDial(context);
         extendBodyBehindAppBar = true;
@@ -50,7 +52,16 @@ class Home extends StatelessWidget {
       case AppState.EDIT_PROFILE:
         body = EditProfile();
         appBar = AppBar(
-            title: Text(Translations.of(context).text("edit_profile"), style: TextStyle(color: Colors.white)),
+            title: Text(Translations.of(context).text("edit_profile"),
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: ThemeGlobalColor().secondaryColor);
+        break;
+
+      case AppState.FILTER_COACH:
+        body = FilterPage();
+        appBar = AppBar(
+            title: Text(Translations.of(context).text("filter_coaches"),
+                style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
         break;
 
@@ -74,6 +85,4 @@ class Home extends StatelessWidget {
       child: CircularProgressIndicator(),
     );
   }
-
-  
 }
