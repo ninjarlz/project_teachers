@@ -31,7 +31,7 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
           .getUserType(auth.currentUser.email)
           .then((userType) {
         setState(() {
-          userType = userType;
+          this.userType = userType;
           _initialFormState = EditFormStateEnum.USER_TYPE_DETERMINED;
           if (userType == UserType.COACH) {
             pickedCoachTypeTranslation =
@@ -106,23 +106,24 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
       case EditFormStateEnum.USER_TYPE_DETERMINED:
         switch (userType) {
           case UserType.COACH:
-            return SafeArea(
-                child: Stack(
-                  children: <Widget>[
-                    showCoachForm(),
-                    AnimationCircularProgressWidget(status: isLoading)
-                  ],
-                ),
-              );
+            return Scaffold(body: SafeArea(
+              child: Stack(
+                children: <Widget>[
+                  showCoachForm(),
+                  AnimationCircularProgressWidget(status: isLoading)
+                ],
+              ),
+            ));
+
           default:
-            return SafeArea(
-                child: Stack(
-                  children: <Widget>[
-                    showExpertForm(),
-                    AnimationCircularProgressWidget(status: isLoading)
-                  ],
-                ),
-              );
+            return Scaffold(body: SafeArea(
+              child: Stack(
+                children: <Widget>[
+                  showExpertForm(),
+                  AnimationCircularProgressWidget(status: isLoading)
+                ],
+              ),
+            ));
         }
         break;
       default:
