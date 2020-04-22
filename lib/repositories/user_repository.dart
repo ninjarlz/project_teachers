@@ -3,10 +3,10 @@ import 'package:project_teachers/entities/coach_entity.dart';
 import 'package:project_teachers/entities/expert_entity.dart';
 import 'package:project_teachers/entities/user_entity.dart';
 import 'package:project_teachers/entities/user_enums.dart';
-import 'package:project_teachers/repositories/storage_repository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project_teachers/services/auth.dart';
 import 'package:project_teachers/services/filtering_serivce.dart';
+import 'package:project_teachers/services/storage_sevice.dart';
 
 class UserRepository {
   UserRepository._privateConstructor();
@@ -21,7 +21,7 @@ class UserRepository {
       _instance._database = Firestore.instance;
       _instance._filteringService = FilteringService.instance;
       _instance._auth = Auth.instance;
-      _instance._storageRepository = StorageRepository.instance;
+      _instance._storageService = StorageService.instance;
       _instance._userListRef = _instance._database.collection("Users");
     }
     return _instance;
@@ -67,7 +67,7 @@ class UserRepository {
   Firestore _database;
   FilteringService _filteringService;
   BaseAuth _auth;
-  StorageRepository _storageRepository;
+  StorageService _storageService;
 
   void logoutUser() {
     _currentUser = null;
@@ -80,7 +80,7 @@ class UserRepository {
     _coachList.clear();
     _filteringService.resetFilters();
     resetCoachList();
-    _storageRepository.logoutUser();
+    _storageService.logoutUser();
   }
 
 //  Function _createFunctionCounter(
@@ -144,8 +144,8 @@ class UserRepository {
         break;
     }
     if (cnt == 1) {
-      _storageRepository.getUserProfileImage();
-      _storageRepository.getUserBackgroundImage();
+      _storageService.getUserProfileImage();
+      _storageService.getUserBackgroundImage();
     }
     _userListeners.forEach((userListener) {
       userListener.onUserDataChange();
@@ -238,8 +238,8 @@ class UserRepository {
       return;
     }
     _selectedCoach = coach;
-    _storageRepository.getCoachBackgroundImage(_selectedCoach);
-    _storageRepository.getCoachProfileImage(_selectedCoach);
+    _storageService.getCoachBackgroundImage(_selectedCoach);
+    _storageService.getCoachProfileImage(_selectedCoach);
     _coachRef = _userListRef.document(coach.uid);
     Function onCoachDataChangeWithCounter =
         _createFunctionCounterWithDocumentSnapshot(_onCoachDataChange, 0);

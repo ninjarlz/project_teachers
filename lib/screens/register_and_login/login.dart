@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project_teachers/repositories/valid_email_address_repository.dart';
 import 'package:project_teachers/services/index.dart';
+import 'package:project_teachers/services/valid_email_address_service.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/widgets/index.dart';
 
@@ -23,7 +24,7 @@ class _LoginState extends State<Login> {
   LoginState _currentLoginState = LoginState.LOGIN_FORM;
   String _errorMessage;
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  ValidEmailAddressRepository _validEmailAddressRepository;
+  ValidEmailAddressService _validEmailAddressService;
   String INVALID_EMAIL_MSG;
   String NOT_VERIFIED_EMAIL_MSG;
   String ACTIVATE_EMAIL_MSG;
@@ -32,7 +33,7 @@ class _LoginState extends State<Login> {
   @override
   void initState() {
     super.initState();
-    _validEmailAddressRepository = ValidEmailAddressRepository.instance;
+    _validEmailAddressService = ValidEmailAddressService.instance;
     _auth = Auth.instance;
     Future.delayed(Duration.zero, () {
       INVALID_EMAIL_MSG = Translations.of(context).text("error_email_invalid");
@@ -98,11 +99,11 @@ class _LoginState extends State<Login> {
             break;
 
           case LoginState.REGISTER_FORM:
-            bool isEmailValid = await _validEmailAddressRepository
+            bool isEmailValid = await _validEmailAddressService
                 .checkIfAddressIsValid(_email.text);
             if (isEmailValid) {
               userId = await _auth.signUp(_email.text, _password.text);
-              _validEmailAddressRepository.markAddressAsValidated(_email.text);
+              _validEmailAddressService.markAddressAsValidated(_email.text);
               _auth.sendEmailVerification();
               _errorMessage = ACTIVATE_EMAIL_MSG;
               print('Signed up user: $userId');

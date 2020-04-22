@@ -27,7 +27,7 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
     submitLabel = "register_create";
     imagePath = "assets/img/icon_new.png";
     if (auth.currentUser != null) {
-      validEmailAddressRepository
+      validEmailAddressService
           .getUserType(auth.currentUser.email)
           .then((userType) {
         setState(() {
@@ -46,7 +46,7 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
   @override
   Future<void> onSubmit() async {
     String email = auth.currentUser.email;
-    await validEmailAddressRepository.markAddressAsInitialized(email);
+    await validEmailAddressService.markAddressAsInitialized(email);
     switch (userType) {
       case UserType.EXPERT:
         await userRepository.setInitializedCurrentExpert(

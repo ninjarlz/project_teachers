@@ -4,10 +4,10 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:grouped_buttons/grouped_buttons.dart';
 import 'package:project_teachers/entities/user_enums.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
-import 'package:project_teachers/repositories/valid_email_address_repository.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:project_teachers/services/auth.dart';
 import 'package:project_teachers/services/auth_status_manager.dart';
+import 'package:project_teachers/services/valid_email_address_service.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/utils/constants/constants.dart';
@@ -24,7 +24,7 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
   @protected
   UserRepository userRepository;
   @protected
-  ValidEmailAddressRepository validEmailAddressRepository;
+  ValidEmailAddressService validEmailAddressService;
   @protected
   BaseAuth auth;
   @protected
@@ -68,7 +68,7 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
   void initState() {
     super.initState();
     userRepository = UserRepository.instance;
-    validEmailAddressRepository = ValidEmailAddressRepository.instance;
+    validEmailAddressService = ValidEmailAddressService.instance;
     auth = Auth.instance;
     Future.delayed(Duration.zero, () {
       authStatusManager =

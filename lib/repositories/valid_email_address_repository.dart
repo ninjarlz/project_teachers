@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:project_teachers/entities/user_enums.dart';
 import 'package:project_teachers/entities/valid_email_address.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -62,20 +61,6 @@ class ValidEmailAddressRepository {
     return emails;
   }
 
-  Future<bool> checkIfAddressIsValid(String email) async {
-    ValidEmailAddress notValidatedValidEmail =
-    await getNotValidatedEmailAddress(email);
-    return notValidatedValidEmail != null;
-  }
-
-  Future<bool> checkIfAddressIsInitialized(String email) async {
-    ValidEmailAddress validEmail =
-    await getValidEmailAddress(email);
-    if (validEmail == null) {
-      return false;
-    }
-    return validEmail.isInitialized;
-  }
 
   Future<ValidEmailAddress> getValidEmailAddress(String email) async {
     QuerySnapshot emailSnapshot = await getValidEmailAddressSnapshot(email);
@@ -94,7 +79,8 @@ class ValidEmailAddressRepository {
     return emailSnapshot;
   }
 
-  Future<void> markAddressAsValidated(String email) async {
+
+  Future<void> updateAddressFromData(String email, bool isInitialized, bool isValidated) async {
     QuerySnapshot emailSnapshot = await getValidEmailAddressSnapshot(email);
     List<DocumentSnapshot> list = emailSnapshot.documents;
     if (list == null || list.isEmpty) {
@@ -102,40 +88,12 @@ class ValidEmailAddressRepository {
           NO_EMAIL_ADDRESS_MSG);
       return null;
     }
-
     DocumentReference dr = _database.collection("ValidEmailAdresses").document(list[0].documentID);
     _database.runTransaction((transaction) async {
-      await transaction.update(dr, {"isValidated" : true });
+      await transaction.update(dr, {"isInitialized" : isInitialized });
+      await transaction.update(dr, {"isValidated" : isValidated });
     }).catchError((e) {
       print(DB_ERROR_MSG + e.message);
     });
   }
-
-  Future<void> markAddressAsInitialized(String email) async {
-    QuerySnapshot emailSnapshot = await getValidEmailAddressSnapshot(email);
-    List<DocumentSnapshot> list = emailSnapshot.documents;
-    if (list == null || list.isEmpty) {
-      print(DB_ERROR_MSG + ": " +
-          NO_EMAIL_ADDRESS_MSG);
-      return null;
-    }
-
-    DocumentReference dr = _database.collection("ValidEmailAdresses").document(list[0].documentID);
-    _database.runTransaction((transaction) async {
-      await transaction.update(dr, {"isInitialized" : true });
-    }).catchError((e) {
-      print(DB_ERROR_MSG + e.message);
-    });
-  }
-
-  Future<UserType> getUserType(String email) async {
-    ValidEmailAddress validEmailAddress = await getValidEmailAddress(email);
-    if (validEmailAddress != null) {
-      return validEmailAddress.userType;
-    }
-    return null;
-  }
-
-
-
 }

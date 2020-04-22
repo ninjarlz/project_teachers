@@ -3,10 +3,10 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:project_teachers/entities/coach_entity.dart';
 import 'package:project_teachers/entities/user_enums.dart';
-import 'package:project_teachers/repositories/storage_repository.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/screens/profile/base_profile.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
+import 'package:project_teachers/services/storage_sevice.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/utils/translations/translation_mapper.dart';
@@ -66,8 +66,8 @@ class _CoachProfileState extends BaseProfileState<CoachProfile>
     Future.delayed(Duration.zero, () {
       _appStateManager = Provider.of<AppStateManager>(context, listen: false);
       onCoachDataChange();
-      storageRepository.coachBackgroundImageListeners.add(this);
-      storageRepository.coachProfileImageListeners.add(this);
+      storageService.coachBackgroundImageListeners.add(this);
+      storageService.coachProfileImageListeners.add(this);
       onCoachBackgroundImageChange();
       onCoachProfileImageChange();
     });
@@ -110,23 +110,23 @@ class _CoachProfileState extends BaseProfileState<CoachProfile>
   void dispose() {
     super.dispose();
     userRepository.coachListeners.remove(this);
-    storageRepository.disposeCoachImages();
+    storageService.disposeCoachImages();
   }
 
   @override
   void onCoachBackgroundImageChange() {
-    if (storageRepository.coachBackgroundImage != null) {
+    if (storageService.coachBackgroundImage != null) {
       setState(() {
-        backgroundImage = storageRepository.coachBackgroundImage;
+        backgroundImage = storageService.coachBackgroundImage;
       });
     }
   }
 
   @override
   void onCoachProfileImageChange() {
-    if (storageRepository.coachProfileImage != null) {
+    if (storageService.coachProfileImage != null) {
       setState(() {
-        profileImage = storageRepository.coachProfileImage;
+        profileImage = storageService.coachProfileImage;
       });
     }
   }

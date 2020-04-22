@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:project_teachers/entities/expert_entity.dart';
-import 'package:project_teachers/entities/user_entity.dart';
 import 'package:project_teachers/entities/user_enums.dart';
-import 'package:project_teachers/repositories/storage_repository.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/screens/profile/base_profile.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
+import 'package:project_teachers/services/storage_sevice.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/utils/translations/translation_mapper.dart';
@@ -17,7 +16,7 @@ class UserProfile extends StatefulWidget {
   State<StatefulWidget> createState() => _UserProfileState();
 
   static SpeedDial buildSpeedDial(BuildContext context) {
-    StorageRepository storageRepository = StorageRepository.instance;
+    StorageService storageService = StorageService.instance;
     return SpeedDial(
       animatedIcon: AnimatedIcons.menu_close,
       animatedIconTheme: IconThemeData(size: 22.0),
@@ -48,7 +47,7 @@ class UserProfile extends StatefulWidget {
                 TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
             labelBackgroundColor: ThemeGlobalColor().secondaryColor,
             onTap: () {
-              storageRepository.uploadProfileImage();
+              storageService.uploadProfileImage();
             }),
         SpeedDialChild(
             child: Icon(Icons.image, color: Colors.white),
@@ -58,7 +57,7 @@ class UserProfile extends StatefulWidget {
                 TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
             labelBackgroundColor: ThemeGlobalColor().secondaryColor,
             onTap: () {
-              storageRepository.uploadBackgroundImage();
+              storageService.uploadBackgroundImage();
             })
       ],
     );
@@ -74,8 +73,8 @@ class _UserProfileState extends BaseProfileState<UserProfile>
   void initState() {
     super.initState();
     userRepository.userListeners.add(this);
-    storageRepository.userProfileImageListeners.add(this);
-    storageRepository.userBackgroundImageListeners.add(this);
+    storageService.userProfileImageListeners.add(this);
+    storageService.userBackgroundImageListeners.add(this);
     onUserDataChange();
     onUserProfileImageChange();
     onUserBackgroundImageChange();
@@ -127,24 +126,24 @@ class _UserProfileState extends BaseProfileState<UserProfile>
   void dispose() {
     super.dispose();
     userRepository.userListeners.remove(this);
-    storageRepository.userProfileImageListeners.remove(this);
-    storageRepository.userBackgroundImageListeners.remove(this);
+    storageService.userProfileImageListeners.remove(this);
+    storageService.userBackgroundImageListeners.remove(this);
   }
 
   @override
   void onUserBackgroundImageChange() {
-    if (storageRepository.userBackgroundImage != null) {
+    if (storageService.userBackgroundImage != null) {
       setState(() {
-        backgroundImage = storageRepository.userBackgroundImage;
+        backgroundImage = storageService.userBackgroundImage;
       });
     }
   }
 
   @override
   void onUserProfileImageChange() {
-    if (storageRepository.userProfileImage != null) {
+    if (storageService.userProfileImage != null) {
       setState(() {
-        profileImage = storageRepository.userProfileImage;
+        profileImage = storageService.userProfileImage;
       });
     }
   }

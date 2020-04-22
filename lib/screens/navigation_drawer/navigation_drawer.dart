@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_teachers/entities/user_entity.dart';
-import 'package:project_teachers/repositories/storage_repository.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:project_teachers/services/auth.dart';
 import 'package:project_teachers/services/auth_status_manager.dart';
+import 'package:project_teachers/services/storage_sevice.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:provider/provider.dart';
 
@@ -22,7 +22,7 @@ class _NavigationDrawerState extends State<NavigationDrawer>
   BaseAuth _auth;
   AppStateManager _appStateManager;
   AuthStatusManager _authStatusManager;
-  StorageRepository _storageRepository;
+  StorageService _storageService;
   Widget _profileImage;
 
   @override
@@ -30,9 +30,9 @@ class _NavigationDrawerState extends State<NavigationDrawer>
     super.initState();
     _userRepository = UserRepository.instance;
     _auth = Auth.instance;
-    _storageRepository = StorageRepository.instance;
+    _storageService = StorageService.instance;
     _userRepository.userListeners.add(this);
-    _storageRepository.userProfileImageListeners.add(this);
+    _storageService.userProfileImageListeners.add(this);
     onUserDataChange();
     _profileImage = CircleAvatar(
       backgroundColor: Colors.white,
@@ -147,14 +147,14 @@ class _NavigationDrawerState extends State<NavigationDrawer>
   void dispose() {
     super.dispose();
     _userRepository.userListeners.remove(this);
-    _storageRepository.userProfileImageListeners.remove(this);
+    _storageService.userProfileImageListeners.remove(this);
   }
 
   @override
   void onUserProfileImageChange() {
     setState(() {
-      if (_storageRepository.userProfileImage != null) {
-        _profileImage = ClipOval(child: _storageRepository.userProfileImage);
+      if (_storageService.userProfileImage != null) {
+        _profileImage = ClipOval(child: _storageService.userProfileImage);
       }
     });
   }
