@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:project_teachers/entities/user_entity.dart';
 import 'package:project_teachers/repositories/storage_repository.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
+import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/utils/constants/constants.dart';
 
 class StorageService {
@@ -17,7 +18,7 @@ class StorageService {
     if (_instance == null) {
       _instance = new StorageService._privateConstructor();
       _instance._storageRepository = StorageRepository.instance;
-      _instance._userRepository = UserRepository.instance;
+      _instance._userService = UserService.instance;
     }
     return _instance;
   }
@@ -62,21 +63,21 @@ class StorageService {
   List<CoachBackgroundImageListener> get coachBackgroundImageListeners =>
       _coachBackgroundImageListeners;
 
-  UserRepository _userRepository;
   StorageRepository _storageRepository;
+  UserService _userService;
 
   Future<void> uploadProfileImage() async {
     File image = await ImagePicker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       String fileName = basename(image.path);
-      UserEntity user = _userRepository.currentUser;
+      UserEntity user = _userService.currentUser;
       if (user.profileImageName != null) {
         await _storageRepository.deleteUserProfileImage(user);
       }
       await _storageRepository.uploadImage(
           image, fileName, Constants.PROFILE_IMAGE_DIR, user.uid);
       user.profileImageName = fileName;
-      await _userRepository.updateUser(user);
+      await _userService.updateUser(user);
       _userProfileImage = await Image.file(
         image,
         fit: BoxFit.cover,
@@ -92,14 +93,14 @@ class StorageService {
     File image = await ImagePicker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       String fileName = basename(image.path);
-      UserEntity user = _userRepository.currentUser;
+      UserEntity user = _userService.currentUser;
       if (user.backgroundImageName != null) {
         await _storageRepository.deleteUserBackgroundImage(user);
       }
       await _storageRepository.uploadImage(
           image, fileName, Constants.BACKGROUND_IMAGE_DIR, user.uid);
       user.backgroundImageName = fileName;
-      await _userRepository.updateUser(user);
+      await _userService.updateUser(user);
       _userBackgroundImage = await Image.file(image,
           fit: BoxFit.cover, alignment: Alignment.bottomCenter);
       _userBackgroundImageListeners.forEach((element) {
@@ -109,7 +110,7 @@ class StorageService {
   }
 
   Future<void> getUserProfileImage() async {
-    UserEntity user = _userRepository.currentUser;
+    UserEntity user = _userService.currentUser;
     if (user.profileImageName != null) {
       _userProfileImage = await _storageRepository.getProfileImageFromUrl(user);
       _userProfileImageListeners.forEach((element) {
@@ -119,7 +120,7 @@ class StorageService {
   }
 
   Future<void> getUserBackgroundImage() async {
-    UserEntity user = _userRepository.currentUser;
+    UserEntity user = _userService.currentUser;
     if (user.backgroundImageName != null) {
       _userBackgroundImage =
           await _storageRepository.getBackgroundImageFromUrl(user);

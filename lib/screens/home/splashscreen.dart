@@ -1,11 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/screens/edit_profile/initial_form.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:project_teachers/services/auth_status_manager.dart';
 import 'package:project_teachers/services/index.dart';
 import 'package:project_teachers/screens/index.dart';
+import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/services/valid_email_address_service.dart';
 import 'package:provider/provider.dart';
 
@@ -22,7 +22,7 @@ class Splashscreen extends StatefulWidget {
 
 class _SplashscreenState extends State<Splashscreen> {
 
-  UserRepository _userRepository;
+  UserService _userService;
   ValidEmailAddressService _validEmailAddressService;
   BaseAuth _auth;
   AuthStatusManager _authStatusManager;
@@ -31,7 +31,7 @@ class _SplashscreenState extends State<Splashscreen> {
   @override
   void initState() {
     super.initState();
-    _userRepository = UserRepository.instance;
+    _userService = UserService.instance;
     _validEmailAddressService = ValidEmailAddressService.instance;
     _auth = Auth.instance;
     Future.delayed(Duration.zero, () {
@@ -48,7 +48,7 @@ class _SplashscreenState extends State<Splashscreen> {
         bool isInitialized = await _validEmailAddressService
             .checkIfAddressIsInitialized(user.email);
         if (isInitialized) {
-          _userRepository.setCurrentUser(user.uid);
+          _userService.setCurrentUser(user.uid);
           _authStatusManager.changeAuthState(AuthStatus.LOGGED_IN);
           _appStateManager.changeAppState(AppState.COACH);
         } else {

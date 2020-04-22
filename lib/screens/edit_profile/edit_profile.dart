@@ -6,7 +6,6 @@ import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/utils/translations/translation_mapper.dart';
 import 'package:project_teachers/widgets/index.dart';
-
 import 'base_edit_form.dart';
 
 class EditProfile extends StatefulWidget {
@@ -19,7 +18,7 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
   void initState() {
     super.initState();
     submitLabel = "global_save";
-    UserEntity currUser = userRepository.currentUser;
+    UserEntity currUser = userService.currentUser;
     userType = currUser.userType;
     name.text = currUser.name;
     surname.text = currUser.surname;
@@ -31,18 +30,18 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
       setState(() {
         if (userType == UserType.COACH) {
           pickedCoachTypeTranslation = Translations.of(context)
-              .text(userRepository.currentCoach.coachType.label);
+              .text(userService.currentCoach.coachType.label);
         }
-        if (userRepository.currentExpert.specializations != null) {
+        if (userService.currentExpert.specializations != null) {
           pickedSpecializationsTranslation = TranslationMapper.translateList(
               SpecializationExtension.getLabelsFromList(
-                  userRepository.currentExpert.specializations),
+                  userService.currentExpert.specializations),
               context);
         }
-        if (userRepository.currentExpert.schoolSubjects != null) {
+        if (userService.currentExpert.schoolSubjects != null) {
           pickedSubjectsTranslation = TranslationMapper.translateList(
               SchoolSubjectExtension.getLabelsFromList(
-                  userRepository.currentExpert.schoolSubjects),
+                  userService.currentExpert.schoolSubjects),
               context);
         }
       });
@@ -51,7 +50,7 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
-    switch (userRepository.currentUser.userType) {
+    switch (userService.currentUser.userType) {
       case UserType.COACH:
         return  SafeArea(
             child: Stack(
@@ -82,9 +81,7 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
   Future<void> onSubmit() async {
     switch (userType) {
       case UserType.EXPERT:
-        await userRepository.updateExpertFromData(
-            auth.currentUser.uid,
-            auth.currentUser.email,
+        await userService.updateCurrentExpertData(
             name.text,
             surname.text,
             city.text,
@@ -99,9 +96,7 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
                     pickedSpecializationsTranslation, context)));
         break;
       case UserType.COACH:
-        await userRepository.updateCoachFromData(
-            auth.currentUser.uid,
-            auth.currentUser.email,
+        await userService.updateCurrentCoachData(
             name.text,
             surname.text,
             city.text,

@@ -2,9 +2,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:grouped_buttons/grouped_buttons.dart';
 import 'package:project_teachers/entities/user_enums.dart';
-import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:project_teachers/services/filtering_serivce.dart';
+import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/utils/translations/translation_mapper.dart';
@@ -24,13 +24,13 @@ class _FilterPageState extends State<FilterPage> {
   List<String> _pickedSubjectsTranslation;
   List<String> _pickedSpecializationsTranslation;
   List<String> _coachTypeRadioLabels = List<String>();
-  UserRepository _userRepository;
+  UserService _userService;
 
   @override
   void initState() {
     super.initState();
     _filteringService = FilteringService.instance;
-    _userRepository = UserRepository.instance;
+    _userService = UserService.instance;
     Future.delayed(Duration.zero, () {
       _appStateManager = Provider.of<AppStateManager>(context, listen: false);
       setState(() {
@@ -126,7 +126,7 @@ class _FilterPageState extends State<FilterPage> {
     } else {
       _filteringService.activeCoachType = null;
     }
-    _userRepository.resetCoachList();
+    _userService.resetCoachList();
     _appStateManager.changeAppState(AppState.COACH);
   }
 

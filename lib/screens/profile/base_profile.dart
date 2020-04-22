@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/services/storage_sevice.dart';
+import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/themes/index.dart';
 import 'package:project_teachers/widgets/index.dart';
 
 abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
   @protected
-  UserRepository userRepository;
+  UserService userService;
   @protected
   StorageService storageService;
   @protected
@@ -33,7 +34,7 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
   @override
   void initState() {
     super.initState();
-    userRepository = UserRepository.instance;
+    userService = UserService.instance;
     storageService = StorageService.instance;
     backgroundImage = Image.asset(
       "assets/img/default_background.jpg",

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
+import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:provider/provider.dart';
 
@@ -24,7 +24,7 @@ class Coach extends StatefulWidget {
 
 class _CoachState extends State<Coach> implements CoachPageListener {
 
-  UserRepository _userRepository;
+  UserService _userService;
   ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
   AppStateManager _appStateManager;
@@ -32,9 +32,9 @@ class _CoachState extends State<Coach> implements CoachPageListener {
   @override
   void initState() {
     super.initState();
-    _userRepository = UserRepository.instance;
-    _userRepository.coachPageListeners.add(this);
-    _userRepository.updateCoachList();
+    _userService = UserService.instance;
+    _userService.coachPageListeners.add(this);
+    _userService.updateCoachList();
     _scrollController.addListener(() {
       double maxScroll = _scrollController.position.maxScrollExtent;
       double currentScroll = _scrollController.position.pixels;
@@ -53,21 +53,21 @@ class _CoachState extends State<Coach> implements CoachPageListener {
   Widget build(BuildContext context) {
     return Column(children: [
       Expanded(
-        child: _userRepository.coachList == null || _userRepository.coachList.length == 0
+        child: _userService.coachList == null || _userService.coachList.length == 0
             ? Center(
           child: Text('No Data...'),
         )
             : ListView.builder(
           controller: _scrollController,
-          itemCount: _userRepository.coachList.length,
+          itemCount: _userService.coachList.length,
           itemBuilder: (context, index) {
             return ListTile(
               leading: Icon(Icons.school),
               contentPadding: EdgeInsets.all(5),
-              title: Text(_userRepository.coachList[index].name + " " + _userRepository.coachList[index].surname),
-              subtitle: Text(_userRepository.coachList[index].school),
+              title: Text(_userService.coachList[index].name + " " + _userService.coachList[index].surname),
+              subtitle: Text(_userService.coachList[index].school),
               onTap: (){
-                _userRepository.setSelectedCoach(_userRepository.coachList[index]);
+                _userService.setSelectedCoach(_userService.coachList[index]);
                 _appStateManager.changeAppState(AppState.COACH_PROFILE_PAGE);
               }
             );
@@ -92,10 +92,10 @@ class _CoachState extends State<Coach> implements CoachPageListener {
   }
 
   Future<void> _loadMoreCoaches() async {
-    if (!_userRepository.hasMoreCoaches || _isLoading) {
+    if (!_userService.hasMoreCoaches || _isLoading) {
       return;
     }
-    _userRepository.updateCoachList();
+    _userService.updateCoachList();
     setState(() {
       _isLoading = true;
     });
@@ -104,8 +104,8 @@ class _CoachState extends State<Coach> implements CoachPageListener {
   @override
   void dispose() {
     super.dispose();
-    _userRepository.resetCoachList();
-    _userRepository.coachPageListeners.remove(this);
+    _userService.resetCoachList();
+    _userService.coachPageListeners.remove(this);
   }
 
   @override

@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_teachers/entities/user_entity.dart';
-import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:project_teachers/services/auth.dart';
 import 'package:project_teachers/services/auth_status_manager.dart';
 import 'package:project_teachers/services/storage_sevice.dart';
+import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:provider/provider.dart';
 
@@ -18,7 +18,7 @@ class _NavigationDrawerState extends State<NavigationDrawer>
     implements UserListener, UserProfileImageListener {
   String _userName = "";
   String _userEmail = "";
-  UserRepository _userRepository;
+  UserService _userService;
   BaseAuth _auth;
   AppStateManager _appStateManager;
   AuthStatusManager _authStatusManager;
@@ -28,10 +28,10 @@ class _NavigationDrawerState extends State<NavigationDrawer>
   @override
   void initState() {
     super.initState();
-    _userRepository = UserRepository.instance;
+    _userService = UserService.instance;
     _auth = Auth.instance;
     _storageService = StorageService.instance;
-    _userRepository.userListeners.add(this);
+    _userService.userListeners.add(this);
     _storageService.userProfileImageListeners.add(this);
     onUserDataChange();
     _profileImage = CircleAvatar(
@@ -119,7 +119,7 @@ class _NavigationDrawerState extends State<NavigationDrawer>
             onTap: () {
               Navigator.of(context).pop();
               _auth.signOut();
-              _userRepository.logoutUser();
+              _userService.logoutUser();
               _authStatusManager.changeAuthState(AuthStatus.NOT_LOGGED_IN);
               _appStateManager.changeAppState(AppState.LOGIN);
             },
@@ -132,7 +132,7 @@ class _NavigationDrawerState extends State<NavigationDrawer>
   @override
   onUserDataChange() {
     setState(() {
-      UserEntity user = _userRepository.currentUser;
+      UserEntity user = _userService.currentUser;
       if (user != null) {
         _userEmail = user.email;
         _userName = user.name + " " + user.surname;
@@ -146,7 +146,7 @@ class _NavigationDrawerState extends State<NavigationDrawer>
   @override
   void dispose() {
     super.dispose();
-    _userRepository.userListeners.remove(this);
+    _userService.userListeners.remove(this);
     _storageService.userProfileImageListeners.remove(this);
   }
 

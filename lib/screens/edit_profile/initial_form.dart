@@ -46,10 +46,9 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
   @override
   Future<void> onSubmit() async {
     String email = auth.currentUser.email;
-    await validEmailAddressService.markAddressAsInitialized(email);
     switch (userType) {
       case UserType.EXPERT:
-        await userRepository.setInitializedCurrentExpert(
+        await userService.setInitializedCurrentExpert(
             auth.currentUser.uid,
             auth.currentUser.email,
             name.text,
@@ -67,7 +66,7 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
         break;
 
       case UserType.COACH:
-        await userRepository.setInitializedCurrentCoach(
+        await userService.setInitializedCurrentCoach(
             auth.currentUser.uid,
             auth.currentUser.email,
             name.text,
@@ -86,6 +85,7 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
                 Translations.of(context).key(pickedCoachTypeTranslation)));
         break;
     }
+    await validEmailAddressService.markAddressAsInitialized(email);
     authStatusManager.changeAuthState(AuthStatus.LOGGED_IN);
     appStateManager.changeAppState(AppState.COACH);
   }
@@ -94,7 +94,7 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
   @override
   void onBack() {
     appStateManager.changeAppState(AppState.LOGIN);
-    userRepository.logoutUser();
+    userService.logoutUser();
     authStatusManager.changeAuthState(AuthStatus.NOT_LOGGED_IN);
   }
 

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:project_teachers/entities/expert_entity.dart';
 import 'package:project_teachers/entities/user_enums.dart';
-import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/screens/profile/base_profile.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:project_teachers/services/storage_sevice.dart';
+import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/utils/translations/translation_mapper.dart';
@@ -72,18 +72,20 @@ class _UserProfileState extends BaseProfileState<UserProfile>
   @override
   void initState() {
     super.initState();
-    userRepository.userListeners.add(this);
+    userService.userListeners.add(this);
     storageService.userProfileImageListeners.add(this);
     storageService.userBackgroundImageListeners.add(this);
-    onUserDataChange();
     onUserProfileImageChange();
     onUserBackgroundImageChange();
+    Future.delayed(Duration.zero, () {
+      onUserDataChange();
+    });
   }
 
   @override
   onUserDataChange() {
     setState(() {
-      ExpertEntity expert = userRepository.currentExpert;
+      ExpertEntity expert = userService.currentExpert;
       if (expert != null) {
         userName = expert.name + " " + expert.surname;
         city = expert.city;
@@ -102,7 +104,7 @@ class _UserProfileState extends BaseProfileState<UserProfile>
         if (expert.userType == UserType.COACH) {
           profession += " - " +
               Translations.of(context)
-                  .text(userRepository.currentCoach.coachType.label);
+                  .text(userService.currentCoach.coachType.label);
         }
         bio = expert.bio;
         if (expert.specializations != null &&
@@ -125,7 +127,7 @@ class _UserProfileState extends BaseProfileState<UserProfile>
   @override
   void dispose() {
     super.dispose();
-    userRepository.userListeners.remove(this);
+    userService.userListeners.remove(this);
     storageService.userProfileImageListeners.remove(this);
     storageService.userBackgroundImageListeners.remove(this);
   }
