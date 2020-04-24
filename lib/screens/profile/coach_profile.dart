@@ -103,6 +103,14 @@ class _CoachProfileState extends BaseProfileState<CoachProfile>
         profession = coach.profession +
             " | Coach - " +
             Translations.of(context).text(coach.coachType.label);
+        availability = (coach.maxAvailabilityPerWeek != null
+                ? coach.maxAvailabilityPerWeek.toString()
+                : "0 ") +
+            " hrs per week | " +
+            (coach.remainingAvailabilityInWeek != null
+                ? coach.remainingAvailabilityInWeek.toString()
+                : "0 ") +
+            " hrs remaining in this week";
         bio = coach.bio;
         if (coach.specializations != null && coach.specializations.isNotEmpty) {
           competencies = TranslationMapper.translateList(
@@ -139,5 +147,29 @@ class _CoachProfileState extends BaseProfileState<CoachProfile>
         profileImage = storageService.coachProfileImage;
       });
     }
+  }
+
+  @override
+  Widget buildProfile() {
+    return Column(
+      children: <Widget>[
+        SizedBox(height: MediaQuery.of(context).size.height / 3),
+        buildProfileImage(),
+        Text(userName, style: ThemeGlobalText().titleText),
+        SizedBox(height: 5),
+        Text(city, style: ThemeGlobalText().smallText),
+        SizedBox(height: 5),
+        Text(profession, style: ThemeGlobalText().text),
+        SizedBox(height: 5),
+        Text(school, style: ThemeGlobalText().text),
+        SizedBox(height: 5),
+        Text(availability, style: ThemeGlobalText().text),
+        SizedBox(height: 10),
+        buildProfileCompetencies(),
+        SizedBox(height: 10),
+        buildProfileBio(),
+        SizedBox(height: 100),
+      ],
+    );
   }
 }

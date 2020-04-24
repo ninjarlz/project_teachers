@@ -4,15 +4,21 @@ import 'package:project_teachers/widgets/slider/slider_thumb_circle.dart';
 
 class SliderWidget extends StatefulWidget {
   final double sliderHeight;
+  final int initValue;
   final int min;
   final int max;
   final fullWidth;
+  final ValueChanged<int> onChanged;
+  final bool dependantSlider;
 
   SliderWidget(
       {this.sliderHeight = 48,
-        this.max = 10,
-        this.min = 0,
-        this.fullWidth = false});
+      this.initValue = -1,
+      this.max = 10,
+      this.min = 0,
+      this.fullWidth = false,
+      this.onChanged,
+      this.dependantSlider = false});
 
   @override
   _SliderWidgetState createState() => _SliderWidgetState();
@@ -22,8 +28,19 @@ class _SliderWidgetState extends State<SliderWidget> {
   double _value = 0;
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.initValue != -1) {
+      _value = (widget.initValue.toDouble()) / widget.max;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     double paddingFactor = .2;
+    if (widget.initValue != -1 && widget.dependantSlider) {
+      _value = (widget.initValue.toDouble()) / widget.max;
+    }
 
     if (this.widget.fullWidth) paddingFactor = .3;
 
@@ -32,8 +49,8 @@ class _SliderWidgetState extends State<SliderWidget> {
           ? double.infinity
           : (this.widget.sliderHeight) * 5.5,
       height: (this.widget.sliderHeight),
-      decoration: new BoxDecoration(
-        borderRadius: new BorderRadius.all(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(
           Radius.circular((this.widget.sliderHeight * .3)),
         ),
         gradient: new LinearGradient(
@@ -58,7 +75,6 @@ class _SliderWidgetState extends State<SliderWidget> {
                 fontSize: this.widget.sliderHeight * .3,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
-
               ),
             ),
             SizedBox(
@@ -79,13 +95,15 @@ class _SliderWidgetState extends State<SliderWidget> {
                     overlayColor: Colors.white.withOpacity(.4),
                     //valueIndicatorColor: Colors.white,
                     activeTickMarkColor: Colors.white,
-                    inactiveTickMarkColor: Colors.red.withOpacity(.7),
+                    inactiveTickMarkColor: Colors.white.withOpacity(.7),
                   ),
                   child: Slider(
+                      divisions: widget.max,
                       value: _value,
                       onChanged: (value) {
                         setState(() {
                           _value = value;
+                          widget.onChanged((widget.max * value).round());
                         });
                       }),
                 ),

@@ -55,6 +55,8 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
   @protected
   List<String> pickedSpecializationsTranslation;
   @protected
+  int maxAvailability = 0;
+  @protected
   AuthStatusManager authStatusManager;
   @protected
   AppStateManager appStateManager;
@@ -197,7 +199,8 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
                 style: ThemeGlobalText().titleText),
             CheckboxGroup(
               onSelected: onSubjectsValuesChanged,
-              labels: TranslationMapper.translateList(SchoolSubjectExtension.labels, context),
+              labels: TranslationMapper.translateList(
+                  SchoolSubjectExtension.labels, context),
               checked: pickedSubjectsTranslation,
               activeColor: ThemeGlobalColor().secondaryColorDark,
               labelStyle: ThemeGlobalText().text,
@@ -206,7 +209,8 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
                 style: ThemeGlobalText().titleText),
             CheckboxGroup(
               onSelected: onSpecializationsValuesChanged,
-              labels: TranslationMapper.translateList(SpecializationExtension.labels, context),
+              labels: TranslationMapper.translateList(
+                  SpecializationExtension.labels, context),
               checked: pickedSpecializationsTranslation,
               activeColor: ThemeGlobalColor().secondaryColorDark,
               labelStyle: ThemeGlobalText().text,
@@ -221,11 +225,19 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
               picked: pickedCoachTypeTranslation,
               activeColor: ThemeGlobalColor().secondaryColorDark,
             ),
-            Text(Translations.of(context).text("max_availability_hours_per_week"),
+            Text(
+                Translations.of(context)
+                    .text("max_availability_hours_per_week"),
                 style: ThemeGlobalText().titleText),
             Padding(
               padding: EdgeInsets.all(8),
-              child: Center(child: SliderWidget(min: 0, max: 8),),
+              child: Center(
+                  child: SliderWidget(
+                      initValue: maxAvailability != null ? maxAvailability : 0,
+                      min: 0,
+                      max: 8,
+                      onChanged: onMaxAvailabilityValueChanged,
+                      dependantSlider: false)),
             ),
             ButtonPrimaryWidget(
                 text: Translations.of(context).text(submitLabel),
@@ -302,7 +314,8 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
                 style: ThemeGlobalText().titleText),
             CheckboxGroup(
               onSelected: onSubjectsValuesChanged,
-              labels: TranslationMapper.translateList(SchoolSubjectExtension.labels, context),
+              labels: TranslationMapper.translateList(
+                  SchoolSubjectExtension.labels, context),
               checked: pickedSubjectsTranslation,
               activeColor: ThemeGlobalColor().secondaryColorDark,
               labelStyle: ThemeGlobalText().text,
@@ -311,7 +324,8 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
                 style: ThemeGlobalText().titleText),
             CheckboxGroup(
               onSelected: onSpecializationsValuesChanged,
-              labels: TranslationMapper.translateList(SpecializationExtension.labels, context),
+              labels: TranslationMapper.translateList(
+                  SpecializationExtension.labels, context),
               checked: pickedSpecializationsTranslation,
               activeColor: ThemeGlobalColor().secondaryColorDark,
               labelStyle: ThemeGlobalText().text,
@@ -344,5 +358,9 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
     setState(() {
       pickedSubjectsTranslation = selected;
     });
+  }
+
+  void onMaxAvailabilityValueChanged(int maxAvailability) {
+    this.maxAvailability = maxAvailability;
   }
 }

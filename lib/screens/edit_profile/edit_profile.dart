@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:grouped_buttons/grouped_buttons.dart';
+import 'package:project_teachers/entities/coach_entity.dart';
 import 'package:project_teachers/entities/user_entity.dart';
 import 'package:project_teachers/entities/user_enums.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
@@ -18,6 +19,8 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends BaseEditFormState<EditProfile> {
+  int _remainingAvailability = 0;
+
   @override
   void initState() {
     super.initState();
@@ -33,8 +36,15 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
     Future.delayed(Duration.zero, () {
       setState(() {
         if (userType == UserType.COACH) {
-          pickedCoachTypeTranslation = Translations.of(context)
-              .text(userService.currentCoach.coachType.label);
+          CoachEntity currentCoach = userService.currentCoach;
+          pickedCoachTypeTranslation =
+              Translations.of(context).text(currentCoach.coachType.label);
+          if (currentCoach.maxAvailabilityPerWeek != null) {
+            maxAvailability = currentCoach.maxAvailabilityPerWeek;
+          }
+          if (currentCoach.remainingAvailabilityInWeek != null) {
+            _remainingAvailability = currentCoach.remainingAvailabilityInWeek;
+          }
         }
         if (userService.currentExpert.specializations != null) {
           pickedSpecializationsTranslation = TranslationMapper.translateList(
@@ -115,8 +125,8 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
                     pickedSpecializationsTranslation, context)),
             CoachTypeExtension.getValue(
                 Translations.of(context).key(pickedCoachTypeTranslation)),
-            null,
-            null);
+            maxAvailability != 0 ? maxAvailability : 0,
+            _remainingAvailability != 0 ? _remainingAvailability : null);
         break;
     }
     appStateManager.changeAppState(AppState.PROFILE_PAGE);
@@ -220,8 +230,12 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
             Padding(
               padding: EdgeInsets.all(8),
               child: Center(
-                child: SliderWidget(min: 0, max: 8),
-              ),
+                  child: SliderWidget(
+                      initValue: maxAvailability,
+                      min: 0,
+                      max: 8,
+                      onChanged: onMaxAvailabilityValueChanged,
+                      dependantSlider: false)),
             ),
             Text(
                 Translations.of(context)
@@ -230,7 +244,14 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
             Padding(
               padding: EdgeInsets.all(8),
               child: Center(
-                child: SliderWidget(min: 0, max: 8),
+                child: maxAvailability != 0
+                    ? SliderWidget(
+                        initValue: _remainingAvailability,
+                        min: 0,
+                        max: maxAvailability,
+                        onChanged: onRemainingAvailabilityValueChanged,
+                        dependantSlider: true)
+                    : Text("-", style: ThemeGlobalText().titleText),
               ),
             ),
             ButtonPrimaryWidget(
@@ -243,5 +264,19 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
         ),
       ),
     );
+  }
+
+  @override
+  void onMaxAvailabilityValueChanged(int maxAvailability) {
+    setState(() {
+      this.maxAvailability = maxAvailability;
+      _remainingAvailability = maxAvailability;
+    });
+  }
+
+  void onRemainingAvailabilityValueChanged(int remainingAvailability) {
+    setState(() {
+      _remainingAvailability = remainingAvailability;
+    });
   }
 }
