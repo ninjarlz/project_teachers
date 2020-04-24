@@ -86,5 +86,9 @@
   "specializations": "Specializations",
   "filter_coaches": "Filter coaches",
   "apply": "Apply",
-  "all": "All"
+  "all": "All",
+  "book_consultation_hours": "Book consultation hours",
+  "max_availability_hours_per_week": "Max. availability (hours per week)",
+  "remaining_availability_hours_in_this_week": "Remaining availability (hours in this week)"
+
 }

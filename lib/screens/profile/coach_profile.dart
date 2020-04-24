@@ -47,6 +47,14 @@ class CoachProfile extends StatefulWidget {
           labelStyle:
               TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
           labelBackgroundColor: ThemeGlobalColor().secondaryColor,
+        ),
+        SpeedDialChild(
+          child: Icon(Icons.add_circle_outline, color: Colors.white),
+          backgroundColor: ThemeGlobalColor().secondaryColor,
+          label: Translations.of(context).text("book_consultation_hours"),
+          labelStyle:
+              TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
+          labelBackgroundColor: ThemeGlobalColor().secondaryColor,
         )
       ],
     );
@@ -98,7 +106,8 @@ class _CoachProfileState extends BaseProfileState<CoachProfile>
         bio = coach.bio;
         if (coach.specializations != null && coach.specializations.isNotEmpty) {
           competencies = TranslationMapper.translateList(
-              SpecializationExtension.getShortcutsFromList(coach.specializations),
+              SpecializationExtension.getShortcutsFromList(
+                  coach.specializations),
               context);
         }
       });

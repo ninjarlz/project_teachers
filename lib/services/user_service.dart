@@ -157,18 +157,8 @@ class UserService {
     List<SchoolSubject> schoolSubjects,
     List<Specialization> specializations,
   ) async {
-    ExpertEntity expertEntity = ExpertEntity(
-        name,
-        surname,
-        email,
-        city,
-        school,
-        profession,
-        bio,
-        null,
-        null,
-        schoolSubjects,
-        specializations);
+    ExpertEntity expertEntity = ExpertEntity(name, surname, email, city, school,
+        profession, bio, null, null, schoolSubjects, specializations);
     expertEntity.uid = userId;
     await _userRepository.updateUser(expertEntity);
     setCurrentUser(userId);
@@ -185,7 +175,8 @@ class UserService {
       String bio,
       List<SchoolSubject> schoolSubjects,
       List<Specialization> specializations,
-      CoachType coachType) async {
+      CoachType coachType,
+      int maxAvailabilityPerWeek) async {
     CoachEntity coachEntity = CoachEntity(
         name,
         surname,
@@ -198,7 +189,9 @@ class UserService {
         null,
         schoolSubjects,
         specializations,
-        coachType);
+        coachType,
+        maxAvailabilityPerWeek,
+        maxAvailabilityPerWeek);
     coachEntity.uid = userId;
     await _userRepository.updateUser(coachEntity);
     setCurrentUser(userId);
@@ -244,7 +237,9 @@ class UserService {
       String bio,
       List<SchoolSubject> schoolSubjects,
       List<Specialization> specializations,
-      CoachType coachType) async {
+      CoachType coachType,
+      int maxAvailabilityPerWeek,
+      int remainingAvailabilityPerWeek) async {
     String profileImageName = _currentUser.profileImageName;
     String backgroundImageName = _currentUser.backgroundImageName;
     CoachEntity coach = CoachEntity(
@@ -259,7 +254,9 @@ class UserService {
         backgroundImageName,
         schoolSubjects,
         specializations,
-        coachType);
+        coachType,
+        maxAvailabilityPerWeek,
+        remainingAvailabilityPerWeek);
     coach.uid = _currentUser.uid;
     await updateUser(coach);
   }

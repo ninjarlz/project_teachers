@@ -5,6 +5,8 @@ import 'expert_entity.dart';
 
 class CoachEntity extends ExpertEntity {
   CoachType coachType;
+  int maxAvailabilityPerWeek;
+  int remainingAvailabilityInWeek;
 
   CoachEntity(
       String name,
@@ -18,7 +20,9 @@ class CoachEntity extends ExpertEntity {
       String backgroundImageName,
       List<SchoolSubject> schoolSubjects,
       List<Specialization> specializations,
-      CoachType coachType)
+      CoachType coachType,
+      int maxAvailabilityPerWeek,
+      int remainingAvailabilityInWeek)
       : super(
             name,
             surname,
@@ -33,6 +37,8 @@ class CoachEntity extends ExpertEntity {
             specializations) {
     userType = UserType.COACH;
     this.coachType = coachType;
+    this.maxAvailabilityPerWeek = maxAvailabilityPerWeek;
+    this.remainingAvailabilityInWeek = remainingAvailabilityInWeek;
   }
 
   factory CoachEntity.fromJson(Map<dynamic, dynamic> json) {
@@ -48,7 +54,9 @@ class CoachEntity extends ExpertEntity {
         json["backgroundImageName"],
         ExpertEntity.subjectsListFromSnapshot(json),
         ExpertEntity.specializationListFromSnapshot(json),
-        CoachTypeExtension.getValue(json["coachType"]));
+        CoachTypeExtension.getValue(json["coachType"]),
+        maxAvailabilityFromSnapshot(json),
+        remainingAvailabilityFromSnapshot(json));
   }
 
   factory CoachEntity.fromSnapshot(DocumentSnapshot documentSnapshot) {
@@ -64,7 +72,9 @@ class CoachEntity extends ExpertEntity {
         documentSnapshot.data["backgroundImageName"],
         ExpertEntity.subjectsListFromSnapshot(documentSnapshot.data),
         ExpertEntity.specializationListFromSnapshot(documentSnapshot.data),
-        CoachTypeExtension.getValue(documentSnapshot.data["coachType"]));
+        CoachTypeExtension.getValue(documentSnapshot.data["coachType"]),
+        maxAvailabilityFromSnapshot(documentSnapshot.data),
+        remainingAvailabilityFromSnapshot(documentSnapshot.data));
   }
 
   @override
@@ -83,7 +93,53 @@ class CoachEntity extends ExpertEntity {
       "schoolSubjects": ExpertEntity.schoolSubjectsMapFromList(schoolSubjects),
       "specializations":
           ExpertEntity.specializationsMapFromList(specializations),
-      "coachType": coachType.label
+      "coachType": coachType.label,
+      "maxAvailabilityPerWeek": filterableBoolMapFromMaxAvailability(),
+      "remainingAvailabilityPerWeek":
+          filterableBoolMapFromRemainingAvailability()
     };
+  }
+
+  Map<String, bool> filterableBoolMapFromMaxAvailability() {
+    Map<String, bool> map = Map<String, bool>();
+    for (int i = 1; i <= maxAvailabilityPerWeek; i++) {
+      map[i.toString()] = true;
+    }
+    return map;
+  }
+
+  Map<String, bool> filterableBoolMapFromRemainingAvailability() {
+    Map<String, bool> map = Map<String, bool>();
+    for (int i = 1; i <= maxAvailabilityPerWeek; i++) {
+      map[i.toString()] = i <= remainingAvailabilityInWeek;
+    }
+    return map;
+  }
+
+  static int maxAvailabilityFromSnapshot(Map<dynamic, dynamic> snapshot) {
+    int maxAvailability = null;
+    if (snapshot.containsKey("maxAvailability")) {
+      Map<dynamic, dynamic> maxAvailabilityMap = snapshot["maxAvailability"];
+      maxAvailability = maxAvailabilityMap.values.length;
+    }
+    return maxAvailability;
+  }
+
+  static int remainingAvailabilityFromSnapshot(Map<dynamic, dynamic> snapshot) {
+    int remainingAvailability = null;
+    if (snapshot.containsKey("remainingAvailability")) {
+      Map<dynamic, dynamic> remainingAvailabilityMap =
+          snapshot["remainingAvailability"];
+      int counter = 0;
+      remainingAvailabilityMap.forEach((key, value) {
+        if (value) {
+          counter++;
+        } else {
+          remainingAvailability = counter;
+          return;
+        }
+      });
+    }
+    return remainingAvailability;
   }
 }

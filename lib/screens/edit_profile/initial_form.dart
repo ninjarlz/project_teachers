@@ -82,7 +82,8 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
                 TranslationMapper.labelsFromTranslation(
                     pickedSpecializationsTranslation, context)),
             CoachTypeExtension.getValue(
-                Translations.of(context).key(pickedCoachTypeTranslation)));
+                Translations.of(context).key(pickedCoachTypeTranslation)),
+            null);
         break;
     }
     await validEmailAddressService.markAddressAsInitialized(email);
@@ -106,7 +107,8 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
       case EditFormStateEnum.USER_TYPE_DETERMINED:
         switch (userType) {
           case UserType.COACH:
-            return Scaffold(body: SafeArea(
+            return Scaffold(
+                body: SafeArea(
               child: Stack(
                 children: <Widget>[
                   showCoachForm(),
@@ -116,7 +118,8 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
             ));
 
           default:
-            return Scaffold(body: SafeArea(
+            return Scaffold(
+                body: SafeArea(
               child: Stack(
                 children: <Widget>[
                   showExpertForm(),

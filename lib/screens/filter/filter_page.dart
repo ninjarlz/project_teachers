@@ -10,6 +10,7 @@ import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/utils/translations/translation_mapper.dart';
 import 'package:project_teachers/widgets/button/button_primary.dart';
 import 'package:project_teachers/widgets/button/button_secondary.dart';
+import 'package:project_teachers/widgets/slider/slider_widget.dart';
 import 'package:provider/provider.dart';
 
 class FilterPage extends StatefulWidget {
@@ -95,6 +96,18 @@ class _FilterPageState extends State<FilterPage> {
             labelStyle: ThemeGlobalText().text,
             picked: _pickedCoachTypeTranslation,
             activeColor: ThemeGlobalColor().secondaryColorDark,
+          ),
+          Text(Translations.of(context).text("max_availability_hours_per_week"),
+              style: ThemeGlobalText().titleText),
+          Padding(
+            padding: EdgeInsets.all(8),
+            child: Center(child: SliderWidget(min: 0, max: 8),),
+          ),
+          Text(Translations.of(context).text("remaining_availability_hours_in_this_week"),
+              style: ThemeGlobalText().titleText),
+          Padding(
+            padding: EdgeInsets.all(8),
+            child: Center(child: SliderWidget(min: 0, max: 8),),
           ),
           ButtonPrimaryWidget(
               text: Translations.of(context).text("apply"),

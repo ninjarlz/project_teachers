@@ -17,6 +17,7 @@ import 'package:project_teachers/widgets/button/button_secondary.dart';
 import 'package:project_teachers/widgets/index.dart';
 import 'package:project_teachers/widgets/input/input_with_icon.dart';
 import 'package:project_teachers/widgets/input/places_input_with_icon.dart';
+import 'package:project_teachers/widgets/slider/slider_widget.dart';
 import 'package:project_teachers/widgets/text/text_error.dart';
 import 'package:provider/provider.dart';
 
@@ -219,6 +220,12 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
               labelStyle: ThemeGlobalText().text,
               picked: pickedCoachTypeTranslation,
               activeColor: ThemeGlobalColor().secondaryColorDark,
+            ),
+            Text(Translations.of(context).text("max_availability_hours_per_week"),
+                style: ThemeGlobalText().titleText),
+            Padding(
+              padding: EdgeInsets.all(8),
+              child: Center(child: SliderWidget(min: 0, max: 8),),
             ),
             ButtonPrimaryWidget(
                 text: Translations.of(context).text(submitLabel),
