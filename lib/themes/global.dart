@@ -15,54 +15,23 @@ class ThemeGlobalColor {
 }
 
 class ThemeGlobalShape {
-  RoundedRectangleBorder mainButtonShape =
-      RoundedRectangleBorder(borderRadius: BorderRadius.circular(10));
+  RoundedRectangleBorder mainButtonShape = RoundedRectangleBorder(borderRadius: BorderRadius.circular(10));
 }
 
 class ThemeGlobalText {
-  TextStyle titleText = TextStyle(
-      fontFamily: 'Montserrat',
-      fontSize: 20.0,
-      color: ThemeGlobalColor().textColor);
+  TextStyle titleText = TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold, color: ThemeGlobalColor().textColor);
 
-  TextStyle text = TextStyle(
-      fontFamily: 'Montserrat',
-      fontSize: 14.0,
-      fontWeight: FontWeight.w300,
-      color: ThemeGlobalColor().textColor);
+  TextStyle text = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: ThemeGlobalColor().textColor);
 
-  TextStyle inputText = TextStyle(
-      fontFamily: 'Montserrat',
-      fontSize: 14.0,
-      fontWeight: FontWeight.w300,
-      color: ThemeGlobalColor().textColor);
+  TextStyle inputText = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: ThemeGlobalColor().textColor);
 
-  TextStyle smallText = TextStyle(
-      fontFamily: 'Montserrat',
-      fontSize: 13.0,
-      fontWeight: FontWeight.w300,
-      color: ThemeGlobalColor().smallTextColor);
+  TextStyle smallText = TextStyle(fontSize: 13.0, fontWeight: FontWeight.w300, color: ThemeGlobalColor().smallTextColor);
 
-  TextStyle errorText = TextStyle(
-    fontFamily: 'Montserrat',
-    color: Colors.redAccent,
-  );
+  TextStyle errorText = TextStyle(color: Colors.redAccent);
 
-  TextStyle mainButtonText = TextStyle(
-      fontFamily: 'Montserrat',
-      fontSize: 16.0,
-      color: Colors.white,
-      fontWeight: FontWeight.w500);
+  TextStyle mainButtonText = TextStyle(fontSize: 16.0, color: Colors.white, fontWeight: FontWeight.w500);
 
-  TextStyle buttonText = TextStyle(
-    fontFamily: 'Montserrat',
-    fontSize: 12.0,
-    color: Colors.white,
-  );
+  TextStyle buttonText = TextStyle(fontSize: 12.0, color: Colors.white);
 
-  TextStyle appBarText = TextStyle(
-      fontFamily: 'Montserrat',
-      fontSize: 21.0,
-      fontWeight: FontWeight.bold,
-      color: ThemeGlobalColor().secondaryColorDark);
+  TextStyle appBarText = TextStyle(fontSize: 21.0, fontWeight: FontWeight.bold, color: ThemeGlobalColor().secondaryColorDark);
 }
