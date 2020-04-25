@@ -49,7 +49,7 @@ class _CoachState extends State<Coach> implements CoachPageListener {
 
   Widget _buildRow(int index) {
     String fullName = "${_userService.coachList[index].name} ${_userService.coachList[index].surname}";
-    if (_searchCtrl.text.length != 0 && !fullName.contains(_searchCtrl.text)) return Container();
+    if (_searchCtrl.text.length != 0 && !fullName.toLowerCase().contains(_searchCtrl.text.toLowerCase())) return Container();
     return ListTile(
         leading: Material(
           child: _userService.coachList[index].profileImageName != null

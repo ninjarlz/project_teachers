@@ -37,19 +37,14 @@ class _FilterPageState extends State<FilterPage> {
     Future.delayed(Duration.zero, () {
       _appStateManager = Provider.of<AppStateManager>(context, listen: false);
       setState(() {
-        _pickedSpecializationsTranslation = TranslationMapper.translateList(
-            SpecializationExtension.getLabelsFromList(
-                _filteringService.activeSpecializations),
-            context);
-        _pickedSubjectsTranslation = TranslationMapper.translateList(
-            SchoolSubjectExtension.getLabelsFromList(
-                _filteringService.activeSchoolSubjects),
-            context);
+        _pickedSpecializationsTranslation =
+            TranslationMapper.translateList(SpecializationExtension.getLabelsFromList(_filteringService.activeSpecializations), context);
+        _pickedSubjectsTranslation =
+            TranslationMapper.translateList(SchoolSubjectExtension.getLabelsFromList(_filteringService.activeSchoolSubjects), context);
         if (_filteringService.activeCoachType == null) {
           _pickedCoachTypeTranslation = Translations.of(context).text("all");
         } else {
-          _pickedCoachTypeTranslation = Translations.of(context)
-              .text(_filteringService.activeCoachType.label);
+          _pickedCoachTypeTranslation = Translations.of(context).text(_filteringService.activeCoachType.label);
         }
         if (_filteringService.activeMaxAvailability == null) {
           _maxAvailability = 0;
@@ -59,12 +54,10 @@ class _FilterPageState extends State<FilterPage> {
         if (_filteringService.activeRemainingAvailability == null) {
           _remainingAvailability = 0;
         } else {
-          _remainingAvailability =
-              _filteringService.activeRemainingAvailability;
+          _remainingAvailability = _filteringService.activeRemainingAvailability;
         }
         _coachTypeRadioLabels.add(Translations.of(context).text("all"));
-        _coachTypeRadioLabels.addAll(TranslationMapper.translateList(
-            CoachTypeExtension.labels, context));
+        _coachTypeRadioLabels.addAll(TranslationMapper.translateList(CoachTypeExtension.labels, context));
       });
     });
   }
@@ -81,28 +74,32 @@ class _FilterPageState extends State<FilterPage> {
       child: ListView(
         shrinkWrap: true,
         children: <Widget>[
-          Padding(padding: EdgeInsets.only(left: 20), child: Text(Translations.of(context).text("subjects"),
-              style: ThemeGlobalText().titleText),),
+          Padding(
+            padding: EdgeInsets.only(left: 20),
+            child: Text(Translations.of(context).text("subjects"), style: ThemeGlobalText().titleText),
+          ),
           CheckboxGroup(
             onSelected: onSubjectsValuesChanged,
-            labels: TranslationMapper.translateList(
-                SchoolSubjectExtension.labels, context),
+            labels: TranslationMapper.translateList(SchoolSubjectExtension.labels, context),
             checked: _pickedSubjectsTranslation,
             activeColor: ThemeGlobalColor().mainColorDark,
             labelStyle: ThemeGlobalText().text,
           ),
-          Padding(padding: EdgeInsets.only(left: 20), child: Text(Translations.of(context).text("specializations"),
-              style: ThemeGlobalText().titleText),),
+          Padding(
+            padding: EdgeInsets.only(left: 20),
+            child: Text(Translations.of(context).text("specializations"), style: ThemeGlobalText().titleText),
+          ),
           CheckboxGroup(
             onSelected: onSpecializationsValuesChanged,
-            labels: TranslationMapper.translateList(
-                SpecializationExtension.labels, context),
+            labels: TranslationMapper.translateList(SpecializationExtension.labels, context),
             checked: _pickedSpecializationsTranslation,
             activeColor: ThemeGlobalColor().mainColorDark,
             labelStyle: ThemeGlobalText().text,
           ),
-          Padding(padding: EdgeInsets.only(left: 20), child: Text(Translations.of(context).text("coach_type"),
-              style: ThemeGlobalText().titleText),),
+          Padding(
+            padding: EdgeInsets.only(left: 20),
+            child: Text(Translations.of(context).text("coach_type"), style: ThemeGlobalText().titleText),
+          ),
           RadioButtonGroup(
             labels: _coachTypeRadioLabels,
             onSelected: onCoachTypeValueChanged,
@@ -110,45 +107,43 @@ class _FilterPageState extends State<FilterPage> {
             picked: _pickedCoachTypeTranslation,
             activeColor: ThemeGlobalColor().mainColorDark,
           ),
-          Padding(padding: EdgeInsets.only(left: 20), child: Text(Translations.of(context).text("max_availability"),
-          Padding(padding: EdgeInsets.only(left: 20), child: Text(Translations.of(context).text("hours_per_week"),
-              style: ThemeGlobalText().titleText),),
-              style: ThemeGlobalText().smallText),),
           Padding(
-            padding: EdgeInsets.all(8),
-                child: SliderWidget(
-            child: Center(
-                    initValue: _maxAvailability,
-                    min: 0,
-                    max: 8,
-                    onChanged: onMaxAvailabilityValueChanged,
-                    dependantSlider: false)),
+            padding: EdgeInsets.only(left: 20),
+            child: Text(Translations.of(context).text("max_availability"), style: ThemeGlobalText().titleText),
           ),
-          Padding(padding: EdgeInsets.only(left: 20), child: Text(Translations.of(context).text("remaining_availability"),
-              style: ThemeGlobalText().titleText),),
-          Padding(padding: EdgeInsets.only(left: 20), child: Text(Translations.of(context).text("hours_this_week"),
-              style: ThemeGlobalText().smallText),),
           Padding(
-            padding: EdgeInsets.all(8),
-            child: Center(
-                child: _maxAvailability != 0
-                    ? SliderWidget(
-                    : Text("-", style: ThemeGlobalText().titleText)),
-                        initValue: _remainingAvailability,
-                        min: 0,
-                        max: _maxAvailability,
-                        onChanged: onRemainingAvailabilityValueChanged,
-                        dependantSlider: true)
+            padding: EdgeInsets.only(left: 20),
+            child: Text(Translations.of(context).text("hours_per_week"), style: ThemeGlobalText().smallText),
+          ),
+          Padding(
+            padding: EdgeInsets.all(15),
+            child:
+                SliderWidget(initValue: _maxAvailability, min: 0, max: 8, onChanged: onMaxAvailabilityValueChanged, dependantSlider: false),
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 20),
+            child: Text(Translations.of(context).text("remaining_availability"), style: ThemeGlobalText().titleText),
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 20),
+            child: Text(Translations.of(context).text("hours_this_week"), style: ThemeGlobalText().smallText),
+          ),
+          Padding(
+            padding: EdgeInsets.all(15),
+            child: _maxAvailability != 0
+                ? SliderWidget(
+                    initValue: _remainingAvailability,
+                    min: 0,
+                    max: _maxAvailability,
+                    onChanged: onRemainingAvailabilityValueChanged,
+                    dependantSlider: true)
+                : Text("-", style: ThemeGlobalText().titleText),
           ),
           Container(
             margin: EdgeInsets.symmetric(horizontal: 15),
-            child: ButtonPrimaryWidget(
-                text: Translations.of(context).text("apply"),
-                submit: applyFilters),
+            child: ButtonPrimaryWidget(text: Translations.of(context).text("apply"), submit: applyFilters),
           ),
-          ButtonSecondaryWidget(
-              text: Translations.of(context).text("global_back"),
-              submit: onBack),
+          ButtonSecondaryWidget(text: Translations.of(context).text("global_back"), submit: onBack),
         ],
       ),
     );
@@ -160,16 +155,11 @@ class _FilterPageState extends State<FilterPage> {
 
   void applyFilters() {
     _filteringService.activeSchoolSubjects =
-        SchoolSubjectExtension.getValuesFromLabels(
-            TranslationMapper.labelsFromTranslation(
-                _pickedSubjectsTranslation, context));
+        SchoolSubjectExtension.getValuesFromLabels(TranslationMapper.labelsFromTranslation(_pickedSubjectsTranslation, context));
     _filteringService.activeSpecializations =
-        SpecializationExtension.getValuesFromLabels(
-            TranslationMapper.labelsFromTranslation(
-                _pickedSpecializationsTranslation, context));
+        SpecializationExtension.getValuesFromLabels(TranslationMapper.labelsFromTranslation(_pickedSpecializationsTranslation, context));
     if (_pickedCoachTypeTranslation != Translations.of(context).text("all")) {
-      _filteringService.activeCoachType = CoachTypeExtension.getValue(
-          Translations.of(context).key(_pickedCoachTypeTranslation));
+      _filteringService.activeCoachType = CoachTypeExtension.getValue(Translations.of(context).key(_pickedCoachTypeTranslation));
     } else {
       _filteringService.activeCoachType = null;
     }
