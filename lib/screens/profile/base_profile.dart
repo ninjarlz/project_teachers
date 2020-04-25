@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/services/storage_sevice.dart';
 import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/themes/index.dart';
@@ -27,6 +26,8 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
   @protected
   String school = "";
   @protected
+  String availability = "";
+  @protected
   Image profileImage;
   @protected
   Image backgroundImage;
@@ -48,14 +49,16 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
     );
   }
 
-  Widget _buildBackgroundImage() {
+  @protected
+  Widget buildBackgroundImage() {
     return Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height / 2,
         child: backgroundImage);
   }
 
-  Widget _buildProfileImage() {
+  @protected
+  Widget buildProfileImage() {
     return Container(
       width: MediaQuery.of(context).size.width / 2,
       height: MediaQuery.of(context).size.width / 2,
@@ -69,7 +72,8 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
     );
   }
 
-  Widget _buildProfileBio() {
+  @protected
+  Widget buildProfileBio() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
       child:
@@ -77,7 +81,8 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
     );
   }
 
-  Widget _buildProfileCompetencyRow(int rowIndex) {
+  @protected
+  Widget buildProfileCompetencyRow(int rowIndex) {
     List<Widget> _rowElements = List<Widget>();
     for (int i = 0; i < 3 && (3 * rowIndex + i) < competencies.length; i++) {
       _rowElements.add(PillProfileWidget(text: competencies[3 * rowIndex + i]));
@@ -86,37 +91,20 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
         mainAxisAlignment: MainAxisAlignment.center, children: _rowElements);
   }
 
-  Widget _buildProfileCompetencies() {
+  @protected
+  Widget buildProfileCompetencies() {
     return ListView.builder(
         shrinkWrap: true,
         physics: NeverScrollableScrollPhysics(),
         padding: EdgeInsets.all(0),
         itemCount: (competencies.length / 3).ceil(),
         itemBuilder: (context, index) {
-          return _buildProfileCompetencyRow(index);
+          return buildProfileCompetencyRow(index);
         });
   }
 
-  Widget _buildProfile() {
-    return Column(
-      children: <Widget>[
-        SizedBox(height: MediaQuery.of(context).size.height / 3),
-        _buildProfileImage(),
-        Text(userName, style: ThemeGlobalText().titleText),
-        SizedBox(height: 5),
-        Text(city, style: ThemeGlobalText().smallText),
-        SizedBox(height: 5),
-        Text(profession, style: ThemeGlobalText().text),
-        SizedBox(height: 5),
-        Text(school, style: ThemeGlobalText().text),
-        SizedBox(height: 10),
-        _buildProfileCompetencies(),
-        SizedBox(height: 10),
-        _buildProfileBio(),
-        SizedBox(height: 100),
-      ],
-    );
-  }
+  @protected
+  Widget buildProfile();
 
   @override
   Widget build(BuildContext context) {
@@ -124,8 +112,8 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
       child: Stack(
         overflow: Overflow.visible,
         children: <Widget>[
-          _buildBackgroundImage(),
-          _buildProfile(),
+          buildBackgroundImage(),
+          buildProfile(),
         ],
       ),
     );

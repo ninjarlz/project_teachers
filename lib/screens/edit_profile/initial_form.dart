@@ -83,7 +83,7 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
                     pickedSpecializationsTranslation, context)),
             CoachTypeExtension.getValue(
                 Translations.of(context).key(pickedCoachTypeTranslation)),
-            null);
+            maxAvailability);
         break;
     }
     await validEmailAddressService.markAddressAsInitialized(email);

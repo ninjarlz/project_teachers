@@ -95,7 +95,7 @@ class CoachEntity extends ExpertEntity {
           ExpertEntity.specializationsMapFromList(specializations),
       "coachType": coachType.label,
       "maxAvailabilityPerWeek": filterableBoolMapFromMaxAvailability(),
-      "remainingAvailabilityPerWeek":
+      "remainingAvailabilityInWeek":
           filterableBoolMapFromRemainingAvailability()
     };
   }
@@ -118,8 +118,8 @@ class CoachEntity extends ExpertEntity {
 
   static int maxAvailabilityFromSnapshot(Map<dynamic, dynamic> snapshot) {
     int maxAvailability = null;
-    if (snapshot.containsKey("maxAvailability")) {
-      Map<dynamic, dynamic> maxAvailabilityMap = snapshot["maxAvailability"];
+    if (snapshot.containsKey("maxAvailabilityPerWeek")) {
+      Map<dynamic, dynamic> maxAvailabilityMap = snapshot["maxAvailabilityPerWeek"];
       maxAvailability = maxAvailabilityMap.values.length;
     }
     return maxAvailability;
@@ -127,18 +127,18 @@ class CoachEntity extends ExpertEntity {
 
   static int remainingAvailabilityFromSnapshot(Map<dynamic, dynamic> snapshot) {
     int remainingAvailability = null;
-    if (snapshot.containsKey("remainingAvailability")) {
+    if (snapshot.containsKey("remainingAvailabilityInWeek")) {
       Map<dynamic, dynamic> remainingAvailabilityMap =
-          snapshot["remainingAvailability"];
+          snapshot["remainingAvailabilityInWeek"];
       int counter = 0;
       remainingAvailabilityMap.forEach((key, value) {
         if (value) {
           counter++;
         } else {
-          remainingAvailability = counter;
           return;
         }
       });
+      remainingAvailability = counter;
     }
     return remainingAvailability;
   }

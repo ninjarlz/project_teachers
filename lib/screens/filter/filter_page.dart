@@ -25,6 +25,8 @@ class _FilterPageState extends State<FilterPage> {
   List<String> _pickedSubjectsTranslation;
   List<String> _pickedSpecializationsTranslation;
   List<String> _coachTypeRadioLabels = List<String>();
+  int _maxAvailability = 0;
+  int _remainingAvailability = 0;
   UserService _userService;
 
   @override
@@ -48,6 +50,17 @@ class _FilterPageState extends State<FilterPage> {
         } else {
           _pickedCoachTypeTranslation = Translations.of(context)
               .text(_filteringService.activeCoachType.label);
+        }
+        if (_filteringService.activeMaxAvailability == null) {
+          _maxAvailability = 0;
+        } else {
+          _maxAvailability = _filteringService.activeMaxAvailability;
+        }
+        if (_filteringService.activeRemainingAvailability == null) {
+          _remainingAvailability = 0;
+        } else {
+          _remainingAvailability =
+              _filteringService.activeRemainingAvailability;
         }
         _coachTypeRadioLabels.add(Translations.of(context).text("all"));
         _coachTypeRadioLabels.addAll(TranslationMapper.translateList(
@@ -101,13 +114,29 @@ class _FilterPageState extends State<FilterPage> {
               style: ThemeGlobalText().titleText),
           Padding(
             padding: EdgeInsets.all(8),
-            child: Center(child: SliderWidget(min: 0, max: 8),),
+            child: Center(
+                child: SliderWidget(
+                    initValue: _maxAvailability,
+                    min: 0,
+                    max: 8,
+                    onChanged: onMaxAvailabilityValueChanged,
+                    dependantSlider: false)),
           ),
-          Text(Translations.of(context).text("remaining_availability_hours_in_this_week"),
+          Text(
+              Translations.of(context)
+                  .text("remaining_availability_hours_in_this_week"),
               style: ThemeGlobalText().titleText),
           Padding(
             padding: EdgeInsets.all(8),
-            child: Center(child: SliderWidget(min: 0, max: 8),),
+            child: Center(
+                child: _maxAvailability != 0
+                    ? SliderWidget(
+                        initValue: _remainingAvailability,
+                        min: 0,
+                        max: _maxAvailability,
+                        onChanged: onRemainingAvailabilityValueChanged,
+                        dependantSlider: true)
+                    : Text("-", style: ThemeGlobalText().titleText)),
           ),
           ButtonPrimaryWidget(
               text: Translations.of(context).text("apply"),
@@ -139,6 +168,16 @@ class _FilterPageState extends State<FilterPage> {
     } else {
       _filteringService.activeCoachType = null;
     }
+    if (_maxAvailability == 0) {
+      _filteringService.activeMaxAvailability = null;
+    } else {
+      _filteringService.activeMaxAvailability = _maxAvailability;
+    }
+    if (_remainingAvailability == 0) {
+      _filteringService.activeRemainingAvailability = null;
+    } else {
+      _filteringService.activeRemainingAvailability = _remainingAvailability;
+    }
     _userService.resetCoachList();
     _appStateManager.changeAppState(AppState.COACH);
   }
@@ -158,6 +197,19 @@ class _FilterPageState extends State<FilterPage> {
   void onSubjectsValuesChanged(List<String> selected) {
     setState(() {
       _pickedSubjectsTranslation = selected;
+    });
+  }
+
+  void onMaxAvailabilityValueChanged(int maxAvailability) {
+    setState(() {
+      _maxAvailability = maxAvailability;
+      _remainingAvailability = 0;
+    });
+  }
+
+  void onRemainingAvailabilityValueChanged(int remainingAvailability) {
+    setState(() {
+      _remainingAvailability = remainingAvailability;
     });
   }
 }

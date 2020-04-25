@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:project_teachers/entities/coach_entity.dart';
 import 'package:project_teachers/entities/expert_entity.dart';
 import 'package:project_teachers/entities/user_enums.dart';
 import 'package:project_teachers/screens/profile/base_profile.dart';
@@ -69,9 +70,13 @@ class _UserProfileState extends BaseProfileState<UserProfile>
         UserListener,
         UserProfileImageListener,
         UserBackgroundImageListener {
+
+  UserType _userType;
+
   @override
   void initState() {
     super.initState();
+    _userType = userService.currentUser.userType;
     userService.userListeners.add(this);
     storageService.userProfileImageListeners.add(this);
     storageService.userBackgroundImageListeners.add(this);
@@ -101,10 +106,21 @@ class _UserProfileState extends BaseProfileState<UserProfile>
               expert.schoolSubjects[expert.schoolSubjects.length - 1].label);
         }
         profession = expert.profession + " | " + expert.userType.label;
-        if (expert.userType == UserType.COACH) {
+        if (_userType == UserType.COACH) {
+          CoachEntity coach = userService.currentCoach;
           profession += " - " +
               Translations.of(context)
-                  .text(userService.currentCoach.coachType.label);
+                  .text(coach.coachType.label);
+          availability = (coach.maxAvailabilityPerWeek !=
+                      null
+                  ? coach.maxAvailabilityPerWeek.toString()
+                  : "0 ") +
+              " hrs per week | " +
+              (coach.remainingAvailabilityInWeek != null
+                  ? coach.remainingAvailabilityInWeek
+                      .toString()
+                  : "0 ") +
+              " hrs remaining in this week";
         }
         bio = expert.bio;
         if (expert.specializations != null &&
@@ -148,5 +164,52 @@ class _UserProfileState extends BaseProfileState<UserProfile>
         profileImage = storageService.userProfileImage;
       });
     }
+  }
+
+  @override
+  Widget buildProfile() {
+    switch (_userType) {
+      case UserType.COACH:
+        return Column(
+          children: <Widget>[
+            SizedBox(height: MediaQuery.of(context).size.height / 3),
+            buildProfileImage(),
+            Text(userName, style: ThemeGlobalText().titleText),
+            SizedBox(height: 5),
+            Text(city, style: ThemeGlobalText().smallText),
+            SizedBox(height: 5),
+            Text(profession, style: ThemeGlobalText().text),
+            SizedBox(height: 5),
+            Text(school, style: ThemeGlobalText().text),
+            SizedBox(height: 5),
+            Text(availability, style: ThemeGlobalText().text),
+            SizedBox(height: 10),
+            buildProfileCompetencies(),
+            SizedBox(height: 10),
+            buildProfileBio(),
+            SizedBox(height: 100),
+          ],
+        );
+      default:
+      return Column(
+        children: <Widget>[
+          SizedBox(height: MediaQuery.of(context).size.height / 3),
+          buildProfileImage(),
+          Text(userName, style: ThemeGlobalText().titleText),
+          SizedBox(height: 5),
+          Text(city, style: ThemeGlobalText().smallText),
+          SizedBox(height: 5),
+          Text(profession, style: ThemeGlobalText().text),
+          SizedBox(height: 5),
+          Text(school, style: ThemeGlobalText().text),
+          SizedBox(height: 10),
+          buildProfileCompetencies(),
+          SizedBox(height: 10),
+          buildProfileBio(),
+          SizedBox(height: 100),
+        ],
+      );
+    }
+
   }
 }

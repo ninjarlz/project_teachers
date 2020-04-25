@@ -16,11 +16,15 @@ class FilteringService {
   CoachType activeCoachType;
   List<SchoolSubject> activeSchoolSubjects = List<SchoolSubject>();
   List<Specialization> activeSpecializations = List<Specialization>();
+  int activeMaxAvailability;
+  int activeRemainingAvailability;
 
   void resetFilters() {
     activeCoachType = null;
     activeSchoolSubjects = List<SchoolSubject>();
     activeSpecializations = List<Specialization>();
+    activeMaxAvailability = null;
+    activeRemainingAvailability = null;
   }
 
   Query prepareQuery(Query query) {
@@ -33,6 +37,16 @@ class FilteringService {
     }
     for (SchoolSubject activeSchoolSubject in activeSchoolSubjects) {
       query = query.where("schoolSubjects." + activeSchoolSubject.label,
+          isEqualTo: true);
+    }
+    if (activeMaxAvailability != null) {
+      query = query.where(
+          "maxAvailabilityPerWeek." + activeMaxAvailability.toString(),
+          isEqualTo: true);
+    }
+    if (activeRemainingAvailability != null) {
+      query = query.where(
+          "remainingAvailabilityInWeek." + activeRemainingAvailability.toString(),
           isEqualTo: true);
     }
     return query;
