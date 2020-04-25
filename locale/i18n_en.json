@@ -62,8 +62,8 @@
   "pedagogical_competence": "Pedagogical competence",
   "subject_matter_didactic_competence": "Subject matter & didactic competence",
   "organisational_competence": "Organisational competence",
-  "working_together_with_colleagues": "Working together with colleagues",
-  "working_together_with_the_surrounding_area": "Working together with the surrounding area",
+  "working_together_with_colleagues": "Working together w/ colleagues",
+  "working_together_with_the_surrounding_area": "Working together w/ environment",
   "reflection_and_development": "Reflection and development",
   "metropolitan_class_management_s": "Metropolitan class management",
   "mentor_council_s": "Mentor council",
@@ -88,7 +88,8 @@
   "apply": "Apply",
   "all": "All",
   "book_consultation_hours": "Book consultation hours",
-  "max_availability_hours_per_week": "Max. availability (hours per week)",
-  "remaining_availability_hours_in_this_week": "Remaining availability (hours in this week)"
-
+  "max_availability": "Max. availability",
+  "remaining_availability": "Remaining availability",
+  "hours_per_week": "Hours per week",
+  "hours_this_week": "Hours this week"
 }

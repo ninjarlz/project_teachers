@@ -43,7 +43,7 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
       alignment: Alignment.bottomCenter,
     );
     profileImage = Image.asset(
-      "assets/img/default_profile.png",
+      "assets/img/default_profile_2.png",
       fit: BoxFit.cover,
       alignment: Alignment.bottomCenter,
     );

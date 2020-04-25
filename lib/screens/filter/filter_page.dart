@@ -76,71 +76,76 @@ class _FilterPageState extends State<FilterPage> {
 
   Widget showFilters() {
     return Container(
-      padding: EdgeInsets.all(16.0),
+      margin: EdgeInsets.only(top: 10),
       width: MediaQuery.of(context).size.width,
       child: ListView(
         shrinkWrap: true,
         children: <Widget>[
-          Text(Translations.of(context).text("subjects"),
-              style: ThemeGlobalText().titleText),
+          Padding(padding: EdgeInsets.only(left: 20), child: Text(Translations.of(context).text("subjects"),
+              style: ThemeGlobalText().titleText),),
           CheckboxGroup(
             onSelected: onSubjectsValuesChanged,
             labels: TranslationMapper.translateList(
                 SchoolSubjectExtension.labels, context),
             checked: _pickedSubjectsTranslation,
-            activeColor: ThemeGlobalColor().secondaryColorDark,
+            activeColor: ThemeGlobalColor().mainColorDark,
             labelStyle: ThemeGlobalText().text,
           ),
-          Text(Translations.of(context).text("specializations"),
-              style: ThemeGlobalText().titleText),
+          Padding(padding: EdgeInsets.only(left: 20), child: Text(Translations.of(context).text("specializations"),
+              style: ThemeGlobalText().titleText),),
           CheckboxGroup(
             onSelected: onSpecializationsValuesChanged,
             labels: TranslationMapper.translateList(
                 SpecializationExtension.labels, context),
             checked: _pickedSpecializationsTranslation,
-            activeColor: ThemeGlobalColor().secondaryColorDark,
+            activeColor: ThemeGlobalColor().mainColorDark,
             labelStyle: ThemeGlobalText().text,
           ),
-          Text(Translations.of(context).text("coach_type"),
-              style: ThemeGlobalText().titleText),
+          Padding(padding: EdgeInsets.only(left: 20), child: Text(Translations.of(context).text("coach_type"),
+              style: ThemeGlobalText().titleText),),
           RadioButtonGroup(
             labels: _coachTypeRadioLabels,
             onSelected: onCoachTypeValueChanged,
             labelStyle: ThemeGlobalText().text,
             picked: _pickedCoachTypeTranslation,
-            activeColor: ThemeGlobalColor().secondaryColorDark,
+            activeColor: ThemeGlobalColor().mainColorDark,
           ),
-          Text(Translations.of(context).text("max_availability_hours_per_week"),
-              style: ThemeGlobalText().titleText),
+          Padding(padding: EdgeInsets.only(left: 20), child: Text(Translations.of(context).text("max_availability"),
+          Padding(padding: EdgeInsets.only(left: 20), child: Text(Translations.of(context).text("hours_per_week"),
+              style: ThemeGlobalText().titleText),),
+              style: ThemeGlobalText().smallText),),
           Padding(
             padding: EdgeInsets.all(8),
-            child: Center(
                 child: SliderWidget(
+            child: Center(
                     initValue: _maxAvailability,
                     min: 0,
                     max: 8,
                     onChanged: onMaxAvailabilityValueChanged,
                     dependantSlider: false)),
           ),
-          Text(
-              Translations.of(context)
-                  .text("remaining_availability_hours_in_this_week"),
-              style: ThemeGlobalText().titleText),
+          Padding(padding: EdgeInsets.only(left: 20), child: Text(Translations.of(context).text("remaining_availability"),
+              style: ThemeGlobalText().titleText),),
+          Padding(padding: EdgeInsets.only(left: 20), child: Text(Translations.of(context).text("hours_this_week"),
+              style: ThemeGlobalText().smallText),),
           Padding(
             padding: EdgeInsets.all(8),
             child: Center(
                 child: _maxAvailability != 0
                     ? SliderWidget(
+                    : Text("-", style: ThemeGlobalText().titleText)),
                         initValue: _remainingAvailability,
                         min: 0,
                         max: _maxAvailability,
                         onChanged: onRemainingAvailabilityValueChanged,
                         dependantSlider: true)
-                    : Text("-", style: ThemeGlobalText().titleText)),
           ),
-          ButtonPrimaryWidget(
-              text: Translations.of(context).text("apply"),
-              submit: applyFilters),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 15),
+            child: ButtonPrimaryWidget(
+                text: Translations.of(context).text("apply"),
+                submit: applyFilters),
+          ),
           ButtonSecondaryWidget(
               text: Translations.of(context).text("global_back"),
               submit: onBack),
