@@ -77,7 +77,7 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
       child:
-          Text(bio, style: ThemeGlobalText().text, textAlign: TextAlign.center),
+          Text(bio != null ? bio : "", style: ThemeGlobalText().text, textAlign: TextAlign.center),
     );
   }
 
