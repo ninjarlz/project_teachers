@@ -200,7 +200,7 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
               labels: TranslationMapper.translateList(
                   SchoolSubjectExtension.labels, context),
               checked: pickedSubjectsTranslation,
-              activeColor: ThemeGlobalColor().secondaryColorDark,
+              activeColor: ThemeGlobalColor().mainColorDark,
               labelStyle: ThemeGlobalText().text,
             ),
             Text(Translations.of(context).text("specializations"),
@@ -210,7 +210,7 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
               labels: TranslationMapper.translateList(
                   SpecializationExtension.labels, context),
               checked: pickedSpecializationsTranslation,
-              activeColor: ThemeGlobalColor().secondaryColorDark,
+              activeColor: ThemeGlobalColor().mainColorDark,
               labelStyle: ThemeGlobalText().text,
             ),
             Text(Translations.of(context).text("coach_type"),
@@ -221,29 +221,26 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
               onSelected: onCoachTypeValueChanged,
               labelStyle: ThemeGlobalText().text,
               picked: pickedCoachTypeTranslation,
-              activeColor: ThemeGlobalColor().secondaryColorDark,
+              activeColor: ThemeGlobalColor().mainColorDark,
             ),
-            Text(
-                Translations.of(context)
-                    .text("max_availability_hours_per_week"),
+            Text(Translations.of(context).text("max_availability"),
                 style: ThemeGlobalText().titleText),
+            Text(Translations.of(context).text("hours_per_week"),
+                style: ThemeGlobalText().smallText),
             Padding(
-              padding: EdgeInsets.all(8),
-              child: Center(
-                  child: SliderWidget(
-                      initValue: maxAvailability,
-                      min: 0,
-                      max: 8,
-                      onChanged: onMaxAvailabilityValueChanged,
-                      dependantSlider: false)),
-            ),
-            Text(
-                Translations.of(context)
-                    .text("remaining_availability_hours_in_this_week"),
+                padding: EdgeInsets.symmetric(vertical: 15),
+                child: SliderWidget(
+                    initValue: maxAvailability,
+                    min: 0,
+                    max: 8,
+                    onChanged: onMaxAvailabilityValueChanged,
+                    dependantSlider: false)),
+            Text(Translations.of(context).text("remaining_availability"),
                 style: ThemeGlobalText().titleText),
+            Text(Translations.of(context).text("hours_this_week"),
+                style: ThemeGlobalText().smallText),
             Padding(
-              padding: EdgeInsets.all(8),
-              child: Center(
+                padding: EdgeInsets.symmetric(vertical: 15),
                 child: maxAvailability != 0
                     ? SliderWidget(
                         initValue: _remainingAvailability,
@@ -251,9 +248,7 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
                         max: maxAvailability,
                         onChanged: onRemainingAvailabilityValueChanged,
                         dependantSlider: true)
-                    : Text("-", style: ThemeGlobalText().titleText),
-              ),
-            ),
+                    : Text("-", style: ThemeGlobalText().titleText)),
             ButtonPrimaryWidget(
                 text: Translations.of(context).text(submitLabel),
                 submit: validateAndSubmit),

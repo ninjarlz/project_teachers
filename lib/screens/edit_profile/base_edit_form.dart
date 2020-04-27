@@ -202,7 +202,7 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
               labels: TranslationMapper.translateList(
                   SchoolSubjectExtension.labels, context),
               checked: pickedSubjectsTranslation,
-              activeColor: ThemeGlobalColor().secondaryColorDark,
+              activeColor: ThemeGlobalColor().mainColorDark,
               labelStyle: ThemeGlobalText().text,
             ),
             Text(Translations.of(context).text("specializations"),
@@ -212,7 +212,7 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
               labels: TranslationMapper.translateList(
                   SpecializationExtension.labels, context),
               checked: pickedSpecializationsTranslation,
-              activeColor: ThemeGlobalColor().secondaryColorDark,
+              activeColor: ThemeGlobalColor().mainColorDark,
               labelStyle: ThemeGlobalText().text,
             ),
             Text(Translations.of(context).text("coach_type"),
@@ -223,22 +223,20 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
               onSelected: onCoachTypeValueChanged,
               labelStyle: ThemeGlobalText().text,
               picked: pickedCoachTypeTranslation,
-              activeColor: ThemeGlobalColor().secondaryColorDark,
+              activeColor: ThemeGlobalColor().mainColorDark,
             ),
-            Text(
-                Translations.of(context)
-                    .text("max_availability_hours_per_week"),
+            Text(Translations.of(context).text("max_availability"),
                 style: ThemeGlobalText().titleText),
+            Text(Translations.of(context).text("hours_per_week"),
+                style: ThemeGlobalText().smallText),
             Padding(
-              padding: EdgeInsets.all(8),
-              child: Center(
-                  child: SliderWidget(
-                      initValue: maxAvailability != null ? maxAvailability : 0,
-                      min: 0,
-                      max: 8,
-                      onChanged: onMaxAvailabilityValueChanged,
-                      dependantSlider: false)),
-            ),
+                padding: EdgeInsets.symmetric(vertical: 15),
+                child: SliderWidget(
+                    initValue: maxAvailability != null ? maxAvailability : 0,
+                    min: 0,
+                    max: 8,
+                    onChanged: onMaxAvailabilityValueChanged,
+                    dependantSlider: false)),
             ButtonPrimaryWidget(
                 text: Translations.of(context).text(submitLabel),
                 submit: validateAndSubmit),
@@ -317,7 +315,7 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
               labels: TranslationMapper.translateList(
                   SchoolSubjectExtension.labels, context),
               checked: pickedSubjectsTranslation,
-              activeColor: ThemeGlobalColor().secondaryColorDark,
+              activeColor: ThemeGlobalColor().mainColorDark,
               labelStyle: ThemeGlobalText().text,
             ),
             Text(Translations.of(context).text("specializations"),
@@ -327,7 +325,7 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
               labels: TranslationMapper.translateList(
                   SpecializationExtension.labels, context),
               checked: pickedSpecializationsTranslation,
-              activeColor: ThemeGlobalColor().secondaryColorDark,
+              activeColor: ThemeGlobalColor().mainColorDark,
               labelStyle: ThemeGlobalText().text,
             ),
             ButtonPrimaryWidget(
