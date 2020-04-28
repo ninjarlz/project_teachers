@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project_teachers/entities/coach_entity.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
+import 'package:project_teachers/services/filtering_serivce.dart';
 import 'package:project_teachers/services/storage_sevice.dart';
 import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/themes/index.dart';
@@ -27,6 +28,7 @@ class Coach extends StatefulWidget {
 class _CoachState extends State<Coach>
     implements CoachPageListener, CoachListProfileImagesListener {
   UserService _userService;
+  FilteringService _filteringService;
   StorageService _storageService;
   ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
@@ -38,6 +40,7 @@ class _CoachState extends State<Coach>
     super.initState();
     _userService = UserService.instance;
     _storageService = StorageService.instance;
+    _filteringService = FilteringService.instance;
     _userService.coachPageListeners.add(this);
     _storageService.coachListProfileImageListeners.add(this);
     _userService.updateCoachList();
@@ -57,15 +60,16 @@ class _CoachState extends State<Coach>
     });
   }
 
+  void _searchFilter() {
+    _filteringService.resetFilters();
+    _filteringService.searchFilter = _searchCtrl.text.toLowerCase();
+    _userService.resetCoachList();
+    _userService.updateCoachList();
+  }
+
   Widget _buildRow(int index) {
     CoachEntity coach = _userService.coachList[index];
     String fullName = "${coach.name} ${coach.surname}";
-    if (_searchCtrl.text.length != 0 &&
-        !fullName.toLowerCase().contains(_searchCtrl.text.toLowerCase()))
-      return null;
-    if (_storageService.coachListImages.containsKey(coach.uid)) {
-      print(_storageService.coachListImages[coach.uid].item1);
-    }
     return ListTile(
         leading: Material(
           child: _storageService.coachListImages.containsKey(coach.uid)
@@ -107,7 +111,7 @@ class _CoachState extends State<Coach>
         children: [
           InputSearchWidget(
             ctrl: _searchCtrl,
-            submitChange: _loadMoreCoaches,
+            submitChange: _searchFilter,
           ),
           Expanded(
             child: _userService.coachList == null ||

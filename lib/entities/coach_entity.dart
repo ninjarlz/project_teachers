@@ -82,6 +82,7 @@ class CoachEntity extends ExpertEntity {
     return {
       "name": name,
       "surname": surname,
+      "name_surname": name.toLowerCase() + " " + surname.toLowerCase(),
       "city": city,
       "school": school,
       "email": email,

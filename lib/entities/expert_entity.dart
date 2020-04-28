@@ -60,6 +60,7 @@ class ExpertEntity extends UserEntity {
     return {
       "name": name,
       "surname": surname,
+      "name_surname": name.toLowerCase() + " " + surname.toLowerCase(),
       "city": city,
       "school": school,
       "email": email,
@@ -75,6 +76,9 @@ class ExpertEntity extends UserEntity {
 
   static Map<String, bool> schoolSubjectsMapFromList(
       List<SchoolSubject> schoolSubjects) {
+    if (schoolSubjects == null) {
+      return null;
+    }
     Map<String, bool> map = Map<String, bool>();
     for (SchoolSubject schoolSubject in SchoolSubject.values) {
       map[schoolSubject.label] = schoolSubjects.contains(schoolSubject);
@@ -84,6 +88,9 @@ class ExpertEntity extends UserEntity {
 
   static Map<String, bool> specializationsMapFromList(
       List<Specialization> specializations) {
+    if (specializations == null) {
+      return null;
+    }
     Map<String, bool> map = Map<String, bool>();
     for (Specialization specialization in Specialization.values) {
       map[specialization.label] = specializations.contains(specialization);
@@ -94,7 +101,8 @@ class ExpertEntity extends UserEntity {
   static List<Specialization> specializationListFromSnapshot(
       Map<dynamic, dynamic> snapshotMap) {
     List<Specialization> specializations = null;
-    if (snapshotMap.containsKey("specializations")) {
+    if (snapshotMap.containsKey("specializations") &&
+        snapshotMap["specializations"] != null) {
       specializations = new List<Specialization>();
       Map<dynamic, dynamic> specializationsLabels =
           snapshotMap["specializations"];
@@ -110,7 +118,8 @@ class ExpertEntity extends UserEntity {
   static List<SchoolSubject> subjectsListFromSnapshot(
       Map<dynamic, dynamic> snapshotMap) {
     List<SchoolSubject> subjects = null;
-    if (snapshotMap.containsKey("schoolSubjects")) {
+    if (snapshotMap.containsKey("schoolSubjects") &&
+        snapshotMap["schoolSubjects"] != null) {
       subjects = new List<SchoolSubject>();
       Map<dynamic, dynamic> subjectsLabels = snapshotMap["schoolSubjects"];
       subjectsLabels.forEach((key, value) {

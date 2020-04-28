@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'package:project_teachers/entities/coach_entity.dart';
 import 'package:project_teachers/entities/user_entity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:project_teachers/entities/user_enums.dart';
 
 class UserRepository {
   UserRepository._privateConstructor();
@@ -70,9 +72,9 @@ class UserRepository {
   }
 
   void subscribeCurrentUser(String userId, Function onUserDataChange) {
-    //FOR ADDING TEST DATA
+////    FOR ADDING TEST DATA
 //    for (int i = 0; i < 300; i++) {
-//      _userListRef.add(UserEntity("test", "test" + (i + 20).toString(), "test" + (i + 20).toString() + "@test.com", "test", "test", "test", UserType.COACH).toJson());
+//      _userListRef.add(CoachEntity("test", "test" + (i + 20).toString(), "test" + (i + 20).toString() + "@test.com", "test", "test", "test", "test", null, null, null, null, CoachType.PRO_ACTIVE, 2, 2).toJson());
 //    }
 
 // FOR REMOVING TEST DATA

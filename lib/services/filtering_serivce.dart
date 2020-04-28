@@ -18,6 +18,7 @@ class FilteringService {
   List<Specialization> activeSpecializations = List<Specialization>();
   int activeMaxAvailability;
   int activeRemainingAvailability;
+  String searchFilter;
 
   void resetFilters() {
     activeCoachType = null;
@@ -25,29 +26,37 @@ class FilteringService {
     activeSpecializations = List<Specialization>();
     activeMaxAvailability = null;
     activeRemainingAvailability = null;
+    searchFilter = null;
   }
 
   Query prepareQuery(Query query) {
-    if (activeCoachType != null) {
-      query = query.where("coachType", isEqualTo: activeCoachType.label);
-    }
-    for (Specialization activeSpecialization in activeSpecializations) {
-      query = query.where("specializations." + activeSpecialization.label,
-          isEqualTo: true);
-    }
-    for (SchoolSubject activeSchoolSubject in activeSchoolSubjects) {
-      query = query.where("schoolSubjects." + activeSchoolSubject.label,
-          isEqualTo: true);
-    }
-    if (activeMaxAvailability != null) {
-      query = query.where(
-          "maxAvailabilityPerWeek." + activeMaxAvailability.toString(),
-          isEqualTo: true);
-    }
-    if (activeRemainingAvailability != null) {
-      query = query.where(
-          "remainingAvailabilityInWeek." + activeRemainingAvailability.toString(),
-          isEqualTo: true);
+    if (searchFilter != null) {
+      query = query
+          .orderBy("name_surname")
+          .startAt([searchFilter]).endAt([searchFilter + "\uf8ff"]);
+    } else {
+      if (activeCoachType != null) {
+        query = query.where("coachType", isEqualTo: activeCoachType.label);
+      }
+      for (Specialization activeSpecialization in activeSpecializations) {
+        query = query.where("specializations." + activeSpecialization.label,
+            isEqualTo: true);
+      }
+      for (SchoolSubject activeSchoolSubject in activeSchoolSubjects) {
+        query = query.where("schoolSubjects." + activeSchoolSubject.label,
+            isEqualTo: true);
+      }
+      if (activeMaxAvailability != null) {
+        query = query.where(
+            "maxAvailabilityPerWeek." + activeMaxAvailability.toString(),
+            isEqualTo: true);
+      }
+      if (activeRemainingAvailability != null) {
+        query = query.where(
+            "remainingAvailabilityInWeek." +
+                activeRemainingAvailability.toString(),
+            isEqualTo: true);
+      }
     }
     return query;
   }

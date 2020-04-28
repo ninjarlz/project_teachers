@@ -154,6 +154,7 @@ class _FilterPageState extends State<FilterPage> {
   }
 
   void applyFilters() {
+    _filteringService.searchFilter = null;
     _filteringService.activeSchoolSubjects =
         SchoolSubjectExtension.getValuesFromLabels(TranslationMapper.labelsFromTranslation(_pickedSubjectsTranslation, context));
     _filteringService.activeSpecializations =
