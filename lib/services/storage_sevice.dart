@@ -9,6 +9,7 @@ import 'package:project_teachers/repositories/storage_repository.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/utils/constants/constants.dart';
+import 'package:project_teachers/utils/helpers/uuid.dart';
 import 'package:tuple/tuple.dart';
 
 class StorageService {
@@ -90,7 +91,7 @@ class StorageService {
   Future<void> uploadProfileImage() async {
     File image = await ImagePicker.pickImage(source: ImageSource.gallery);
     if (image != null) {
-      String fileName = basename(image.path);
+      String fileName = Uuid().generateV4() + basename(image.path);
       UserEntity user = _userService.currentUser;
       if (user.profileImageName != null) {
         await _storageRepository.deleteUserProfileImage(user);
@@ -135,7 +136,7 @@ class StorageService {
   Future<void> uploadBackgroundImage() async {
     File image = await ImagePicker.pickImage(source: ImageSource.gallery);
     if (image != null) {
-      String fileName = basename(image.path);
+      String fileName = Uuid().generateV4() + basename(image.path);
       UserEntity user = _userService.currentUser;
       if (user.backgroundImageName != null) {
         await _storageRepository.deleteUserBackgroundImage(user);
