@@ -47,10 +47,7 @@ class _CoachState extends State<Coach>
     _scrollController.addListener(() {
       double maxScroll = _scrollController.position.maxScrollExtent;
       double currentScroll = _scrollController.position.pixels;
-      double delta = MediaQuery
-          .of(context)
-          .size
-          .height * 0.20;
+      double delta = MediaQuery.of(context).size.height * 0.20;
       if (maxScroll - currentScroll <= delta) {
         _loadMoreCoaches();
       }
@@ -62,7 +59,9 @@ class _CoachState extends State<Coach>
 
   void _searchFilter() {
     _filteringService.resetFilters();
-    _filteringService.searchFilter = _searchCtrl.text.toLowerCase();
+    if (_searchCtrl.text != "" && _searchCtrl.text != null) {
+      _filteringService.searchFilter = _searchCtrl.text.toLowerCase();
+    }
     _userService.resetCoachList();
     _userService.updateCoachList();
   }
@@ -75,10 +74,10 @@ class _CoachState extends State<Coach>
           child: _storageService.coachListImages.containsKey(coach.uid)
               ? _storageService.coachListImages[coach.uid].item2
               : Image.asset(
-            "assets/img/default_profile_2.png",
-            fit: BoxFit.cover,
-            alignment: Alignment.bottomCenter,
-          ),
+                  "assets/img/default_profile_2.png",
+                  fit: BoxFit.cover,
+                  alignment: Alignment.bottomCenter,
+                ),
           elevation: 4.0,
           shape: CircleBorder(),
           clipBehavior: Clip.antiAlias,
@@ -102,10 +101,7 @@ class _CoachState extends State<Coach>
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery
-          .of(context)
-          .size
-          .width,
+      width: MediaQuery.of(context).size.width,
       padding: EdgeInsets.only(left: 20, top: 10, right: 20),
       child: Column(
         children: [
@@ -115,26 +111,26 @@ class _CoachState extends State<Coach>
           ),
           Expanded(
             child: _userService.coachList == null ||
-                _userService.coachList.length == 0
+                    _userService.coachList.length == 0
                 ? Center(
-              child: Text('No Data...'),
-            )
+                    child: Text('No Data...'),
+                  )
                 : ListView.builder(
-              controller: _scrollController,
-              itemCount: _userService.coachList.length,
-              itemBuilder: (context, index) {
-                return _buildRow(index);
-              },
-            ),
+                    controller: _scrollController,
+                    itemCount: _userService.coachList.length,
+                    itemBuilder: (context, index) {
+                      return _buildRow(index);
+                    },
+                  ),
           ),
           _isLoading
               ? Text(
-            'Loading',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-          )
+                  'Loading',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                )
               : Container()
         ],
       ),
