@@ -21,6 +21,7 @@ class _ButtonDropdownState extends State<ButtonDropdown> {
 
   @override
   void initState() {
+    super.initState();
     _value = widget.initValue;
   }
 
