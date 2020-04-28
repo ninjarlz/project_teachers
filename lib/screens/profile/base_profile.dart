@@ -12,10 +12,6 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
   @protected
   String userName = "";
   @protected
-  String profilePicture = "";
-  @protected
-  String backgroundPicture = "";
-  @protected
   List<String> competencies = List<String>();
   @protected
   String profession = "";

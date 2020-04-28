@@ -3,7 +3,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:project_teachers/entities/coach_entity.dart';
 import 'package:project_teachers/entities/user_enums.dart';
-import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/screens/profile/base_profile.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:project_teachers/services/storage_sevice.dart';
@@ -129,13 +128,14 @@ class _CoachProfileState extends BaseProfileState<CoachProfile>
     super.dispose();
     userService.coachListeners.remove(this);
     storageService.disposeCoachImages();
+    userService.cancelSelectedCoachSubscription();
   }
 
   @override
   void onCoachBackgroundImageChange() {
     if (storageService.coachBackgroundImage != null) {
       setState(() {
-        backgroundImage = storageService.coachBackgroundImage;
+        backgroundImage = storageService.coachBackgroundImage.item2;
       });
     }
   }
@@ -144,7 +144,7 @@ class _CoachProfileState extends BaseProfileState<CoachProfile>
   void onCoachProfileImageChange() {
     if (storageService.coachProfileImage != null) {
       setState(() {
-        profileImage = storageService.coachProfileImage;
+        profileImage = storageService.coachProfileImage.item2;
       });
     }
   }

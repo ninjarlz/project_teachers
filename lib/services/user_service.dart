@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/widgets.dart';
 import 'package:project_teachers/entities/coach_entity.dart';
 import 'package:project_teachers/entities/expert_entity.dart';
 import 'package:project_teachers/entities/user_entity.dart';
@@ -8,6 +9,7 @@ import 'package:project_teachers/services/auth.dart';
 import 'package:project_teachers/services/filtering_serivce.dart';
 import 'package:project_teachers/services/storage_sevice.dart';
 import 'package:project_teachers/utils/helpers/function_wrappers.dart';
+import 'package:tuple/tuple.dart';
 
 class UserService {
   UserService._privateConstructor();
@@ -93,6 +95,7 @@ class UserService {
         _coachList.add(coach);
       }
     });
+    _storageService.updateCoachListProfileImages();
     for (CoachPageListener coachPageListener in _coachPageListeners) {
       coachPageListener.onCoachListChange();
     }
@@ -112,32 +115,34 @@ class UserService {
     }
     _hasMoreCoaches = true;
     _userRepository.cancelCoachListSubscription();
-    _userRepository.cancelSelectedCoachSubscription();
   }
 
   void _onCoachDataChange(DocumentSnapshot event, int cnt) {
-    if (cnt == 1) {
-      return;
-    }
     if (!event.exists) {
       _selectedCoach = null;
-    } else {
-      _selectedCoach = CoachEntity.fromJson(event.data);
-      _selectedCoach.uid = event.documentID;
+      return;
     }
+    if (cnt == 1) {
+      _storageService.updateCoachBackgroundImage(_selectedCoach);
+      return;
+    }
+    _selectedCoach = CoachEntity.fromJson(event.data);
+    _selectedCoach.uid = event.documentID;
+    _storageService.updateCoachProfileImage(_selectedCoach);
+    _storageService.updateCoachBackgroundImage(_selectedCoach);
+
     _coachListeners.forEach((coachListener) {
       coachListener.onCoachDataChange();
     });
   }
 
-  void setSelectedCoach(UserEntity coach) {
+  void setSelectedCoach(CoachEntity coach, Tuple2<String, Image> profileImage) {
     if (coach == null) {
       _selectedCoach = null;
       return;
     }
     _selectedCoach = coach;
-    _storageService.getCoachBackgroundImage(_selectedCoach);
-    _storageService.getCoachProfileImage(_selectedCoach);
+    _storageService.coachProfileImage = profileImage;
     Function onCoachDataChangeWithCounter =
         FunctionWrappers.createDocumentSnapshotFunctionWithCounter(
             _onCoachDataChange, 0);
@@ -290,6 +295,10 @@ class UserService {
 
   Future<void> updateUser(UserEntity userEntity) async {
     await _userRepository.updateUser(userEntity);
+  }
+
+  void cancelSelectedCoachSubscription() {
+    _userRepository.cancelSelectedCoachSubscription();
   }
 }
 

@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'package:project_teachers/entities/coach_entity.dart';
-import 'package:project_teachers/entities/expert_entity.dart';
 import 'package:project_teachers/entities/user_entity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 

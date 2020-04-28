@@ -71,6 +71,7 @@ class UserEntity {
     return {
       "name": name,
       "surname": surname,
+      //"name_surname": name + " " + surname,
       "city": city,
       "school": school,
       "email": email,

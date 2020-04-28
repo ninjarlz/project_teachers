@@ -36,6 +36,7 @@ dependencies:
   google_maps_webservice: ^0.0.16
   firebase_storage: ^3.1.5
   grouped_buttons: ^1.0.4
+  tuple: ^1.0.3
 
 dev_dependencies:
   flutter_test:

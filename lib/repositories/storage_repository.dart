@@ -35,7 +35,7 @@ class StorageRepository {
     StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
   }
 
-  Future<Image> getProfileImageFromUrl(UserEntity user) async {
+  Future<Image> getProfileImageFromUser(UserEntity user) async {
     var url = await _storage
         .ref()
         .child(user.uid)
@@ -46,7 +46,18 @@ class StorageRepository {
         fit: BoxFit.cover, alignment: Alignment.bottomCenter);
   }
 
-  Future<Image> getBackgroundImageFromUrl(UserEntity user) async {
+  Future<Image> getProfileImageFromData(String uid, String profileImageName) async {
+    var url = await _storage
+        .ref()
+        .child(uid)
+        .child(Constants.PROFILE_IMAGE_DIR)
+        .child(profileImageName)
+        .getDownloadURL();
+    return await Image.network(url,
+        fit: BoxFit.cover, alignment: Alignment.bottomCenter);
+  }
+
+  Future<Image> getBackgroundImageFromUser(UserEntity user) async {
     var url = await _storage
         .ref()
         .child(user.uid)

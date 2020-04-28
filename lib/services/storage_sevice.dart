@@ -3,11 +3,13 @@ import 'dart:ui';
 import 'package:path/path.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:project_teachers/entities/coach_entity.dart';
 import 'package:project_teachers/entities/user_entity.dart';
 import 'package:project_teachers/repositories/storage_repository.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/utils/constants/constants.dart';
+import 'package:tuple/tuple.dart';
 
 class StorageService {
   StorageService._privateConstructor();
@@ -43,13 +45,26 @@ class StorageService {
   List<UserBackgroundImageListener> get userBackgroundImageListeners =>
       _userBackgroundImageListeners;
 
-  Image _coachProfileImage;
+  Tuple2<String, Image> _coachProfileImage;
 
-  Image get coachProfileImage => _coachProfileImage;
+  Tuple2<String, Image> get coachProfileImage => _coachProfileImage;
 
-  Image _coachBackgroundImage;
+  void set coachProfileImage(Tuple2<String, Image> coachProfileImage) {
+    _coachProfileImage = coachProfileImage;
+    if (coachProfileImage != null) {
+      _coachProfileImageListeners.forEach((element) {
+        element.onCoachProfileImageChange();
+      });
+    }
+  }
 
-  Image get coachBackgroundImage => _coachBackgroundImage;
+  Tuple2<String, Image> _coachBackgroundImage;
+
+  Tuple2<String, Image> get coachBackgroundImage => _coachBackgroundImage;
+
+  Map<String, Tuple2<String, Image>> _coachListImages = Map<String,
+      Tuple2<String, Image>>(); // <coachId, Tuple2<profileImageName, Image>>
+  Map<String, Tuple2<String, Image>> get coachListImages => _coachListImages;
 
   List<CoachProfileImageListener> _coachProfileImageListeners =
       List<CoachProfileImageListener>();
@@ -62,6 +77,12 @@ class StorageService {
 
   List<CoachBackgroundImageListener> get coachBackgroundImageListeners =>
       _coachBackgroundImageListeners;
+
+  List<CoachListProfileImagesListener> _coachListProfileImageListeners =
+      List<CoachListProfileImagesListener>();
+
+  List<CoachListProfileImagesListener> get coachListProfileImageListeners =>
+      _coachListProfileImageListeners;
 
   StorageRepository _storageRepository;
   UserService _userService;
@@ -89,6 +110,28 @@ class StorageService {
     }
   }
 
+  Future<void> updateCoachListProfileImages() async {
+    for(CoachEntity coach in _userService.coachList) {
+      if (coach.profileImageName != null) {
+        if (_coachListImages.containsKey(coach.uid)) {
+          if (coach.profileImageName != coachListImages[coach.uid].item1) {
+            await updateCoachListProfileImage(coach);
+          }
+        } else {
+          await updateCoachListProfileImage(coach);
+        }
+      }
+    }
+    _coachListProfileImageListeners.forEach((element) {
+      element.onCoachListProfileImagesChange();
+    });
+  }
+
+  Future<void> updateCoachListProfileImage(CoachEntity coach) async {
+    Image image = await _storageRepository.getProfileImageFromUser(coach);
+    _coachListImages[coach.uid] = Tuple2(coach.profileImageName, image);
+  }
+
   Future<void> uploadBackgroundImage() async {
     File image = await ImagePicker.pickImage(source: ImageSource.gallery);
     if (image != null) {
@@ -112,7 +155,8 @@ class StorageService {
   Future<void> getUserProfileImage() async {
     UserEntity user = _userService.currentUser;
     if (user.profileImageName != null) {
-      _userProfileImage = await _storageRepository.getProfileImageFromUrl(user);
+      _userProfileImage =
+          await _storageRepository.getProfileImageFromUser(user);
       _userProfileImageListeners.forEach((element) {
         element.onUserProfileImageChange();
       });
@@ -123,7 +167,7 @@ class StorageService {
     UserEntity user = _userService.currentUser;
     if (user.backgroundImageName != null) {
       _userBackgroundImage =
-          await _storageRepository.getBackgroundImageFromUrl(user);
+          await _storageRepository.getBackgroundImageFromUser(user);
       _userBackgroundImageListeners.forEach((element) {
         element.onUserBackgroundImageChange();
       });
@@ -137,23 +181,32 @@ class StorageService {
     _userBackgroundImageListeners.clear();
   }
 
-  Future<void> getCoachProfileImage(UserEntity user) async {
-    if (user.profileImageName != null) {
-      _coachProfileImage =
-          await _storageRepository.getProfileImageFromUrl(user);
-      _coachProfileImageListeners.forEach((element) {
-        element.onCoachProfileImageChange();
-      });
+  Future<void> updateCoachProfileImage(CoachEntity coach) async {
+    if (coach.profileImageName != null) {
+      if (_coachProfileImage == null ||
+          (_coachProfileImage != null &&
+              _coachProfileImage.item1 != coach.profileImageName)) {
+        Image image = await _storageRepository.getProfileImageFromUser(coach);
+        _coachProfileImage = Tuple2(coach.profileImageName, image);
+        _coachProfileImageListeners.forEach((element) {
+          element.onCoachProfileImageChange();
+        });
+      }
     }
   }
 
-  Future<void> getCoachBackgroundImage(UserEntity user) async {
-    if (user.backgroundImageName != null) {
-      _coachBackgroundImage =
-          await _storageRepository.getBackgroundImageFromUrl(user);
-      _coachBackgroundImageListeners.forEach((element) {
-        element.onCoachBackgroundImageChange();
-      });
+  Future<void> updateCoachBackgroundImage(CoachEntity coach) async {
+    if (coach.backgroundImageName != null) {
+      if (_coachBackgroundImage == null ||
+          (_coachBackgroundImage != null &&
+              _coachBackgroundImage.item1 != coach.backgroundImageName)) {
+        Image image =
+            await _storageRepository.getBackgroundImageFromUser(coach);
+        _coachBackgroundImage = Tuple2(coach.backgroundImageName, image);
+        _coachBackgroundImageListeners.forEach((element) {
+          element.onCoachBackgroundImageChange();
+        });
+      }
     }
   }
 
@@ -179,4 +232,8 @@ abstract class CoachProfileImageListener {
 
 abstract class CoachBackgroundImageListener {
   void onCoachBackgroundImageChange();
+}
+
+abstract class CoachListProfileImagesListener {
+  void onCoachListProfileImagesChange();
 }
