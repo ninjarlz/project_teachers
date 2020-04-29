@@ -41,6 +41,9 @@ class _CoachState extends State<Coach>
     _userService = UserService.instance;
     _storageService = StorageService.instance;
     _filteringService = FilteringService.instance;
+    if (_filteringService.searchFilter != null) {
+      _searchCtrl.text = _filteringService.searchFilter;
+    }
     _userService.coachPageListeners.add(this);
     _storageService.coachListProfileImageListeners.add(this);
     _userService.updateCoachList();
