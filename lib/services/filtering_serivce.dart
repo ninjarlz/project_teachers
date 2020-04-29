@@ -16,6 +16,8 @@ class FilteringService {
   CoachType activeCoachType;
   List<SchoolSubject> activeSchoolSubjects = List<SchoolSubject>();
   List<Specialization> activeSpecializations = List<Specialization>();
+  String schoolId;
+  String schoolName;
   int activeMaxAvailability;
   int activeRemainingAvailability;
   String searchFilter;
@@ -24,6 +26,7 @@ class FilteringService {
     activeCoachType = null;
     activeSchoolSubjects = List<SchoolSubject>();
     activeSpecializations = List<Specialization>();
+    schoolId = null;
     activeMaxAvailability = null;
     activeRemainingAvailability = null;
     searchFilter = null;
@@ -45,6 +48,9 @@ class FilteringService {
       for (SchoolSubject activeSchoolSubject in activeSchoolSubjects) {
         query = query.where("schoolSubjects." + activeSchoolSubject.label,
             isEqualTo: true);
+      }
+      if (schoolId != null) {
+        query = query.where("schoolID", isEqualTo: schoolId);
       }
       if (activeMaxAvailability != null) {
         query = query.where(

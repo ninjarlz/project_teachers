@@ -14,6 +14,7 @@ class PlacesInputWithIconWidget extends StatefulWidget {
   final String error;
   final String language;
   final List<String> placesTypes;
+  final Function(String placeId) onPlacePicked;
 
   PlacesInputWithIconWidget(
       {@required this.ctrl,
@@ -21,7 +22,8 @@ class PlacesInputWithIconWidget extends StatefulWidget {
       @required this.icon,
       this.error,
       @required this.language,
-      @required this.placesTypes});
+      @required this.placesTypes,
+      this.onPlacePicked});
 
   @override
   State<StatefulWidget> createState() => PlacesInputWithIconWidgetState();
@@ -61,10 +63,17 @@ class PlacesInputWithIconWidgetState
           for (String type in detail.result.types) {
             if (widget.placesTypes.contains(type)) {
               _pickerError = false;
+              if (widget.onPlacePicked != null) {
+                widget.onPlacePicked(detail.result.id);
+              }
               break;
             }
           }
         }
+      }
+    } else {
+      if (widget.onPlacePicked != null) {
+        widget.onPlacePicked(null);
       }
     }
   }

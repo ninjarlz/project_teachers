@@ -15,7 +15,6 @@ import 'package:project_teachers/utils/translations/translation_mapper.dart';
 import 'package:project_teachers/widgets/button/button_primary.dart';
 import 'package:project_teachers/widgets/button/button_secondary.dart';
 import 'package:project_teachers/widgets/index.dart';
-import 'package:project_teachers/widgets/input/input_with_icon.dart';
 import 'package:project_teachers/widgets/input/places_input_with_icon.dart';
 import 'package:project_teachers/widgets/slider/slider_widget.dart';
 import 'package:project_teachers/widgets/text/text_error.dart';
@@ -42,6 +41,8 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
   TextEditingController surname = TextEditingController();
   @protected
   TextEditingController school = TextEditingController();
+  @protected
+  String schoolId;
   @protected
   TextEditingController city = TextEditingController();
   @protected
@@ -177,7 +178,8 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
                 icon: Icons.school,
                 error: Translations.of(context).text("error_school"),
                 placesTypes: ["school", "university"],
-                language: Translations.of(context).text("language")),
+                language: Translations.of(context).text("language"),
+                onPlacePicked: onPlacePicked),
             InputWithIconWidget(
                 ctrl: profession,
                 hint: Translations.of(context).text("register_profession"),
@@ -290,7 +292,8 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
                 icon: Icons.school,
                 error: Translations.of(context).text("error_school"),
                 placesTypes: ["school", "university"],
-                language: Translations.of(context).text("language")),
+                language: Translations.of(context).text("language"),
+                onPlacePicked: onPlacePicked),
             InputWithIconWidget(
                 ctrl: profession,
                 hint: Translations.of(context).text("register_profession"),
@@ -340,25 +343,36 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
     );
   }
 
+  @protected
   void onCoachTypeValueChanged(String newValue) {
     setState(() {
       pickedCoachTypeTranslation = newValue;
     });
   }
 
+  @protected
   void onSpecializationsValuesChanged(List<String> selected) {
     setState(() {
       pickedSpecializationsTranslation = selected;
     });
   }
 
+  @protected
   void onSubjectsValuesChanged(List<String> selected) {
     setState(() {
       pickedSubjectsTranslation = selected;
     });
   }
 
+  @protected
   void onMaxAvailabilityValueChanged(int maxAvailability) {
     this.maxAvailability = maxAvailability;
+  }
+
+  @protected
+  void onPlacePicked(String placeId) {
+    if (placeId != null) {
+      schoolId = placeId;
+    }
   }
 }

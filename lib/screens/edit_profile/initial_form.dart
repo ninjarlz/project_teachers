@@ -55,6 +55,7 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
             surname.text,
             city.text,
             school.text,
+            schoolId,
             profession.text,
             bio.text,
             SchoolSubjectExtension.getValuesFromLabels(
@@ -73,6 +74,7 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
             surname.text,
             city.text,
             school.text,
+            schoolId,
             profession.text,
             bio.text,
             SchoolSubjectExtension.getValuesFromLabels(

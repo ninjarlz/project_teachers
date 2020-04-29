@@ -100,6 +100,7 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
             surname.text,
             city.text,
             school.text,
+            schoolId,
             profession.text,
             bio.text,
             SchoolSubjectExtension.getValuesFromLabels(
@@ -115,6 +116,7 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
             surname.text,
             city.text,
             school.text,
+            schoolId,
             profession.text,
             bio.text,
             SchoolSubjectExtension.getValuesFromLabels(
@@ -175,7 +177,8 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
                 icon: Icons.school,
                 error: Translations.of(context).text("error_school"),
                 placesTypes: ["school", "university"],
-                language: Translations.of(context).text("language")),
+                language: Translations.of(context).text("language"),
+                onPlacePicked: onPlacePicked),
             InputWithIconWidget(
                 ctrl: profession,
                 hint: Translations.of(context).text("register_profession"),

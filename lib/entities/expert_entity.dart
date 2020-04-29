@@ -13,13 +13,14 @@ class ExpertEntity extends UserEntity {
       String email,
       String city,
       String school,
+      String schoolID,
       String profession,
       String bio,
       String profileImageName,
       String backgroundImageName,
       List<SchoolSubject> schoolSubjects,
       List<Specialization> specializations)
-      : super(name, surname, email, city, school, profession, bio,
+      : super(name, surname, email, city, school, schoolID, profession, bio,
             profileImageName, backgroundImageName, UserType.EXPERT) {
     this.schoolSubjects = schoolSubjects;
     this.specializations = specializations;
@@ -32,6 +33,7 @@ class ExpertEntity extends UserEntity {
         json["email"],
         json["city"],
         json["school"],
+        json["schoolID"],
         json["profession"],
         json["bio"],
         json["profileImageName"],
@@ -47,6 +49,7 @@ class ExpertEntity extends UserEntity {
         documentSnapshot.data["email"],
         documentSnapshot.data["city"],
         documentSnapshot.data["school"],
+        documentSnapshot.data["schoolID"],
         documentSnapshot.data["profession"],
         documentSnapshot.data["bio"],
         documentSnapshot.data["profileImageName"],
@@ -63,6 +66,7 @@ class ExpertEntity extends UserEntity {
       "name_surname": name.toLowerCase() + " " + surname.toLowerCase(),
       "city": city,
       "school": school,
+      "schoolID": schoolID,
       "email": email,
       "profession": profession,
       "bio": bio,

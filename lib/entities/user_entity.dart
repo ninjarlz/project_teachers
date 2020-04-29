@@ -7,7 +7,7 @@ class UserEntity {
   String surname;
   String city;
   String school;
-
+  String schoolID;
   //Map<String, dynamic>
   String email;
   String profession;
@@ -22,6 +22,7 @@ class UserEntity {
       String email,
       String city,
       String school,
+      String schoolID,
       String profession,
       String bio,
       String profileImageName,
@@ -30,6 +31,7 @@ class UserEntity {
     this.name = name;
     this.surname = surname;
     this.school = school;
+    this.schoolID = schoolID;
     this.city = city;
     this.email = email;
     this.profession = profession;
@@ -46,6 +48,7 @@ class UserEntity {
         json["email"],
         json["city"],
         json["school"],
+        json["schoolID"],
         json["profession"],
         json["bio"],
         json["profileImageName"],
@@ -60,6 +63,7 @@ class UserEntity {
         documentSnapshot.data["email"],
         documentSnapshot.data["city"],
         documentSnapshot.data["school"],
+        documentSnapshot.data["schoolD"],
         documentSnapshot.data["profession"],
         documentSnapshot.data["bio"],
         documentSnapshot.data["profileImageName"],
@@ -74,6 +78,7 @@ class UserEntity {
       "name_surname": name.toLowerCase() + " " + surname.toLowerCase(),
       "city": city,
       "school": school,
+      "schoolID": schoolID,
       "email": email,
       "profession": profession,
       "bio": bio,

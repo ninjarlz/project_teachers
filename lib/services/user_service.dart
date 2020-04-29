@@ -157,13 +157,14 @@ class UserService {
     String surname,
     String city,
     String school,
+    String schoolID,
     String profession,
     String bio,
     List<SchoolSubject> schoolSubjects,
     List<Specialization> specializations,
   ) async {
     ExpertEntity expertEntity = ExpertEntity(name, surname, email, city, school,
-        profession, bio, null, null, schoolSubjects, specializations);
+        schoolID, profession, bio, null, null, schoolSubjects, specializations);
     expertEntity.uid = userId;
     await _userRepository.updateUser(expertEntity);
     setCurrentUser(userId);
@@ -176,6 +177,7 @@ class UserService {
       String surname,
       String city,
       String school,
+      String schoolID,
       String profession,
       String bio,
       List<SchoolSubject> schoolSubjects,
@@ -188,6 +190,7 @@ class UserService {
         email,
         city,
         school,
+        schoolID,
         profession,
         bio,
         null,
@@ -238,6 +241,7 @@ class UserService {
       String surname,
       String city,
       String school,
+      String schoolID,
       String profession,
       String bio,
       List<SchoolSubject> schoolSubjects,
@@ -247,12 +251,16 @@ class UserService {
       int remainingAvailabilityPerWeek) async {
     String profileImageName = _currentUser.profileImageName;
     String backgroundImageName = _currentUser.backgroundImageName;
+    if (schoolID == null) {
+      schoolID = _currentUser.schoolID;
+    }
     CoachEntity coach = CoachEntity(
         name,
         surname,
         _currentUser.email,
         city,
         school,
+        schoolID,
         profession,
         bio,
         profileImageName,
@@ -271,18 +279,23 @@ class UserService {
       String surname,
       String city,
       String school,
+      String schoolID,
       String profession,
       String bio,
       List<SchoolSubject> schoolSubjects,
       List<Specialization> specializations) async {
     String profileImageName = _currentUser.profileImageName;
     String backgroundImageName = _currentUser.backgroundImageName;
+    if (schoolID == null) {
+      schoolID = _currentUser.schoolID;
+    }
     ExpertEntity expert = ExpertEntity(
         name,
         surname,
         _currentUser.email,
         city,
         school,
+        schoolID,
         profession,
         bio,
         profileImageName,
