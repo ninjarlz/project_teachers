@@ -31,6 +31,7 @@ class _FilterPageState extends State<FilterPage> {
   int _maxAvailability = 0;
   int _remainingAvailability = 0;
   UserService _userService;
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -83,116 +84,119 @@ class _FilterPageState extends State<FilterPage> {
 
   Widget showFilters() {
     return Container(
-      margin: EdgeInsets.only(top: 10),
-      width: MediaQuery.of(context).size.width,
-      child: ListView(
-        shrinkWrap: true,
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.only(left: 20),
-            child: Text(Translations.of(context).text("subjects"),
-                style: ThemeGlobalText().titleText),
-          ),
-          CheckboxGroup(
-            onSelected: _onSubjectsValuesChanged,
-            labels: TranslationMapper.translateList(
-                SchoolSubjectExtension.labels, context),
-            checked: _pickedSubjectsTranslation,
-            activeColor: ThemeGlobalColor().mainColorDark,
-            labelStyle: ThemeGlobalText().text,
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 20),
-            child: Text(Translations.of(context).text("specializations"),
-                style: ThemeGlobalText().titleText),
-          ),
-          CheckboxGroup(
-            onSelected: _onSpecializationsValuesChanged,
-            labels: TranslationMapper.translateList(
-                SpecializationExtension.labels, context),
-            checked: _pickedSpecializationsTranslation,
-            activeColor: ThemeGlobalColor().mainColorDark,
-            labelStyle: ThemeGlobalText().text,
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 20),
-            child: Text(Translations.of(context).text("coach_type"),
-                style: ThemeGlobalText().titleText),
-          ),
-          RadioButtonGroup(
-            labels: _coachTypeRadioLabels,
-            onSelected: _onCoachTypeValueChanged,
-            labelStyle: ThemeGlobalText().text,
-            picked: _pickedCoachTypeTranslation,
-            activeColor: ThemeGlobalColor().mainColorDark,
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 20),
-            child: Text(Translations.of(context).text("register_school"),
-                style: ThemeGlobalText().titleText),
-          ),
-          Padding(
-              padding: EdgeInsets.all(15),
-              child: PlacesInputWithIconWidget(
-                  ctrl: _schoolCtrl,
-                  hint: Translations.of(context).text("register_school"),
-                  icon: Icons.school,
-                  error: Translations.of(context).text("error_school"),
-                  placesTypes: ["school", "university"],
-                  language: Translations.of(context).text("language"),
-                  onPlacePicked: _onPlacePicked)),
-          Padding(
-            padding: EdgeInsets.only(left: 20),
-            child: Text(Translations.of(context).text("max_availability"),
-                style: ThemeGlobalText().titleText),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 20),
-            child: Text(Translations.of(context).text("hours_per_week"),
-                style: ThemeGlobalText().smallText),
-          ),
-          Padding(
-            padding: EdgeInsets.all(15),
-            child: SliderWidget(
-                initValue: _maxAvailability,
-                min: 0,
-                max: 8,
-                onChanged: _onMaxAvailabilityValueChanged,
-                dependantSlider: false),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 20),
-            child: Text(Translations.of(context).text("remaining_availability"),
-                style: ThemeGlobalText().titleText),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 20),
-            child: Text(Translations.of(context).text("hours_this_week"),
-                style: ThemeGlobalText().smallText),
-          ),
-          Padding(
-            padding: EdgeInsets.all(15),
-            child: _maxAvailability != 0
-                ? SliderWidget(
-                    initValue: _remainingAvailability,
+        margin: EdgeInsets.only(top: 10),
+        width: MediaQuery.of(context).size.width,
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            shrinkWrap: true,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(left: 20),
+                child: Text(Translations.of(context).text("subjects"),
+                    style: ThemeGlobalText().titleText),
+              ),
+              CheckboxGroup(
+                onSelected: _onSubjectsValuesChanged,
+                labels: TranslationMapper.translateList(
+                    SchoolSubjectExtension.labels, context),
+                checked: _pickedSubjectsTranslation,
+                activeColor: ThemeGlobalColor().mainColorDark,
+                labelStyle: ThemeGlobalText().text,
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 20),
+                child: Text(Translations.of(context).text("specializations"),
+                    style: ThemeGlobalText().titleText),
+              ),
+              CheckboxGroup(
+                onSelected: _onSpecializationsValuesChanged,
+                labels: TranslationMapper.translateList(
+                    SpecializationExtension.labels, context),
+                checked: _pickedSpecializationsTranslation,
+                activeColor: ThemeGlobalColor().mainColorDark,
+                labelStyle: ThemeGlobalText().text,
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 20),
+                child: Text(Translations.of(context).text("coach_type"),
+                    style: ThemeGlobalText().titleText),
+              ),
+              RadioButtonGroup(
+                labels: _coachTypeRadioLabels,
+                onSelected: _onCoachTypeValueChanged,
+                labelStyle: ThemeGlobalText().text,
+                picked: _pickedCoachTypeTranslation,
+                activeColor: ThemeGlobalColor().mainColorDark,
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 20),
+                child: Text(Translations.of(context).text("register_school"),
+                    style: ThemeGlobalText().titleText),
+              ),
+              Padding(
+                  padding: EdgeInsets.all(15),
+                  child: PlacesInputWithIconWidget(
+                      ctrl: _schoolCtrl,
+                      hint: Translations.of(context).text("register_school"),
+                      icon: Icons.school,
+                      error: Translations.of(context).text("error_school"),
+                      placesTypes: ["school", "university"],
+                      language: Translations.of(context).text("language"),
+                      onPlacePicked: _onPlacePicked)),
+              Padding(
+                padding: EdgeInsets.only(left: 20),
+                child: Text(Translations.of(context).text("max_availability"),
+                    style: ThemeGlobalText().titleText),
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 20),
+                child: Text(Translations.of(context).text("hours_per_week"),
+                    style: ThemeGlobalText().smallText),
+              ),
+              Padding(
+                padding: EdgeInsets.all(15),
+                child: SliderWidget(
+                    initValue: _maxAvailability,
                     min: 0,
-                    max: _maxAvailability,
-                    onChanged: _onRemainingAvailabilityValueChanged,
-                    dependantSlider: true)
-                : Text("-", style: ThemeGlobalText().titleText),
+                    max: 8,
+                    onChanged: _onMaxAvailabilityValueChanged,
+                    dependantSlider: false),
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 20),
+                child: Text(
+                    Translations.of(context).text("remaining_availability"),
+                    style: ThemeGlobalText().titleText),
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 20),
+                child: Text(Translations.of(context).text("hours_this_week"),
+                    style: ThemeGlobalText().smallText),
+              ),
+              Padding(
+                padding: EdgeInsets.all(15),
+                child: _maxAvailability != 0
+                    ? SliderWidget(
+                        initValue: _remainingAvailability,
+                        min: 0,
+                        max: _maxAvailability,
+                        onChanged: _onRemainingAvailabilityValueChanged,
+                        dependantSlider: true)
+                    : Text("-", style: ThemeGlobalText().titleText),
+              ),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 15),
+                child: ButtonPrimaryWidget(
+                    text: Translations.of(context).text("apply"),
+                    submit: applyFilters),
+              ),
+              ButtonSecondaryWidget(
+                  text: Translations.of(context).text("global_back"),
+                  submit: onBack),
+            ],
           ),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 15),
-            child: ButtonPrimaryWidget(
-                text: Translations.of(context).text("apply"),
-                submit: applyFilters),
-          ),
-          ButtonSecondaryWidget(
-              text: Translations.of(context).text("global_back"),
-              submit: onBack),
-        ],
-      ),
-    );
+        ));
   }
 
   void onBack() {
@@ -200,40 +204,42 @@ class _FilterPageState extends State<FilterPage> {
   }
 
   void applyFilters() {
-    _filteringService.searchFilter = null;
-    _filteringService.activeSchoolSubjects =
-        SchoolSubjectExtension.getValuesFromLabels(
-            TranslationMapper.labelsFromTranslation(
-                _pickedSubjectsTranslation, context));
-    _filteringService.activeSpecializations =
-        SpecializationExtension.getValuesFromLabels(
-            TranslationMapper.labelsFromTranslation(
-                _pickedSpecializationsTranslation, context));
-    if (_pickedCoachTypeTranslation != Translations.of(context).text("all")) {
-      _filteringService.activeCoachType = CoachTypeExtension.getValue(
-          Translations.of(context).key(_pickedCoachTypeTranslation));
-    } else {
-      _filteringService.activeCoachType = null;
+    if (_validateAndSave()) {
+      _filteringService.searchFilter = null;
+      _filteringService.activeSchoolSubjects =
+          SchoolSubjectExtension.getValuesFromLabels(
+              TranslationMapper.labelsFromTranslation(
+                  _pickedSubjectsTranslation, context));
+      _filteringService.activeSpecializations =
+          SpecializationExtension.getValuesFromLabels(
+              TranslationMapper.labelsFromTranslation(
+                  _pickedSpecializationsTranslation, context));
+      if (_pickedCoachTypeTranslation != Translations.of(context).text("all")) {
+        _filteringService.activeCoachType = CoachTypeExtension.getValue(
+            Translations.of(context).key(_pickedCoachTypeTranslation));
+      } else {
+        _filteringService.activeCoachType = null;
+      }
+      if (_maxAvailability == 0) {
+        _filteringService.activeMaxAvailability = null;
+      } else {
+        _filteringService.activeMaxAvailability = _maxAvailability;
+      }
+      if (_remainingAvailability == 0) {
+        _filteringService.activeRemainingAvailability = null;
+      } else {
+        _filteringService.activeRemainingAvailability = _remainingAvailability;
+      }
+      if (_schoolId != null) {
+        _filteringService.schoolId = _schoolId;
+        _filteringService.schoolName = _schoolCtrl.text;
+      } else {
+        _filteringService.schoolId = null;
+        _filteringService.schoolName = null;
+      }
+      _userService.resetCoachList();
+      _appStateManager.changeAppState(AppState.COACH);
     }
-    if (_maxAvailability == 0) {
-      _filteringService.activeMaxAvailability = null;
-    } else {
-      _filteringService.activeMaxAvailability = _maxAvailability;
-    }
-    if (_remainingAvailability == 0) {
-      _filteringService.activeRemainingAvailability = null;
-    } else {
-      _filteringService.activeRemainingAvailability = _remainingAvailability;
-    }
-    if (_schoolId != null) {
-      _filteringService.schoolId = _schoolId;
-      _filteringService.schoolName = _schoolCtrl.text;
-    } else {
-      _filteringService.schoolId = null;
-      _filteringService.schoolName = null;
-    }
-    _userService.resetCoachList();
-    _appStateManager.changeAppState(AppState.COACH);
   }
 
   void _onCoachTypeValueChanged(String newValue) {
@@ -272,5 +278,17 @@ class _FilterPageState extends State<FilterPage> {
       _schoolCtrl.text = "";
     }
     _schoolId = placeId;
+  }
+
+  bool _validateAndSave() {
+    if (_schoolCtrl.text == null || _schoolCtrl.text == "") {
+      return true;
+    }
+    final form = _formKey.currentState;
+    if (form.validate()) {
+      form.save();
+      return true;
+    }
+    return false;
   }
 }

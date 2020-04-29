@@ -10,7 +10,6 @@ import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/services/valid_email_address_service.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
-import 'package:project_teachers/utils/constants/constants.dart';
 import 'package:project_teachers/utils/translations/translation_mapper.dart';
 import 'package:project_teachers/widgets/button/button_primary.dart';
 import 'package:project_teachers/widgets/button/button_secondary.dart';
@@ -65,8 +64,6 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
   String imagePath;
   @protected
   String submitLabel;
-  @protected
-  GoogleMapsPlaces places = GoogleMapsPlaces(apiKey: Constants.API_KEY);
 
   @override
   void initState() {
