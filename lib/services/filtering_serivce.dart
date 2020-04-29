@@ -27,6 +27,7 @@ class FilteringService {
     activeSchoolSubjects = List<SchoolSubject>();
     activeSpecializations = List<Specialization>();
     schoolId = null;
+    schoolName = null;
     activeMaxAvailability = null;
     activeRemainingAvailability = null;
     searchFilter = null;
