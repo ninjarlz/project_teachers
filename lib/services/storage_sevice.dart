@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:path/path.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
@@ -91,28 +92,33 @@ class StorageService {
   Future<void> uploadProfileImage() async {
     File image = await ImagePicker.pickImage(source: ImageSource.gallery);
     if (image != null) {
-      String fileName = Uuid().generateV4() + basename(image.path);
-      UserEntity user = _userService.currentUser;
-      if (user.profileImageName != null) {
-        await _storageRepository.deleteUserProfileImage(user);
+      File croppedImage = await ImageCropper.cropImage(
+          sourcePath: image.path,
+          aspectRatioPresets: [CropAspectRatioPreset.square]);
+      if (croppedImage != null) {
+        String fileName = Uuid().generateV4() + basename(croppedImage.path);
+        UserEntity user = _userService.currentUser;
+        if (user.profileImageName != null) {
+          await _storageRepository.deleteUserProfileImage(user);
+        }
+        await _storageRepository.uploadImage(
+            croppedImage, fileName, Constants.PROFILE_IMAGE_DIR, user.uid);
+        user.profileImageName = fileName;
+        await _userService.updateUser(user);
+        _userProfileImage = await Image.file(
+          croppedImage,
+          fit: BoxFit.cover,
+          alignment: Alignment.bottomCenter,
+        );
+        _userProfileImageListeners.forEach((element) {
+          element.onUserProfileImageChange();
+        });
       }
-      await _storageRepository.uploadImage(
-          image, fileName, Constants.PROFILE_IMAGE_DIR, user.uid);
-      user.profileImageName = fileName;
-      await _userService.updateUser(user);
-      _userProfileImage = await Image.file(
-        image,
-        fit: BoxFit.cover,
-        alignment: Alignment.bottomCenter,
-      );
-      _userProfileImageListeners.forEach((element) {
-        element.onUserProfileImageChange();
-      });
     }
   }
 
   Future<void> updateCoachListProfileImages() async {
-    for(CoachEntity coach in _userService.coachList) {
+    for (CoachEntity coach in _userService.coachList) {
       if (coach.profileImageName != null) {
         if (_coachListImages.containsKey(coach.uid)) {
           if (coach.profileImageName != coachListImages[coach.uid].item1) {

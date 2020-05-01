@@ -9,7 +9,6 @@ class SliderWidget extends StatefulWidget {
   final int max;
   final fullWidth;
   final ValueChanged<int> onChanged;
-  final bool dependantSlider;
 
   SliderWidget(
       {this.sliderHeight = 48,
@@ -17,8 +16,7 @@ class SliderWidget extends StatefulWidget {
       this.max = 10,
       this.min = 0,
       this.fullWidth = false,
-      this.onChanged,
-      this.dependantSlider = false});
+      this.onChanged});
 
   @override
   _SliderWidgetState createState() => _SliderWidgetState();
@@ -28,17 +26,9 @@ class _SliderWidgetState extends State<SliderWidget> {
   double _value = 0;
 
   @override
-  void initState() {
-    super.initState();
-    if (widget.initValue != -1) {
-      _value = (widget.initValue.toDouble()) / widget.max;
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
     double paddingFactor = .2;
-    if (widget.initValue != -1 && widget.dependantSlider) {
+    if (widget.initValue != -1) {
       _value = (widget.initValue.toDouble()) / widget.max;
     }
 

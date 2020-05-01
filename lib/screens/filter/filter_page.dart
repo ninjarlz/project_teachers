@@ -86,10 +86,11 @@ class _FilterPageState extends State<FilterPage> {
     return Container(
         margin: EdgeInsets.only(top: 10),
         width: MediaQuery.of(context).size.width,
-        child: Form(
+        child: SingleChildScrollView(
+            child: Form(
           key: _formKey,
-          child: ListView(
-            shrinkWrap: true,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               Padding(
                 padding: EdgeInsets.only(left: 20),
@@ -160,8 +161,7 @@ class _FilterPageState extends State<FilterPage> {
                     initValue: _maxAvailability,
                     min: 0,
                     max: 8,
-                    onChanged: _onMaxAvailabilityValueChanged,
-                    dependantSlider: false),
+                    onChanged: _onMaxAvailabilityValueChanged),
               ),
               Padding(
                 padding: EdgeInsets.only(left: 20),
@@ -181,8 +181,7 @@ class _FilterPageState extends State<FilterPage> {
                         initValue: _remainingAvailability,
                         min: 0,
                         max: _maxAvailability,
-                        onChanged: _onRemainingAvailabilityValueChanged,
-                        dependantSlider: true)
+                        onChanged: _onRemainingAvailabilityValueChanged)
                     : Text("-", style: ThemeGlobalText().titleText),
               ),
               Container(
@@ -196,7 +195,7 @@ class _FilterPageState extends State<FilterPage> {
                   submit: onBack),
             ],
           ),
-        ));
+        )));
   }
 
   void onBack() {

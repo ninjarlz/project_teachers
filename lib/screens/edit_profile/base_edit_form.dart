@@ -137,207 +137,208 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
   @protected
   Widget showCoachForm() {
     return Container(
-      padding: EdgeInsets.all(16.0),
-      width: MediaQuery.of(context).size.width,
-      child: Form(
-        key: formKey,
-        child: ListView(
-          shrinkWrap: true,
-          children: <Widget>[
-            Container(
-                height: imagePath != null ? 150 : 0,
-                margin: EdgeInsets.all(10),
-                child: imagePath != null ? Image.asset(imagePath) : null),
-            InputWithIconWidget(
-                ctrl: name,
-                hint: Translations.of(context).text("register_firstname"),
-                icon: Icons.person,
-                type: TextInputType.text,
-                error: Translations.of(context).text("error_firstname_empty"),
-                maxLines: 1),
-            InputWithIconWidget(
-                ctrl: surname,
-                hint: Translations.of(context).text("register_lastname"),
-                icon: Icons.person,
-                type: TextInputType.text,
-                error: Translations.of(context).text("error_lastname_empty"),
-                maxLines: 1),
-            InputWithIconWidget(
-                ctrl: city,
-                hint: Translations.of(context).text("register_city"),
-                icon: Icons.location_city,
-                type: TextInputType.text,
-                error: Translations.of(context).text("error_city_empty"),
-                maxLines: 1),
-            PlacesInputWithIconWidget(
-                ctrl: school,
-                hint: Translations.of(context).text("register_school"),
-                icon: Icons.school,
-                error: Translations.of(context).text("error_school"),
-                placesTypes: ["school", "university"],
-                language: Translations.of(context).text("language"),
-                onPlacePicked: onPlacePicked),
-            InputWithIconWidget(
-                ctrl: profession,
-                hint: Translations.of(context).text("register_profession"),
-                icon: Icons.work,
-                type: TextInputType.text,
-                error: Translations.of(context).text("error_profession_empty"),
-                maxLines: 1),
-            InputWithIconWidget(
-                ctrl: bio,
-                hint: Translations.of(context).text("register_bio"),
-                icon: Icons.edit,
-                type: TextInputType.multiline,
-                error: Translations.of(context).text("error_bio_empty")),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              child: Center(child: TextErrorWidget(text: errorMessage)),
-            ),
-            Text(Translations.of(context).text("subjects"),
-                style: ThemeGlobalText().titleText),
-            CheckboxGroup(
-              onSelected: onSubjectsValuesChanged,
-              labels: TranslationMapper.translateList(
-                  SchoolSubjectExtension.labels, context),
-              checked: pickedSubjectsTranslation,
-              activeColor: ThemeGlobalColor().mainColorDark,
-              labelStyle: ThemeGlobalText().text,
-            ),
-            Text(Translations.of(context).text("specializations"),
-                style: ThemeGlobalText().titleText),
-            CheckboxGroup(
-              onSelected: onSpecializationsValuesChanged,
-              labels: TranslationMapper.translateList(
-                  SpecializationExtension.labels, context),
-              checked: pickedSpecializationsTranslation,
-              activeColor: ThemeGlobalColor().mainColorDark,
-              labelStyle: ThemeGlobalText().text,
-            ),
-            Text(Translations.of(context).text("coach_type"),
-                style: ThemeGlobalText().titleText),
-            RadioButtonGroup(
-              labels: TranslationMapper.translateList(
-                  CoachTypeExtension.labels, context),
-              onSelected: onCoachTypeValueChanged,
-              labelStyle: ThemeGlobalText().text,
-              picked: pickedCoachTypeTranslation,
-              activeColor: ThemeGlobalColor().mainColorDark,
-            ),
-            Text(Translations.of(context).text("max_availability"),
-                style: ThemeGlobalText().titleText),
-            Text(Translations.of(context).text("hours_per_week"),
-                style: ThemeGlobalText().smallText),
-            Padding(
-                padding: EdgeInsets.symmetric(vertical: 15),
-                child: SliderWidget(
-                    initValue: maxAvailability != null ? maxAvailability : 0,
-                    min: 0,
-                    max: 8,
-                    onChanged: onMaxAvailabilityValueChanged,
-                    dependantSlider: false)),
-            ButtonPrimaryWidget(
-                text: Translations.of(context).text(submitLabel),
-                submit: validateAndSubmit),
-            ButtonSecondaryWidget(
-                text: Translations.of(context).text("global_back"),
-                submit: onBack),
-          ],
-        ),
-      ),
-    );
+        padding: EdgeInsets.all(16.0),
+        width: MediaQuery.of(context).size.width,
+        child: SingleChildScrollView(
+            child: Form(
+          key: formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Container(
+                  height: imagePath != null ? 150 : 0,
+                  margin: EdgeInsets.all(10),
+                  child: imagePath != null ? Image.asset(imagePath) : null),
+              InputWithIconWidget(
+                  ctrl: name,
+                  hint: Translations.of(context).text("register_firstname"),
+                  icon: Icons.person,
+                  type: TextInputType.text,
+                  error: Translations.of(context).text("error_firstname_empty"),
+                  maxLines: 1),
+              InputWithIconWidget(
+                  ctrl: surname,
+                  hint: Translations.of(context).text("register_lastname"),
+                  icon: Icons.person,
+                  type: TextInputType.text,
+                  error: Translations.of(context).text("error_lastname_empty"),
+                  maxLines: 1),
+              InputWithIconWidget(
+                  ctrl: city,
+                  hint: Translations.of(context).text("register_city"),
+                  icon: Icons.location_city,
+                  type: TextInputType.text,
+                  error: Translations.of(context).text("error_city_empty"),
+                  maxLines: 1),
+              PlacesInputWithIconWidget(
+                  ctrl: school,
+                  hint: Translations.of(context).text("register_school"),
+                  icon: Icons.school,
+                  error: Translations.of(context).text("error_school"),
+                  placesTypes: ["school", "university"],
+                  language: Translations.of(context).text("language"),
+                  onPlacePicked: onPlacePicked),
+              InputWithIconWidget(
+                  ctrl: profession,
+                  hint: Translations.of(context).text("register_profession"),
+                  icon: Icons.work,
+                  type: TextInputType.text,
+                  error:
+                      Translations.of(context).text("error_profession_empty"),
+                  maxLines: 1),
+              InputWithIconWidget(
+                  ctrl: bio,
+                  hint: Translations.of(context).text("register_bio"),
+                  icon: Icons.edit,
+                  type: TextInputType.multiline,
+                  error: Translations.of(context).text("error_bio_empty")),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: Center(child: TextErrorWidget(text: errorMessage)),
+              ),
+              Text(Translations.of(context).text("subjects"),
+                  style: ThemeGlobalText().titleText),
+              CheckboxGroup(
+                onSelected: onSubjectsValuesChanged,
+                labels: TranslationMapper.translateList(
+                    SchoolSubjectExtension.labels, context),
+                checked: pickedSubjectsTranslation,
+                activeColor: ThemeGlobalColor().mainColorDark,
+                labelStyle: ThemeGlobalText().text,
+              ),
+              Text(Translations.of(context).text("specializations"),
+                  style: ThemeGlobalText().titleText),
+              CheckboxGroup(
+                onSelected: onSpecializationsValuesChanged,
+                labels: TranslationMapper.translateList(
+                    SpecializationExtension.labels, context),
+                checked: pickedSpecializationsTranslation,
+                activeColor: ThemeGlobalColor().mainColorDark,
+                labelStyle: ThemeGlobalText().text,
+              ),
+              Text(Translations.of(context).text("coach_type"),
+                  style: ThemeGlobalText().titleText),
+              RadioButtonGroup(
+                labels: TranslationMapper.translateList(
+                    CoachTypeExtension.labels, context),
+                onSelected: onCoachTypeValueChanged,
+                labelStyle: ThemeGlobalText().text,
+                picked: pickedCoachTypeTranslation,
+                activeColor: ThemeGlobalColor().mainColorDark,
+              ),
+              Text(Translations.of(context).text("max_availability"),
+                  style: ThemeGlobalText().titleText),
+              Text(Translations.of(context).text("hours_per_week"),
+                  style: ThemeGlobalText().smallText),
+              Padding(
+                  padding: EdgeInsets.symmetric(vertical: 15),
+                  child: SliderWidget(
+                      initValue: maxAvailability != null ? maxAvailability : 0,
+                      min: 0,
+                      max: 8,
+                      onChanged: onMaxAvailabilityValueChanged)),
+              ButtonPrimaryWidget(
+                  text: Translations.of(context).text(submitLabel),
+                  submit: validateAndSubmit),
+              ButtonSecondaryWidget(
+                  text: Translations.of(context).text("global_back"),
+                  submit: onBack),
+            ],
+          ),
+        )));
   }
 
   @protected
   Widget showExpertForm() {
     return Container(
-      padding: EdgeInsets.all(16.0),
-      width: MediaQuery.of(context).size.width,
-      child: Form(
-        key: formKey,
-        child: ListView(
-          shrinkWrap: true,
-          children: <Widget>[
-            Container(
-                height: imagePath != null ? 150 : 0,
-                margin: EdgeInsets.all(10),
-                child: imagePath != null ? Image.asset(imagePath) : null),
-            InputWithIconWidget(
-                ctrl: name,
-                hint: Translations.of(context).text("register_firstname"),
-                icon: Icons.person,
-                type: TextInputType.text,
-                error: Translations.of(context).text("error_firstname_empty"),
-                maxLines: 1),
-            InputWithIconWidget(
-                ctrl: surname,
-                hint: Translations.of(context).text("register_lastname"),
-                icon: Icons.person,
-                type: TextInputType.text,
-                error: Translations.of(context).text("error_lastname_empty"),
-                maxLines: 1),
-            InputWithIconWidget(
-                ctrl: city,
-                hint: Translations.of(context).text("register_city"),
-                icon: Icons.location_city,
-                type: TextInputType.text,
-                error: Translations.of(context).text("error_city_empty"),
-                maxLines: 1),
-            PlacesInputWithIconWidget(
-                ctrl: school,
-                hint: Translations.of(context).text("register_school"),
-                icon: Icons.school,
-                error: Translations.of(context).text("error_school"),
-                placesTypes: ["school", "university"],
-                language: Translations.of(context).text("language"),
-                onPlacePicked: onPlacePicked),
-            InputWithIconWidget(
-                ctrl: profession,
-                hint: Translations.of(context).text("register_profession"),
-                icon: Icons.work,
-                type: TextInputType.text,
-                error: Translations.of(context).text("error_profession_empty"),
-                maxLines: 1),
-            InputWithIconWidget(
-                ctrl: bio,
-                hint: Translations.of(context).text("register_bio"),
-                icon: Icons.edit,
-                type: TextInputType.multiline,
-                error: Translations.of(context).text("error_bio_empty")),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 10),
-              child: Center(child: TextErrorWidget(text: errorMessage)),
-            ),
-            Text(Translations.of(context).text("subjects"),
-                style: ThemeGlobalText().titleText),
-            CheckboxGroup(
-              onSelected: onSubjectsValuesChanged,
-              labels: TranslationMapper.translateList(
-                  SchoolSubjectExtension.labels, context),
-              checked: pickedSubjectsTranslation,
-              activeColor: ThemeGlobalColor().mainColorDark,
-              labelStyle: ThemeGlobalText().text,
-            ),
-            Text(Translations.of(context).text("specializations"),
-                style: ThemeGlobalText().titleText),
-            CheckboxGroup(
-              onSelected: onSpecializationsValuesChanged,
-              labels: TranslationMapper.translateList(
-                  SpecializationExtension.labels, context),
-              checked: pickedSpecializationsTranslation,
-              activeColor: ThemeGlobalColor().mainColorDark,
-              labelStyle: ThemeGlobalText().text,
-            ),
-            ButtonPrimaryWidget(
-                text: Translations.of(context).text(submitLabel),
-                submit: validateAndSubmit),
-            ButtonSecondaryWidget(
-                text: Translations.of(context).text("global_back"),
-                submit: onBack),
-          ],
-        ),
-      ),
-    );
+        padding: EdgeInsets.all(16.0),
+        width: MediaQuery.of(context).size.width,
+        child: SingleChildScrollView(
+            child: Form(
+          key: formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Container(
+                  height: imagePath != null ? 150 : 0,
+                  margin: EdgeInsets.all(10),
+                  child: imagePath != null ? Image.asset(imagePath) : null),
+              InputWithIconWidget(
+                  ctrl: name,
+                  hint: Translations.of(context).text("register_firstname"),
+                  icon: Icons.person,
+                  type: TextInputType.text,
+                  error: Translations.of(context).text("error_firstname_empty"),
+                  maxLines: 1),
+              InputWithIconWidget(
+                  ctrl: surname,
+                  hint: Translations.of(context).text("register_lastname"),
+                  icon: Icons.person,
+                  type: TextInputType.text,
+                  error: Translations.of(context).text("error_lastname_empty"),
+                  maxLines: 1),
+              InputWithIconWidget(
+                  ctrl: city,
+                  hint: Translations.of(context).text("register_city"),
+                  icon: Icons.location_city,
+                  type: TextInputType.text,
+                  error: Translations.of(context).text("error_city_empty"),
+                  maxLines: 1),
+              PlacesInputWithIconWidget(
+                  ctrl: school,
+                  hint: Translations.of(context).text("register_school"),
+                  icon: Icons.school,
+                  error: Translations.of(context).text("error_school"),
+                  placesTypes: ["school", "university"],
+                  language: Translations.of(context).text("language"),
+                  onPlacePicked: onPlacePicked),
+              InputWithIconWidget(
+                  ctrl: profession,
+                  hint: Translations.of(context).text("register_profession"),
+                  icon: Icons.work,
+                  type: TextInputType.text,
+                  error:
+                      Translations.of(context).text("error_profession_empty"),
+                  maxLines: 1),
+              InputWithIconWidget(
+                  ctrl: bio,
+                  hint: Translations.of(context).text("register_bio"),
+                  icon: Icons.edit,
+                  type: TextInputType.multiline,
+                  error: Translations.of(context).text("error_bio_empty")),
+              Padding(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: Center(child: TextErrorWidget(text: errorMessage)),
+              ),
+              Text(Translations.of(context).text("subjects"),
+                  style: ThemeGlobalText().titleText),
+              CheckboxGroup(
+                onSelected: onSubjectsValuesChanged,
+                labels: TranslationMapper.translateList(
+                    SchoolSubjectExtension.labels, context),
+                checked: pickedSubjectsTranslation,
+                activeColor: ThemeGlobalColor().mainColorDark,
+                labelStyle: ThemeGlobalText().text,
+              ),
+              Text(Translations.of(context).text("specializations"),
+                  style: ThemeGlobalText().titleText),
+              CheckboxGroup(
+                onSelected: onSpecializationsValuesChanged,
+                labels: TranslationMapper.translateList(
+                    SpecializationExtension.labels, context),
+                checked: pickedSpecializationsTranslation,
+                activeColor: ThemeGlobalColor().mainColorDark,
+                labelStyle: ThemeGlobalText().text,
+              ),
+              ButtonPrimaryWidget(
+                  text: Translations.of(context).text(submitLabel),
+                  submit: validateAndSubmit),
+              ButtonSecondaryWidget(
+                  text: Translations.of(context).text("global_back"),
+                  submit: onBack),
+            ],
+          ),
+        )));
   }
 
   @protected
@@ -363,7 +364,9 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
 
   @protected
   void onMaxAvailabilityValueChanged(int maxAvailability) {
-    this.maxAvailability = maxAvailability;
+    setState(() {
+      this.maxAvailability = maxAvailability;
+    });
   }
 
   @protected
