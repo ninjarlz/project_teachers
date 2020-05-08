@@ -11,7 +11,9 @@ enum AppState {
   LOGIN,
   INITIAL_FORM,
   EDIT_PROFILE,
-  FILTER_COACH
+  FILTER_COACH,
+  CONTACTS,
+  CHAT
 }
 
 

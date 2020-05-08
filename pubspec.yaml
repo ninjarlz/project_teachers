@@ -38,6 +38,7 @@ dependencies:
   grouped_buttons: ^1.0.4
   tuple: ^1.0.3
   image_cropper: ^1.2.1
+  fluttertoast: ^4.0.0
 
 dev_dependencies:
   flutter_test:

@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class MessageEntity {
 
   String id;
-  String conversationId;
   String text;
   String senderId;
   Timestamp timestamp;

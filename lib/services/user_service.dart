@@ -6,7 +6,8 @@ import 'package:project_teachers/entities/user_entity.dart';
 import 'package:project_teachers/entities/user_enums.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/services/auth.dart';
-import 'package:project_teachers/services/filtering_serivce.dart';
+import 'package:project_teachers/services/coach_filtering_serivce.dart';
+import 'package:project_teachers/services/messaging_service.dart';
 import 'package:project_teachers/services/storage_sevice.dart';
 import 'package:project_teachers/utils/helpers/function_wrappers.dart';
 import 'package:tuple/tuple.dart';
@@ -20,16 +21,17 @@ class UserService {
     if (_instance == null) {
       _instance = UserService._privateConstructor();
       _instance._userRepository = UserRepository.instance;
-      _instance._filteringService = FilteringService.instance;
+      _instance._filteringService = CoachFilteringService.instance;
+      _instance._messagingService = MessagingService.instance;
       _instance._auth = Auth.instance;
       _instance._storageService = StorageService.instance;
     }
     return _instance;
   }
 
-  List<CoachPageListener> _coachPageListeners = List<CoachPageListener>();
+  List<CoachListListener> _coachListListeners = List<CoachListListener>();
 
-  List<CoachPageListener> get coachPageListeners => _coachPageListeners;
+  List<CoachListListener> get coachListListeners => _coachListListeners;
 
   List<CoachListener> _coachListeners = List<CoachListener>();
 
@@ -49,6 +51,10 @@ class UserService {
 
   List<CoachEntity> get coachList => _coachList;
 
+  Map<String, CoachEntity> _contactedCoachMap = Map<String, CoachEntity>();
+
+  Map<String, CoachEntity> get contactedCoachMap => _contactedCoachMap;
+
   List<UserListener> _userListeners = List<UserListener>();
 
   List<UserListener> get userListeners => _userListeners;
@@ -66,9 +72,17 @@ class UserService {
   CoachEntity get currentCoach => _currentCoach;
 
   UserRepository _userRepository;
-  FilteringService _filteringService;
+  CoachFilteringService _filteringService;
+  MessagingService _messagingService;
   BaseAuth _auth;
   StorageService _storageService;
+
+  void loginUser() {
+    updateCoachList();
+    _storageService.getUserProfileImage();
+    _storageService.getUserBackgroundImage();
+    _messagingService.loginUser();
+  }
 
   void logoutUser() {
     _currentUser = null;
@@ -76,9 +90,12 @@ class UserService {
     _currentExpert = null;
     _userRepository.cancelUserSubscription();
     _userListeners.clear();
+    _coachListListeners.clear();
+    _coachListeners.clear();
     _filteringService.resetFilters();
     resetCoachList();
     _storageService.logoutUser();
+    _messagingService.logoutUser();
   }
 
   void _onCoachListChange(QuerySnapshot event) {
@@ -90,14 +107,13 @@ class UserService {
     }
     event.documents.forEach((element) {
       CoachEntity coach = CoachEntity.fromJson(element.data);
-      coach.uid = element.documentID;
       if (coach.uid != _auth.currentUser.uid) {
         _coachList.add(coach);
       }
     });
-    _storageService.updateCoachListProfileImages();
-    for (CoachPageListener coachPageListener in _coachPageListeners) {
-      coachPageListener.onCoachListChange();
+    _storageService.updateCoachListProfileImages(_coachList);
+    for (CoachListListener coachListListener in _coachListListeners) {
+      coachListListener.onCoachListChange();
     }
   }
 
@@ -117,6 +133,7 @@ class UserService {
     _userRepository.cancelCoachListSubscription();
   }
 
+
   void _onCoachDataChange(DocumentSnapshot event, int cnt) {
     if (!event.exists) {
       _selectedCoach = null;
@@ -127,8 +144,7 @@ class UserService {
       return;
     }
     _selectedCoach = CoachEntity.fromJson(event.data);
-    _selectedCoach.uid = event.documentID;
-    _storageService.updateCoachProfileImage(_selectedCoach);
+    _storageService.updateSelectedCoachProfileImage(_selectedCoach);
     _storageService.updateCoachBackgroundImage(_selectedCoach);
 
     _coachListeners.forEach((coachListener) {
@@ -142,7 +158,7 @@ class UserService {
       return;
     }
     _selectedCoach = coach;
-    _storageService.coachProfileImage = profileImage;
+    _storageService.selectedCoachProfileImage = profileImage;
     Function onCoachDataChangeWithCounter =
         FunctionWrappers.createDocumentSnapshotFunctionWithCounter(
             _onCoachDataChange, 0);
@@ -163,9 +179,20 @@ class UserService {
     List<SchoolSubject> schoolSubjects,
     List<Specialization> specializations,
   ) async {
-    ExpertEntity expertEntity = ExpertEntity(name, surname, email, city, school,
-        schoolID, profession, bio, null, null, schoolSubjects, specializations);
-    expertEntity.uid = userId;
+    ExpertEntity expertEntity = ExpertEntity(
+        userId,
+        name,
+        surname,
+        email,
+        city,
+        school,
+        schoolID,
+        profession,
+        bio,
+        null,
+        null,
+        schoolSubjects,
+        specializations);
     await _userRepository.updateUser(expertEntity);
     setCurrentUser(userId);
   }
@@ -185,6 +212,7 @@ class UserService {
       CoachType coachType,
       int maxAvailabilityPerWeek) async {
     CoachEntity coachEntity = CoachEntity(
+        userId,
         name,
         surname,
         email,
@@ -200,7 +228,6 @@ class UserService {
         coachType,
         maxAvailabilityPerWeek,
         maxAvailabilityPerWeek);
-    coachEntity.uid = userId;
     await _userRepository.updateUser(coachEntity);
     setCurrentUser(userId);
   }
@@ -210,18 +237,15 @@ class UserService {
     switch (userType) {
       case UserType.COACH:
         _currentCoach = CoachEntity.fromJson(event.data);
-        _currentCoach.uid = event.documentID;
         _currentUser = _currentExpert = _currentCoach;
         break;
       case UserType.EXPERT:
         _currentExpert = ExpertEntity.fromJson(event.data);
-        _currentExpert.uid = event.documentID;
         _currentUser = _currentExpert;
         break;
     }
     if (cnt == 1) {
-      _storageService.getUserProfileImage();
-      _storageService.getUserBackgroundImage();
+      loginUser();
     }
     _userListeners.forEach((userListener) {
       userListener.onUserDataChange();
@@ -255,6 +279,7 @@ class UserService {
       schoolID = _currentUser.schoolID;
     }
     CoachEntity coach = CoachEntity(
+        _currentUser.uid,
         name,
         surname,
         _currentUser.email,
@@ -270,8 +295,8 @@ class UserService {
         coachType,
         maxAvailabilityPerWeek,
         remainingAvailabilityPerWeek);
-    coach.uid = _currentUser.uid;
     await updateUser(coach);
+    _messagingService.updateUserData(_currentUser.uid, name, surname);
   }
 
   Future<void> updateCurrentExpertData(
@@ -290,6 +315,7 @@ class UserService {
       schoolID = _currentUser.schoolID;
     }
     ExpertEntity expert = ExpertEntity(
+        _currentUser.uid,
         name,
         surname,
         _currentUser.email,
@@ -302,12 +328,20 @@ class UserService {
         backgroundImageName,
         schoolSubjects,
         specializations);
-    expert.uid = _currentUser.uid;
     await updateUser(expert);
+    _messagingService.updateUserData(_currentUser.uid, name, surname);
   }
 
   Future<void> updateUser(UserEntity userEntity) async {
     await _userRepository.updateUser(userEntity);
+  }
+
+  Future<CoachEntity> getCoach(String coachId) async {
+    return _userRepository.getCoach(coachId);
+  }
+
+  Future<List<CoachEntity>> getCoaches(List<String> coachIds) async {
+    return await _userRepository.getCoaches(coachIds);
   }
 
   void cancelSelectedCoachSubscription() {
@@ -319,7 +353,7 @@ abstract class UserListener {
   void onUserDataChange();
 }
 
-abstract class CoachPageListener {
+abstract class CoachListListener {
   void onCoachListChange();
 }
 

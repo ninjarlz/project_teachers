@@ -1,48 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:project_teachers/entities/coach_entity.dart';
+import 'package:project_teachers/entities/conversation_entity.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
-import 'package:project_teachers/services/coach_filtering_serivce.dart';
+import 'package:project_teachers/services/messaging_service.dart';
 import 'package:project_teachers/services/storage_sevice.dart';
 import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/themes/index.dart';
 import 'package:project_teachers/translations/translations.dart';
-import 'package:project_teachers/widgets/index.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
-class Coach extends StatefulWidget {
-  static const String TITLE = "Coach";
-
+class Contacts extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => _CoachState();
+  State<StatefulWidget> createState() => _ContactsState();
 }
 
-class _CoachState extends State<Coach>
-    implements CoachListListener, CoachListProfileImagesListener {
+class _ContactsState extends State<Contacts>
+    implements CoachListProfileImagesListener, ConversationPageListener {
+  MessagingService _messagingService;
   UserService _userService;
-  CoachFilteringService _filteringService;
   StorageService _storageService;
   ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
   AppStateManager _appStateManager;
-  TextEditingController _searchCtrl = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _userService = UserService.instance;
     _storageService = StorageService.instance;
-    _filteringService = CoachFilteringService.instance;
-    if (_filteringService.searchFilter != null) {
-      _searchCtrl.text = _filteringService.searchFilter;
-    }
-    _userService.coachListListeners.add(this);
+    _messagingService = MessagingService.instance;
+    _userService = UserService.instance;
     _storageService.coachListProfileImageListeners.add(this);
+    _messagingService.conversationPageListeners.add(this);
     _scrollController.addListener(() {
       double maxScroll = _scrollController.position.maxScrollExtent;
       double currentScroll = _scrollController.position.pixels;
       double delta = MediaQuery.of(context).size.height * 0.20;
       if (maxScroll - currentScroll <= delta) {
-        _loadMoreCoaches();
+        _loadMoreConversations();
       }
     });
     Future.delayed(Duration.zero, () {
@@ -50,22 +44,16 @@ class _CoachState extends State<Coach>
     });
   }
 
-  void _searchFilter() {
-    _filteringService.resetFilters();
-    if (_searchCtrl.text != "" && _searchCtrl.text != null) {
-      _filteringService.searchFilter = _searchCtrl.text.toLowerCase();
-    }
-    _userService.resetCoachList();
-    _userService.updateCoachList();
-  }
-
   Widget _buildRow(int index) {
-    CoachEntity coach = _userService.coachList[index];
-    String fullName = "${coach.name} ${coach.surname}";
+    ConversationEntity conversation = _messagingService.conversations[index];
+    String fullName =
+        "${conversation.otherParticipantData.name} ${conversation.otherParticipantData.surname}";
     return ListTile(
         leading: Material(
-          child: _storageService.coachImages.containsKey(coach.uid)
-              ? _storageService.coachImages[coach.uid].item2
+          child: _storageService.coachImages
+                  .containsKey(conversation.otherParticipantId)
+              ? _storageService
+                  .coachImages[conversation.otherParticipantId].item2
               : Image.asset(
                   "assets/img/default_profile_2.png",
                   fit: BoxFit.cover,
@@ -78,16 +66,19 @@ class _CoachState extends State<Coach>
         contentPadding: EdgeInsets.all(5),
         title: Text(fullName),
         subtitle: Text(
-          coach.profession,
+          DateFormat('dd MMM kk:mm').format(DateTime.fromMillisecondsSinceEpoch(
+                  conversation.lastMsgTimestamp.millisecondsSinceEpoch)) +
+              " - " +
+              (conversation.lastMsgSenderId == _userService.currentUser.uid
+                  ? Translations.of(context).text("you") +
+                      ": " +
+                      conversation.lastMsgText
+                  : conversation.lastMsgText),
           style: ThemeGlobalText().smallText,
         ),
         onTap: () {
-          _userService.setSelectedCoach(
-              coach,
-              _storageService.coachImages.containsKey(coach.uid)
-                  ? _storageService.coachImages[coach.uid]
-                  : null);
-          _appStateManager.changeAppState(AppState.COACH_PROFILE_PAGE);
+          _messagingService.setSelectedConversation(conversation);
+          _appStateManager.changeAppState(AppState.CHAT);
         });
   }
 
@@ -98,20 +89,16 @@ class _CoachState extends State<Coach>
       padding: EdgeInsets.only(left: 20, top: 10, right: 20),
       child: Column(
         children: [
-          InputSearchWidget(
-            ctrl: _searchCtrl,
-            submitChange: _searchFilter,
-          ),
           Expanded(
-            child: _userService.coachList == null ||
-                    _userService.coachList.length == 0
+            child: _messagingService.conversations == null ||
+                    _messagingService.conversations.length == 0
                 ? Center(
                     child: Text(
                         Translations.of(context).text("no_results") + "..."),
                   )
                 : ListView.builder(
                     controller: _scrollController,
-                    itemCount: _userService.coachList.length,
+                    itemCount: _messagingService.conversations.length,
                     itemBuilder: (context, index) {
                       return _buildRow(index);
                     },
@@ -131,11 +118,11 @@ class _CoachState extends State<Coach>
     );
   }
 
-  Future<void> _loadMoreCoaches() async {
-    if (!_userService.hasMoreCoaches || _isLoading) {
+  Future<void> _loadMoreConversations() async {
+    if (!_messagingService.hasMoreConversations || _isLoading) {
       return;
     }
-    _userService.updateCoachList();
+    _messagingService.updateConversationList();
     setState(() {
       _isLoading = true;
     });
@@ -144,19 +131,19 @@ class _CoachState extends State<Coach>
   @override
   void dispose() {
     super.dispose();
-    _userService.coachListListeners.remove(this);
+    _messagingService.conversationPageListeners.remove(this);
     _storageService.coachListProfileImageListeners.remove(this);
   }
 
   @override
-  void onCoachListChange() {
+  void onCoachListProfileImagesChange() {
     setState(() {
       _isLoading = false;
     });
   }
 
   @override
-  void onCoachListProfileImagesChange() {
+  void onConversationListChange() {
     setState(() {
       _isLoading = false;
     });

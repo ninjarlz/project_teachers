@@ -91,5 +91,12 @@
   "max_availability": "Max. availability",
   "remaining_availability": "Remaining availability",
   "hours_per_week": "Hours per week",
-  "hours_this_week": "Hours this week"
+  "hours_this_week": "Hours this week",
+  "you": "You",
+  "no_results": "No results",
+  "loading": "Loading",
+  "my_contacts": "My contacts",
+  "type_your_message": "Type your message",
+  "nothing_to_send": "Nothing to send",
+  "chat": "Chat"
 }

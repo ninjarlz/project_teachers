@@ -8,6 +8,7 @@ class ExpertEntity extends UserEntity {
   List<Specialization> specializations;
 
   ExpertEntity(
+      String uid,
       String name,
       String surname,
       String email,
@@ -20,7 +21,7 @@ class ExpertEntity extends UserEntity {
       String backgroundImageName,
       List<SchoolSubject> schoolSubjects,
       List<Specialization> specializations)
-      : super(name, surname, email, city, school, schoolID, profession, bio,
+      : super(uid, name, surname, email, city, school, schoolID, profession, bio,
             profileImageName, backgroundImageName, UserType.EXPERT) {
     this.schoolSubjects = schoolSubjects;
     this.specializations = specializations;
@@ -28,6 +29,7 @@ class ExpertEntity extends UserEntity {
 
   factory ExpertEntity.fromJson(Map<dynamic, dynamic> json) {
     return ExpertEntity(
+        json["uid"],
         json["name"],
         json["surname"],
         json["email"],
@@ -44,6 +46,7 @@ class ExpertEntity extends UserEntity {
 
   factory ExpertEntity.fromSnapshot(DocumentSnapshot documentSnapshot) {
     return ExpertEntity(
+        documentSnapshot.data["uid"],
         documentSnapshot.data["name"],
         documentSnapshot.data["surname"],
         documentSnapshot.data["email"],
@@ -61,6 +64,7 @@ class ExpertEntity extends UserEntity {
   @override
   toJson() {
     return {
+      "uid": uid,
       "name": name,
       "surname": surname,
       "name_surname": name.toLowerCase() + " " + surname.toLowerCase(),

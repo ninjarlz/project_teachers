@@ -1,14 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project_teachers/entities/user_enums.dart';
+import 'package:project_teachers/services/base_filtering_service.dart';
 
-class FilteringService {
-  static FilteringService _instance;
+class CoachFilteringService extends BaseFilteringService {
+  static CoachFilteringService _instance;
 
-  FilteringService._privateConstructor();
+  CoachFilteringService._privateConstructor();
 
-  static FilteringService get instance {
+  static CoachFilteringService get instance {
     if (_instance == null) {
-      _instance = FilteringService._privateConstructor();
+      _instance = CoachFilteringService._privateConstructor();
     }
     return _instance;
   }
@@ -22,6 +23,7 @@ class FilteringService {
   int activeRemainingAvailability;
   String searchFilter;
 
+  @override
   void resetFilters() {
     activeCoachType = null;
     activeSchoolSubjects = List<SchoolSubject>();
@@ -33,6 +35,7 @@ class FilteringService {
     searchFilter = null;
   }
 
+  @override
   Query prepareQuery(Query query) {
     if (searchFilter != null) {
       query = query

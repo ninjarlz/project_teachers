@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:grouped_buttons/grouped_buttons.dart';
 import 'package:project_teachers/entities/user_enums.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
-import 'package:project_teachers/services/filtering_serivce.dart';
+import 'package:project_teachers/services/coach_filtering_serivce.dart';
 import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
@@ -20,7 +20,7 @@ class FilterPage extends StatefulWidget {
 }
 
 class _FilterPageState extends State<FilterPage> {
-  FilteringService _filteringService;
+  CoachFilteringService _filteringService;
   AppStateManager _appStateManager;
   String _pickedCoachTypeTranslation;
   List<String> _pickedSubjectsTranslation;
@@ -36,7 +36,7 @@ class _FilterPageState extends State<FilterPage> {
   @override
   void initState() {
     super.initState();
-    _filteringService = FilteringService.instance;
+    _filteringService = CoachFilteringService.instance;
     _userService = UserService.instance;
     Future.delayed(Duration.zero, () {
       _appStateManager = Provider.of<AppStateManager>(context, listen: false);
@@ -237,6 +237,7 @@ class _FilterPageState extends State<FilterPage> {
         _filteringService.schoolName = null;
       }
       _userService.resetCoachList();
+      _userService.updateCoachList();
       _appStateManager.changeAppState(AppState.COACH);
     }
   }

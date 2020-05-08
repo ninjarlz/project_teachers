@@ -12,6 +12,7 @@ class ThemeGlobalColor {
   Color containerColor = Color(0xffE0F7FA);
   Color backgroundColor = Colors.white;
   Color appBarColor = Colors.white;
+  Color boxMsgColor = Color(0xffC4C4CC);
 }
 
 class ThemeGlobalShape {
@@ -23,7 +24,11 @@ class ThemeGlobalText {
 
   TextStyle text = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: ThemeGlobalColor().textColor);
 
+  TextStyle whiteText = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: Colors.white);
+
   TextStyle inputText = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: ThemeGlobalColor().textColor);
+
+  TextStyle hintText = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: Colors.grey);
 
   TextStyle smallText = TextStyle(fontSize: 13.0, fontWeight: FontWeight.w300, color: ThemeGlobalColor().smallTextColor);
 

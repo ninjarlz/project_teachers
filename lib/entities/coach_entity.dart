@@ -9,6 +9,7 @@ class CoachEntity extends ExpertEntity {
   int remainingAvailabilityInWeek;
 
   CoachEntity(
+      String uid,
       String name,
       String surname,
       String email,
@@ -25,6 +26,7 @@ class CoachEntity extends ExpertEntity {
       int maxAvailabilityPerWeek,
       int remainingAvailabilityInWeek)
       : super(
+            uid,
             name,
             surname,
             email,
@@ -45,6 +47,7 @@ class CoachEntity extends ExpertEntity {
 
   factory CoachEntity.fromJson(Map<dynamic, dynamic> json) {
     return CoachEntity(
+        json["uid"],
         json["name"],
         json["surname"],
         json["email"],
@@ -64,6 +67,7 @@ class CoachEntity extends ExpertEntity {
 
   factory CoachEntity.fromSnapshot(DocumentSnapshot documentSnapshot) {
     return CoachEntity(
+        documentSnapshot.data["uid"],
         documentSnapshot.data["name"],
         documentSnapshot.data["surname"],
         documentSnapshot.data["email"],
@@ -84,6 +88,7 @@ class CoachEntity extends ExpertEntity {
   @override
   toJson() {
     return {
+      "uid": uid,
       "name": name,
       "surname": surname,
       "name_surname": name.toLowerCase() + " " + surname.toLowerCase(),

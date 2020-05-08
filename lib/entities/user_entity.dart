@@ -8,7 +8,6 @@ class UserEntity {
   String city;
   String school;
   String schoolID;
-  //Map<String, dynamic>
   String email;
   String profession;
   String bio;
@@ -17,6 +16,7 @@ class UserEntity {
   UserType userType;
 
   UserEntity(
+      String uid,
       String name,
       String surname,
       String email,
@@ -28,6 +28,7 @@ class UserEntity {
       String profileImageName,
       String backgroundImageName,
       UserType userType) {
+    this.uid = uid;
     this.name = name;
     this.surname = surname;
     this.school = school;
@@ -43,6 +44,7 @@ class UserEntity {
 
   factory UserEntity.fromJson(Map<String, dynamic> json) {
     return UserEntity(
+        json["uid"],
         json["name"],
         json["surname"],
         json["email"],
@@ -58,6 +60,7 @@ class UserEntity {
 
   factory UserEntity.fromSnapshot(DocumentSnapshot documentSnapshot) {
     return UserEntity(
+        documentSnapshot.data["uid"],
         documentSnapshot.data["name"],
         documentSnapshot.data["surname"],
         documentSnapshot.data["email"],
@@ -73,6 +76,7 @@ class UserEntity {
 
   toJson() {
     return {
+      "uid": uid,
       "name": name,
       "surname": surname,
       "name_surname": name.toLowerCase() + " " + surname.toLowerCase(),

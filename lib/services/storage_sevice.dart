@@ -5,9 +5,11 @@ import 'package:path/path.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:project_teachers/entities/coach_entity.dart';
+import 'package:project_teachers/entities/conversation_entity.dart';
 import 'package:project_teachers/entities/user_entity.dart';
 import 'package:project_teachers/repositories/storage_repository.dart';
 import 'package:project_teachers/repositories/user_repository.dart';
+import 'package:project_teachers/services/messaging_service.dart';
 import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/utils/constants/constants.dart';
 import 'package:project_teachers/utils/helpers/uuid.dart';
@@ -23,6 +25,7 @@ class StorageService {
       _instance = new StorageService._privateConstructor();
       _instance._storageRepository = StorageRepository.instance;
       _instance._userService = UserService.instance;
+      _instance._messagingService = MessagingService.instance;
     }
     return _instance;
   }
@@ -47,12 +50,13 @@ class StorageService {
   List<UserBackgroundImageListener> get userBackgroundImageListeners =>
       _userBackgroundImageListeners;
 
-  Tuple2<String, Image> _coachProfileImage;
+  Tuple2<String, Image> _selectedCoachProfileImage;
 
-  Tuple2<String, Image> get coachProfileImage => _coachProfileImage;
+  Tuple2<String, Image> get selectedCoachProfileImage =>
+      _selectedCoachProfileImage;
 
-  void set coachProfileImage(Tuple2<String, Image> coachProfileImage) {
-    _coachProfileImage = coachProfileImage;
+  void set selectedCoachProfileImage(Tuple2<String, Image> coachProfileImage) {
+    _selectedCoachProfileImage = coachProfileImage;
     if (coachProfileImage != null) {
       _coachProfileImageListeners.forEach((element) {
         element.onCoachProfileImageChange();
@@ -60,13 +64,14 @@ class StorageService {
     }
   }
 
-  Tuple2<String, Image> _coachBackgroundImage;
+  Tuple2<String, Image> _selectedCoachBackgroundImage;
 
-  Tuple2<String, Image> get coachBackgroundImage => _coachBackgroundImage;
+  Tuple2<String, Image> get selectedCoachBackgroundImage =>
+      _selectedCoachBackgroundImage;
 
-  Map<String, Tuple2<String, Image>> _coachListImages = Map<String,
+  Map<String, Tuple2<String, Image>> _coachImages = Map<String,
       Tuple2<String, Image>>(); // <coachId, Tuple2<profileImageName, Image>>
-  Map<String, Tuple2<String, Image>> get coachListImages => _coachListImages;
+  Map<String, Tuple2<String, Image>> get coachImages => _coachImages;
 
   List<CoachProfileImageListener> _coachProfileImageListeners =
       List<CoachProfileImageListener>();
@@ -85,9 +90,9 @@ class StorageService {
 
   List<CoachListProfileImagesListener> get coachListProfileImageListeners =>
       _coachListProfileImageListeners;
-
   StorageRepository _storageRepository;
   UserService _userService;
+  MessagingService _messagingService;
 
   Future<void> uploadProfileImage() async {
     File image = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -105,6 +110,7 @@ class StorageService {
             croppedImage, fileName, Constants.PROFILE_IMAGE_DIR, user.uid);
         user.profileImageName = fileName;
         await _userService.updateUser(user);
+        await _messagingService.updateProfileImageData(user.uid, fileName);
         _userProfileImage = await Image.file(
           croppedImage,
           fit: BoxFit.cover,
@@ -117,15 +123,15 @@ class StorageService {
     }
   }
 
-  Future<void> updateCoachListProfileImages() async {
-    for (CoachEntity coach in _userService.coachList) {
+  Future<void> updateCoachListProfileImages(List<CoachEntity> coaches) async {
+    for (CoachEntity coach in coaches) {
       if (coach.profileImageName != null) {
-        if (_coachListImages.containsKey(coach.uid)) {
-          if (coach.profileImageName != coachListImages[coach.uid].item1) {
-            await updateCoachListProfileImage(coach);
+        if (_coachImages.containsKey(coach.uid)) {
+          if (coach.profileImageName != coachImages[coach.uid].item1) {
+            await updateCoachProfileImage(coach);
           }
         } else {
-          await updateCoachListProfileImage(coach);
+          await updateCoachProfileImage(coach);
         }
       }
     }
@@ -134,9 +140,37 @@ class StorageService {
     });
   }
 
-  Future<void> updateCoachListProfileImage(CoachEntity coach) async {
+  Future<void> updateCoachListProfileImagesWithConversationList(
+      List<ConversationEntity> conversations) async {
+    for (ConversationEntity conversation in conversations) {
+      if (conversation.otherParticipantData.profileImageName != null) {
+        if (_coachImages.containsKey(conversation.otherParticipantId)) {
+          if (conversation.otherParticipantData.profileImageName !=
+              coachImages[conversation.otherParticipantId].item1) {
+            updateCoachProfileImageWithConversation(conversation);
+          }
+        } else {
+          updateCoachProfileImageWithConversation(conversation);
+        }
+      }
+    }
+    _coachListProfileImageListeners.forEach((element) {
+      element.onCoachListProfileImagesChange();
+    });
+  }
+
+  Future<void> updateCoachProfileImageWithConversation(
+      ConversationEntity conversation) async {
+    Image image = await _storageRepository.getProfileImageFromData(
+        conversation.otherParticipantId,
+        conversation.otherParticipantData.profileImageName);
+    _coachImages[conversation.otherParticipantId] =
+        Tuple2(conversation.otherParticipantData.profileImageName, image);
+  }
+
+  Future<void> updateCoachProfileImage(CoachEntity coach) async {
     Image image = await _storageRepository.getProfileImageFromUser(coach);
-    _coachListImages[coach.uid] = Tuple2(coach.profileImageName, image);
+    _coachImages[coach.uid] = Tuple2(coach.profileImageName, image);
   }
 
   Future<void> uploadBackgroundImage() async {
@@ -188,13 +222,13 @@ class StorageService {
     _userBackgroundImageListeners.clear();
   }
 
-  Future<void> updateCoachProfileImage(CoachEntity coach) async {
+  Future<void> updateSelectedCoachProfileImage(CoachEntity coach) async {
     if (coach.profileImageName != null) {
-      if (_coachProfileImage == null ||
-          (_coachProfileImage != null &&
-              _coachProfileImage.item1 != coach.profileImageName)) {
+      if (_selectedCoachProfileImage == null ||
+          (_selectedCoachProfileImage != null &&
+              _selectedCoachProfileImage.item1 != coach.profileImageName)) {
         Image image = await _storageRepository.getProfileImageFromUser(coach);
-        _coachProfileImage = Tuple2(coach.profileImageName, image);
+        _selectedCoachProfileImage = Tuple2(coach.profileImageName, image);
         _coachProfileImageListeners.forEach((element) {
           element.onCoachProfileImageChange();
         });
@@ -204,12 +238,14 @@ class StorageService {
 
   Future<void> updateCoachBackgroundImage(CoachEntity coach) async {
     if (coach.backgroundImageName != null) {
-      if (_coachBackgroundImage == null ||
-          (_coachBackgroundImage != null &&
-              _coachBackgroundImage.item1 != coach.backgroundImageName)) {
+      if (_selectedCoachBackgroundImage == null ||
+          (_selectedCoachBackgroundImage != null &&
+              _selectedCoachBackgroundImage.item1 !=
+                  coach.backgroundImageName)) {
         Image image =
             await _storageRepository.getBackgroundImageFromUser(coach);
-        _coachBackgroundImage = Tuple2(coach.backgroundImageName, image);
+        _selectedCoachBackgroundImage =
+            Tuple2(coach.backgroundImageName, image);
         _coachBackgroundImageListeners.forEach((element) {
           element.onCoachBackgroundImageChange();
         });
@@ -220,8 +256,8 @@ class StorageService {
   void disposeCoachImages() {
     _coachBackgroundImageListeners.clear();
     _coachProfileImageListeners.clear();
-    _coachProfileImage = null;
-    _coachBackgroundImage = null;
+    _selectedCoachProfileImage = null;
+    _selectedCoachBackgroundImage = null;
   }
 }
 

@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'package:project_teachers/entities/coach_entity.dart';
 import 'package:project_teachers/entities/user_entity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:project_teachers/entities/user_enums.dart';
 
 class UserRepository {
   UserRepository._privateConstructor();
@@ -51,8 +53,7 @@ class UserRepository {
     return _userListRef.where("userType", isEqualTo: "Coach");
   }
 
-  void subscribeCoachList(
-      Query query, Function onCoachListChange) {
+  void subscribeCoachList(Query query, Function onCoachListChange) {
     cancelCoachListSubscription();
     _coachListSub = query.snapshots().listen(onCoachListChange);
     _coachListSub.onError((o) {
@@ -70,21 +71,16 @@ class UserRepository {
   }
 
   void subscribeCurrentUser(String userId, Function onUserDataChange) {
-////    FOR ADDING TEST DATA
+//    FOR ADDING TEST DATA
 //    for (int i = 0; i < 300; i++) {
-//      _userListRef.add(CoachEntity("test", "test" + (i + 20).toString(), "test" + (i + 20).toString() + "@test.com", "test", "test", "test", "test", null, null, null, null, CoachType.PRO_ACTIVE, 2, 2).toJson());
+//      _userListRef.document("test test" + (i+ 20).toString()).setData(CoachEntity("test test" + (i+ 20).toString(), "test", "test" + (i + 20).toString(), "test" + (i + 20).toString() + "@test.com", "test", "test","test", "test", "test", null, null, null, null, CoachType.PRO_ACTIVE, 2, 2).toJson());
 //    }
 
 // FOR REMOVING TEST DATA
-//
-//    _userListRef
-//        .where("name", isEqualTo: "test")
-//        .getDocuments()
-//        .then((querySnapshot) => {
-//              querySnapshot.documents.forEach((element) {
-//                _userListRef.document(element.documentID).delete();
-//              })
-//            });
+//    for (int i = 0; i < 300; i++) {
+//      _userListRef.document("test test" + (i+ 20).toString()).delete();
+//    }
+
     _userRef = _userListRef.document(userId);
     _userSub = _userRef.snapshots().listen(onUserDataChange);
     _userSub.onError((error) {
@@ -94,5 +90,25 @@ class UserRepository {
 
   Future<void> updateUser(UserEntity user) async {
     await _userListRef.document(user.uid).setData(user.toJson());
+  }
+
+  Future<CoachEntity> getCoach(String coachId) async {
+    DocumentSnapshot documentSnapshot =
+        await _userListRef.document(coachId).get();
+    if (!documentSnapshot.exists ||
+        documentSnapshot.data["userType"] != "Coach") {
+      return null;
+    }
+    return CoachEntity.fromJson(documentSnapshot.data);
+  }
+
+  Future<List<CoachEntity>> getCoaches(List<String> coachIds) async {
+    List<CoachEntity> coaches = List<CoachEntity>();
+    QuerySnapshot querySnapshot =
+        await _userListRef.where("uid", whereIn: coachIds).getDocuments();
+    querySnapshot.documents.forEach((element) {
+      coaches.add(CoachEntity.fromJson(element.data));
+    });
+    return coaches;
   }
 }

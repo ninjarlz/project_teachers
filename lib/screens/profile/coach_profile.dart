@@ -133,18 +133,18 @@ class _CoachProfileState extends BaseProfileState<CoachProfile>
 
   @override
   void onCoachBackgroundImageChange() {
-    if (storageService.coachBackgroundImage != null) {
+    if (storageService.selectedCoachBackgroundImage != null) {
       setState(() {
-        backgroundImage = storageService.coachBackgroundImage.item2;
+        backgroundImage = storageService.selectedCoachBackgroundImage.item2;
       });
     }
   }
 
   @override
   void onCoachProfileImageChange() {
-    if (storageService.coachProfileImage != null) {
+    if (storageService.selectedCoachProfileImage != null) {
       setState(() {
-        profileImage = storageService.coachProfileImage.item2;
+        profileImage = storageService.selectedCoachProfileImage.item2;
       });
     }
   }
