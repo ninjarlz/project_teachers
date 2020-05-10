@@ -8,6 +8,7 @@ import 'package:project_teachers/screens/filter/filter_page.dart';
 import 'package:project_teachers/screens/navigation_drawer/navigation_drawer.dart';
 import 'package:project_teachers/screens/profile/coach_profile.dart';
 import 'package:project_teachers/screens/profile/user_profile.dart';
+import 'package:project_teachers/screens/timeline/timeline.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:project_teachers/services/messaging_service.dart';
 import 'package:project_teachers/services/storage_service.dart';
@@ -55,6 +56,15 @@ class _HomeState extends State<Home>
     FloatingActionButtonLocation floatingActionButtonLocation = null;
 
     switch (appState) {
+      case AppState.TIMELINE:
+        body = Timeline();
+        appBar = AppBar(
+            title: Text(Translations.of(context).text("timeline"),
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: Colors.transparent);
+        navBarIndex = -1;
+        break;
+
       case AppState.PROFILE_PAGE:
         body = UserProfile();
         appBar = AppBar(

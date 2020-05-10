@@ -64,6 +64,10 @@ flutter:
     - assets/img/default_profile.png
     - assets/img/default_profile_2.png
     - assets/img/icon_new.png
+    - assets/img/timeline/comment.png
+    - assets/img/timeline/comment2.png
+    - assets/img/timeline/like_enabled.png
+    - assets/img/timeline/like_disabled.png
     - locale/i18n_en.json
     - locale/i18n_nl.json
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -70,6 +70,9 @@ class _NavigationDrawerState extends State<NavigationDrawer>
             title: Text('Timeline'),
             onTap: () {
               Navigator.of(context).pop();
+              if (_appStateManager.appState != AppState.TIMELINE) {
+                _appStateManager.changeAppState(AppState.TIMELINE);
+              }
             },
           ),
           ListTile(

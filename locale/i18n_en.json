@@ -99,5 +99,6 @@
   "type_your_message": "Type your message",
   "nothing_to_send": "Nothing to send",
   "chat": "Chat",
-  "seen":  "Seen"
+  "seen":  "Seen",
+  "timeline": "timeline"
 }

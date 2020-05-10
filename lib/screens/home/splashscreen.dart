@@ -50,7 +50,7 @@ class _SplashscreenState extends State<Splashscreen> {
         if (isInitialized) {
           _userService.setCurrentUser(user.uid);
           _authStatusManager.changeAuthState(AuthStatus.LOGGED_IN);
-          _appStateManager.changeAppState(AppState.COACH);
+          _appStateManager.changeAppState(AppState.TIMELINE);
         } else {
           _authStatusManager.changeAuthState(AuthStatus.INITIAL_FORM);
           _appStateManager.changeAppState(AppState.INITIAL_FORM);
