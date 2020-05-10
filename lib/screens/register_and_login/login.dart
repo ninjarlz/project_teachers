@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:project_teachers/repositories/valid_email_address_repository.dart';
 import 'package:project_teachers/services/index.dart';
 import 'package:project_teachers/services/valid_email_address_service.dart';
 import 'package:project_teachers/translations/translations.dart';
