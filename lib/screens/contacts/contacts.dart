@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:project_teachers/entities/conversation_entity.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:project_teachers/services/messaging_service.dart';
-import 'package:project_teachers/services/storage_sevice.dart';
+import 'package:project_teachers/services/storage_service.dart';
 import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/themes/index.dart';
 import 'package:project_teachers/translations/translations.dart';
@@ -149,7 +149,7 @@ class _ContactsState extends State<Contacts>
   }
 
   @override
-  void onCoachListProfileImagesChange() {
+  void onCoachListProfileImagesChange(List<String> updatedCoachesIds) {
     setState(() {});
   }
 

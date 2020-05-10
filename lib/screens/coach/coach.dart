@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:project_teachers/entities/coach_entity.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:project_teachers/services/coach_filtering_serivce.dart';
-import 'package:project_teachers/services/storage_sevice.dart';
+import 'package:project_teachers/services/storage_service.dart';
 import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/themes/index.dart';
 import 'package:project_teachers/translations/translations.dart';
@@ -156,9 +156,7 @@ class _CoachState extends State<Coach>
   }
 
   @override
-  void onCoachListProfileImagesChange() {
-    setState(() {
-      _isLoading = false;
-    });
+  void onCoachListProfileImagesChange(List<String> updatedCoachesIds) {
+    setState(() {});
   }
 }

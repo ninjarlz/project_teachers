@@ -4,7 +4,7 @@ import 'package:project_teachers/entities/user_entity.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:project_teachers/services/auth.dart';
 import 'package:project_teachers/services/auth_status_manager.dart';
-import 'package:project_teachers/services/storage_sevice.dart';
+import 'package:project_teachers/services/storage_service.dart';
 import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:provider/provider.dart';

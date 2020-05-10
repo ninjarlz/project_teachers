@@ -124,38 +124,44 @@ class StorageService {
   }
 
   Future<void> updateCoachListProfileImages(List<CoachEntity> coaches) async {
+    List<String> updatedCoachesIds = List<String>();
     for (CoachEntity coach in coaches) {
       if (coach.profileImageName != null) {
         if (_coachImages.containsKey(coach.uid)) {
           if (coach.profileImageName != coachImages[coach.uid].item1) {
             await updateCoachProfileImage(coach);
+            updatedCoachesIds.add(coach.uid);
           }
         } else {
           await updateCoachProfileImage(coach);
+          updatedCoachesIds.add(coach.uid);
         }
       }
     }
     _coachListProfileImageListeners.forEach((element) {
-      element.onCoachListProfileImagesChange();
+      element.onCoachListProfileImagesChange(updatedCoachesIds);
     });
   }
 
   Future<void> updateCoachListProfileImagesWithConversationList(
       List<ConversationEntity> conversations) async {
+    List<String> updatedCoachesIds = List<String>();
     for (ConversationEntity conversation in conversations) {
       if (conversation.otherParticipantData.profileImageName != null) {
         if (_coachImages.containsKey(conversation.otherParticipantId)) {
           if (conversation.otherParticipantData.profileImageName !=
               coachImages[conversation.otherParticipantId].item1) {
-            updateCoachProfileImageWithConversation(conversation);
+            await updateCoachProfileImageWithConversation(conversation);
+            updatedCoachesIds.add(conversation.otherParticipantId);
           }
         } else {
-          updateCoachProfileImageWithConversation(conversation);
+          await updateCoachProfileImageWithConversation(conversation);
+          updatedCoachesIds.add(conversation.otherParticipantId);
         }
       }
     }
     _coachListProfileImageListeners.forEach((element) {
-      element.onCoachListProfileImagesChange();
+      element.onCoachListProfileImagesChange(updatedCoachesIds);
     });
   }
 
@@ -284,5 +290,5 @@ abstract class CoachBackgroundImageListener {
 }
 
 abstract class CoachListProfileImagesListener {
-  void onCoachListProfileImagesChange();
+  void onCoachListProfileImagesChange(List<String> updatedCoachesIds);
 }

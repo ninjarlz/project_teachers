@@ -3,7 +3,7 @@ import 'package:project_teachers/entities/conversation_entity.dart';
 import 'package:project_teachers/entities/conversation_participant_entity.dart';
 import 'package:project_teachers/entities/message_entity.dart';
 import 'package:project_teachers/repositories/messaging_repository.dart';
-import 'package:project_teachers/services/storage_sevice.dart';
+import 'package:project_teachers/services/storage_service.dart';
 import 'package:project_teachers/services/user_service.dart';
 
 class MessagingService {

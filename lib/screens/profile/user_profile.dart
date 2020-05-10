@@ -5,7 +5,7 @@ import 'package:project_teachers/entities/expert_entity.dart';
 import 'package:project_teachers/entities/user_enums.dart';
 import 'package:project_teachers/screens/profile/base_profile.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
-import 'package:project_teachers/services/storage_sevice.dart';
+import 'package:project_teachers/services/storage_service.dart';
 import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';

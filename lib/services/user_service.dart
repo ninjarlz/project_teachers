@@ -8,7 +8,7 @@ import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/services/auth.dart';
 import 'package:project_teachers/services/coach_filtering_serivce.dart';
 import 'package:project_teachers/services/messaging_service.dart';
-import 'package:project_teachers/services/storage_sevice.dart';
+import 'package:project_teachers/services/storage_service.dart';
 import 'package:project_teachers/utils/helpers/function_wrappers.dart';
 import 'package:tuple/tuple.dart';
 

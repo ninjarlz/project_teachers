@@ -10,7 +10,7 @@ import 'package:project_teachers/screens/profile/coach_profile.dart';
 import 'package:project_teachers/screens/profile/user_profile.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:project_teachers/services/messaging_service.dart';
-import 'package:project_teachers/services/storage_sevice.dart';
+import 'package:project_teachers/services/storage_service.dart';
 import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
@@ -23,7 +23,11 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home>
-    implements ConversationPageListener, CoachListener, CoachProfileImageListener {
+    implements
+        ConversationPageListener,
+        CoachListener,
+        CoachProfileImageListener,
+        CoachListProfileImagesListener {
   MessagingService _messagingService;
   StorageService _storageService;
   UserService _userService;
@@ -36,6 +40,7 @@ class _HomeState extends State<Home>
     _userService = UserService.instance;
     _messagingService.conversationPageListeners.add(this);
     _storageService.coachProfileImageListeners.add(this);
+    _storageService.coachListProfileImageListeners.add(this);
     _userService.coachListeners.add(this);
   }
 
@@ -223,12 +228,19 @@ class _HomeState extends State<Home>
     super.dispose();
     _messagingService.conversationPageListeners.remove(this);
     _userService.coachListeners.remove(this);
+    _storageService.coachListProfileImageListeners.remove(this);
     _storageService.coachProfileImageListeners.remove(this);
   }
 
   @override
   void onConversationListChange() {
-    setState(() {});
+    AppState appState =
+        Provider.of<AppStateManager>(context, listen: false).appState;
+    if (appState == AppState.CHAT ||
+        appState == AppState.COACH ||
+        appState == AppState.FILTER_COACH) {
+      setState(() {});
+    }
   }
 
   @override
@@ -242,7 +254,19 @@ class _HomeState extends State<Home>
   @override
   void onCoachProfileImageChange() {
     if (Provider.of<AppStateManager>(context, listen: false).appState ==
-        AppState.CHAT) {
+            AppState.CHAT &&
+        _messagingService.selectedConversation == null) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void onCoachListProfileImagesChange(List<String> updatedCoachesIds) {
+    if (Provider.of<AppStateManager>(context, listen: false).appState ==
+            AppState.CHAT &&
+        _messagingService.selectedConversation != null &&
+        updatedCoachesIds.contains(
+            _messagingService.selectedConversation.otherParticipantId)) {
       setState(() {});
     }
   }
