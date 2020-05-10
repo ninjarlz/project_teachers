@@ -90,15 +90,13 @@ class ValidEmailAddressRepository {
     List<DocumentSnapshot> list = emailSnapshot.documents;
     if (list == null || list.isEmpty) {
       print(DB_ERROR_MSG + ": " + NO_EMAIL_ADDRESS_MSG);
-      return null;
+      return;
     }
     DocumentReference dr =
         _database.collection("ValidEmailAdresses").document(list[0].documentID);
     await _database.runTransaction((transaction) async {
-      await transaction.update(dr, {
-        "isInitialized": isInitialized
-      }); //TODO run this update in one transaction
-      await transaction.update(dr, {"isValidated": isValidated});
+      await transaction.update(
+          dr, {"isInitialized": isInitialized, "isValidated": isValidated});
     }).catchError((e) {
       print(DB_ERROR_MSG + e.message);
     });

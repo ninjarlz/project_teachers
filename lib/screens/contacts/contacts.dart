@@ -65,17 +65,30 @@ class _ContactsState extends State<Contacts>
         ),
         contentPadding: EdgeInsets.all(5),
         title: Text(fullName),
-        subtitle: Text(
-          DateFormat('dd MMM kk:mm').format(DateTime.fromMillisecondsSinceEpoch(
-                  conversation.lastMsgTimestamp.millisecondsSinceEpoch)) +
-              " - " +
-              (conversation.lastMsgSenderId == _userService.currentUser.uid
-                  ? Translations.of(context).text("you") +
-                      ": " +
-                      conversation.lastMsgText
-                  : conversation.lastMsgText),
-          style: ThemeGlobalText().smallText,
-        ),
+        subtitle: !conversation.lastMsgSeen &&
+                conversation.lastMsgSenderId != _userService.currentUser.uid
+            ? Text(
+                "\u2022 " +
+                    DateFormat('dd MMM kk:mm').format(
+                        DateTime.fromMillisecondsSinceEpoch(conversation
+                            .lastMsgTimestamp.millisecondsSinceEpoch)) +
+                    " - " +
+                    conversation.lastMsgText,
+                style: ThemeGlobalText().boldSmallText,
+              )
+            : Text(
+                DateFormat('dd MMM kk:mm').format(
+                        DateTime.fromMillisecondsSinceEpoch(conversation
+                            .lastMsgTimestamp.millisecondsSinceEpoch)) +
+                    " - " +
+                    (conversation.lastMsgSenderId ==
+                            _userService.currentUser.uid
+                        ? Translations.of(context).text("you") +
+                            ": " +
+                            conversation.lastMsgText
+                        : conversation.lastMsgText),
+                style: ThemeGlobalText().smallText,
+              ),
         onTap: () {
           _messagingService.setSelectedConversation(conversation);
           _appStateManager.changeAppState(AppState.CHAT);
@@ -137,9 +150,7 @@ class _ContactsState extends State<Contacts>
 
   @override
   void onCoachListProfileImagesChange() {
-    setState(() {
-      _isLoading = false;
-    });
+    setState(() {});
   }
 
   @override

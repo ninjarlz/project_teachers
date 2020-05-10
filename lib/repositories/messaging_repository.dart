@@ -22,7 +22,8 @@ class MessagingRepository {
   }
 
   StreamSubscription<QuerySnapshot> _conversationListSub;
-  StreamSubscription<QuerySnapshot> _conversationSub;
+  StreamSubscription<QuerySnapshot> _conversationMessagesSub;
+  StreamSubscription<DocumentSnapshot> _conversationSub;
   CollectionReference _conversationsRef;
   Firestore _database;
 
@@ -34,6 +35,10 @@ class MessagingRepository {
   }
 
   void cancelConversationSubscription() {
+    if (_conversationMessagesSub != null) {
+      _conversationMessagesSub.cancel();
+    }
+    _conversationMessagesSub = null;
     if (_conversationSub != null) {
       _conversationSub.cancel();
     }
@@ -66,13 +71,20 @@ class MessagingRepository {
   }
 
   void subscribeConversation(ConversationEntity conversation, int limit,
-      Function onConversationChange) {
+      Function onConversationMessagesChange, Function onConversationChange) {
     cancelConversationSubscription();
-    _conversationSub = _conversationsRef
+    _conversationMessagesSub = _conversationsRef
         .document(conversation.id)
         .collection("Messages")
         .limit(limit)
         .orderBy("timestamp", descending: true)
+        .snapshots()
+        .listen(onConversationMessagesChange);
+    _conversationMessagesSub.onError((o) {
+      print(DB_ERROR_MSG + o.message);
+    });
+    _conversationSub = _conversationsRef
+        .document(conversation.id)
         .snapshots()
         .listen(onConversationChange);
     _conversationSub.onError((o) {
@@ -93,32 +105,51 @@ class MessagingRepository {
           .document(conversation.id)
           .collection("Messages")
           .add(message.toJson());
-      await transaction.update(_conversationsRef
-          .document(conversation.id), {
+      await transaction.update(_conversationsRef.document(conversation.id), {
         "lastMsgTimestamp": message.timestamp,
         "lastMsgSenderId": message.senderId,
-        "lastMsgText": message.text
+        "lastMsgText": message.text,
+        "lastMsgSeen": false
       });
     });
   }
 
   Future<void> updateProfileImageData(
-      String userId,
-      String userProfileImageName,
-      DocumentReference conversationsReference) async {
+      String userId, String userProfileImageName, String conversationId) async {
     await _database.runTransaction((transaction) async {
-      await transaction.update(conversationsReference,
+      await transaction.update(_conversationsRef.document(conversationId),
           {"participantsData.$userId.profileImageName": userProfileImageName});
     });
   }
 
-  Future<void> updateUserData(String userId, String name, String surname,
-      DocumentReference conversationsReference) async {
+  Future<void> updateUserData(
+      String userId, String name, String surname, String conversationId) async {
     await _database.runTransaction((transaction) async {
-      await transaction.update(conversationsReference, {
+      await transaction.update(_conversationsRef.document(conversationId), {
         "participantsData.$userId.name": name,
         "participantsData.$userId.surname": surname
       });
     });
+  }
+
+  Future<void> markConversationLastMsgAsSeen(String conversationId) async {
+    await _database.runTransaction((transaction) async {
+      await transaction.update(_conversationsRef.document(conversationId), {
+        "lastMsgSeen": true,
+      });
+    });
+  }
+
+
+  Future<ConversationEntity> getConversation(String conversationId) async {
+    DocumentSnapshot conversationSnapshot =
+        await _conversationsRef.document(conversationId).get();
+    if (!conversationSnapshot.exists) {
+      return null;
+    }
+    ConversationEntity conversation =
+        ConversationEntity.fromSnapshot(conversationSnapshot);
+    conversation.id = conversationId;
+    return conversation;
   }
 }

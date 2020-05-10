@@ -11,12 +11,34 @@ import 'package:project_teachers/screens/profile/user_profile.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
 import 'package:project_teachers/services/messaging_service.dart';
 import 'package:project_teachers/services/storage_sevice.dart';
+import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:provider/provider.dart';
 import 'package:tuple/tuple.dart';
 
-class Home extends StatelessWidget {
+class Home extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home>
+    implements ConversationPageListener, CoachListener, CoachProfileImageListener {
+  MessagingService _messagingService;
+  StorageService _storageService;
+  UserService _userService;
+
+  @override
+  void initState() {
+    super.initState();
+    _messagingService = MessagingService.instance;
+    _storageService = StorageService.instance;
+    _userService = UserService.instance;
+    _messagingService.conversationPageListeners.add(this);
+    _storageService.coachProfileImageListeners.add(this);
+    _userService.coachListeners.add(this);
+  }
+
   @override
   Widget build(BuildContext context) {
     AppState appState = Provider.of<AppStateManager>(context).appState;
@@ -25,6 +47,7 @@ class Home extends StatelessWidget {
     Widget floatingButton = null;
     bool extendBodyBehindAppBar = false;
     int navBarIndex = 0;
+    FloatingActionButtonLocation floatingActionButtonLocation = null;
 
     switch (appState) {
       case AppState.PROFILE_PAGE:
@@ -87,9 +110,11 @@ class Home extends StatelessWidget {
 
       case AppState.CHAT:
         ConversationEntity conversation =
-            MessagingService.instance.selectedConversation;
-        Map<String, Tuple2<String, Image>> images =
-            StorageService.instance.coachImages;
+            _messagingService.selectedConversation;
+        String otherUserId = conversation != null
+            ? conversation.otherParticipantId
+            : _userService.selectedCoach.uid;
+        Map<String, Tuple2<String, Image>> images = _storageService.coachImages;
         body = Chat();
         appBar = AppBar(
             title: Row(children: <Widget>[
@@ -100,8 +125,8 @@ class Home extends StatelessWidget {
                   child: Container(
                       width: 45,
                       height: 45,
-                      child: images.containsKey(conversation.otherParticipantId)
-                          ? images[conversation.otherParticipantId].item2
+                      child: images.containsKey(otherUserId)
+                          ? images[otherUserId].item2
                           : Image.asset(
                               "assets/img/default_profile_2.png",
                               fit: BoxFit.cover,
@@ -111,12 +136,18 @@ class Home extends StatelessWidget {
                   padding:
                       EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
                   child: Text(
-                      conversation.otherParticipantData.name +
-                          " " +
-                          conversation.otherParticipantData.surname,
+                      conversation != null
+                          ? conversation.otherParticipantData.name +
+                              " " +
+                              conversation.otherParticipantData.surname
+                          : _userService.selectedCoach.name +
+                              " " +
+                              _userService.selectedCoach.surname,
                       style: TextStyle(color: Colors.white)))
             ]),
             backgroundColor: ThemeGlobalColor().secondaryColor);
+        floatingButton = Chat.chatFloatingActionButton(context);
+        floatingActionButtonLocation = FloatingActionButtonLocation.endTop;
         navBarIndex = -1;
         break;
 
@@ -131,6 +162,7 @@ class Home extends StatelessWidget {
       backgroundColor: ThemeGlobalColor().backgroundColor,
       body: body,
       floatingActionButton: floatingButton,
+      floatingActionButtonLocation: floatingActionButtonLocation,
       bottomNavigationBar: _buildNavBar(navBarIndex, context),
       drawer: NavigationDrawer(),
     );
@@ -178,9 +210,40 @@ class Home extends StatelessWidget {
         BottomNavigationBarItem(
             icon: Icon(Icons.filter_list), title: Text("Filter")),
         BottomNavigationBarItem(
-            icon: Icon(Icons.message),
+            icon: _messagingService.hasUnreadMessages
+                ? Icon(Icons.sms_failed, color: Colors.red)
+                : Icon(Icons.message),
             title: Text(Translations.of(context).text("my_contacts"))),
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _messagingService.conversationPageListeners.remove(this);
+    _userService.coachListeners.remove(this);
+    _storageService.coachProfileImageListeners.remove(this);
+  }
+
+  @override
+  void onConversationListChange() {
+    setState(() {});
+  }
+
+  @override
+  void onCoachDataChange() {
+    if (Provider.of<AppStateManager>(context, listen: false).appState ==
+        AppState.CHAT) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void onCoachProfileImageChange() {
+    if (Provider.of<AppStateManager>(context, listen: false).appState ==
+        AppState.CHAT) {
+      setState(() {});
+    }
   }
 }

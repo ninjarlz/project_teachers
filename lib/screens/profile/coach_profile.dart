@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:project_teachers/entities/coach_entity.dart';
+import 'package:project_teachers/entities/conversation_entity.dart';
 import 'package:project_teachers/entities/user_enums.dart';
 import 'package:project_teachers/screens/profile/base_profile.dart';
 import 'package:project_teachers/services/app_state_manager.dart';
+import 'package:project_teachers/services/messaging_service.dart';
 import 'package:project_teachers/services/storage_sevice.dart';
 import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/themes/global.dart';
@@ -17,6 +19,8 @@ class CoachProfile extends StatefulWidget {
   State<StatefulWidget> createState() => _CoachProfileState();
 
   static SpeedDial buildSpeedDial(BuildContext context) {
+    AppStateManager appStateManager =
+        Provider.of<AppStateManager>(context, listen: false);
     return SpeedDial(
       animatedIcon: AnimatedIcons.menu_close,
       animatedIconTheme: IconThemeData(size: 22.0),
@@ -31,8 +35,7 @@ class CoachProfile extends StatefulWidget {
           child: Icon(Icons.arrow_back),
           backgroundColor: ThemeGlobalColor().secondaryColor,
           onTap: () {
-            Provider.of<AppStateManager>(context, listen: false)
-                .changeAppState(AppState.COACH);
+            appStateManager.changeAppState(AppState.COACH);
           },
           label: Translations.of(context).text("global_back"),
           labelStyle:
@@ -40,13 +43,22 @@ class CoachProfile extends StatefulWidget {
           labelBackgroundColor: ThemeGlobalColor().secondaryColor,
         ),
         SpeedDialChild(
-          child: Icon(Icons.message, color: Colors.white),
-          backgroundColor: ThemeGlobalColor().secondaryColor,
-          label: Translations.of(context).text("message"),
-          labelStyle:
-              TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
-          labelBackgroundColor: ThemeGlobalColor().secondaryColor,
-        ),
+            child: Icon(Icons.message, color: Colors.white),
+            backgroundColor: ThemeGlobalColor().secondaryColor,
+            label: Translations.of(context).text("message"),
+            labelStyle:
+                TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
+            labelBackgroundColor: ThemeGlobalColor().secondaryColor,
+            onTap: () async {
+              MessagingService messagingService = MessagingService.instance;
+              UserService userService = UserService.instance;
+              ConversationEntity conversation = await messagingService
+                  .getConversation(userService.selectedCoach.uid);
+              if (conversation != null) {
+                messagingService.setSelectedConversation(conversation);
+              }
+              appStateManager.changeAppState(AppState.CHAT);
+            }),
         SpeedDialChild(
           child: Icon(Icons.add_circle_outline, color: Colors.white),
           backgroundColor: ThemeGlobalColor().secondaryColor,
@@ -127,8 +139,12 @@ class _CoachProfileState extends BaseProfileState<CoachProfile>
   void dispose() {
     super.dispose();
     userService.coachListeners.remove(this);
-    storageService.disposeCoachImages();
-    userService.cancelSelectedCoachSubscription();
+    storageService.coachBackgroundImageListeners.remove(this);
+    storageService.coachProfileImageListeners.remove(this);
+    if (_appStateManager.appState != AppState.CHAT) {
+      storageService.disposeCoachImages();
+      userService.cancelSelectedCoachSubscription();
+    }
   }
 
   @override

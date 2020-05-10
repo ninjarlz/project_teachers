@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project_teachers/entities/conversation_entity.dart';
+import 'package:project_teachers/entities/conversation_participant_entity.dart';
 import 'package:project_teachers/entities/message_entity.dart';
 import 'package:project_teachers/repositories/messaging_repository.dart';
 import 'package:project_teachers/services/storage_sevice.dart';
@@ -39,25 +40,27 @@ class MessagingService {
   List<MessageEntity> get selectedConversationMessages =>
       _selectedConversationMessages;
 
-  bool _hasMoreMessages = true;
+  bool _hasMoreMessages = false;
 
   bool get hasMoreMessages => _hasMoreMessages;
   int _messagesLimit = 20;
   int _messagesOffset = 0;
 
   List<ConversationPageListener> _conversationPageListeners =
-  List<ConversationPageListener>();
+      List<ConversationPageListener>();
 
   List<ConversationPageListener> get conversationPageListeners =>
       _conversationPageListeners;
 
   List<ConversationListener> _conversationListeners =
-  List<ConversationListener>();
+      List<ConversationListener>();
 
   List<ConversationListener> get conversationListeners =>
       _conversationListeners;
 
-  List<DocumentReference> _conversationsReferences;
+  bool _hasUnreadMessages = false;
+
+  bool get hasUnreadMessages => _hasUnreadMessages;
 
   MessagingRepository _messagingRepository;
   UserService _userService;
@@ -65,11 +68,12 @@ class MessagingService {
 
   void setSelectedConversation(ConversationEntity conversation) {
     _selectedConversation = conversation;
+    fillParticipantsConversationData(_selectedConversation);
   }
 
   void _onConversationListChange(QuerySnapshot event) {
     _conversations = List<ConversationEntity>();
-    _conversationsReferences = List<DocumentReference>();
+    _hasUnreadMessages = false;
     if (event.documents.length < _conversationsOffset) {
       _hasMoreConversations = false;
     } else {
@@ -77,26 +81,35 @@ class MessagingService {
     }
     event.documents.forEach((element) {
       ConversationEntity conversation =
-      ConversationEntity.fromJson(element.data);
-      conversation.id = element.documentID;
-      _conversationsReferences.add(element.reference);
-      _conversations.add(conversation);
-      for (String userId in conversation.participants) {
-        if (userId != _userService.currentUser.uid) {
-          conversation.otherParticipantId = userId;
-          conversation.otherParticipantData =
-          conversation.participantsData[userId];
-          conversation.otherParticipantData.id = userId;
-          break;
-        }
+          ConversationEntity.fromJson(element.data);
+      if (conversation.lastMsgSenderId != _userService.currentUser.uid &&
+          !conversation.lastMsgSeen) {
+        _hasUnreadMessages = true;
       }
-      conversation.currentUserData =
-      conversation.participantsData[_userService.currentUser.uid];
-      conversation.currentUserData.id = _userService.currentUser.uid;
+      conversation.id = element.documentID;
+      _conversations.add(conversation);
+      fillParticipantsConversationData(conversation);
     });
-
     _storageService
         .updateCoachListProfileImagesWithConversationList(_conversations);
+    _conversationPageListeners.forEach((element) {
+      element.onConversationListChange();
+    });
+  }
+
+  void fillParticipantsConversationData(ConversationEntity conversation) {
+    for (String userId in conversation.participants) {
+      if (userId != _userService.currentUser.uid) {
+        conversation.otherParticipantId = userId;
+        conversation.otherParticipantData =
+            conversation.participantsData[userId];
+        conversation.otherParticipantData.id = userId;
+        break;
+      }
+    }
+    conversation.currentUserData =
+        conversation.participantsData[_userService.currentUser.uid];
+    conversation.currentUserData.id = _userService.currentUser.uid;
   }
 
   void loginUser() {
@@ -116,7 +129,7 @@ class MessagingService {
         _onConversationListChange);
   }
 
-  void _onConversationChange(QuerySnapshot event) {
+  void _onConversationMessagesChange(QuerySnapshot event) {
     _selectedConversationMessages = List<MessageEntity>();
     if (event.documents.length < _messagesOffset) {
       _hasMoreMessages = false;
@@ -129,29 +142,42 @@ class MessagingService {
       _selectedConversationMessages.add(message);
     });
     _conversationListeners.forEach((element) {
+      element.onConversationMessagesChange();
+    });
+  }
+
+  void _onConversationChange(DocumentSnapshot event) {
+    _selectedConversation = ConversationEntity.fromJson(event.data);
+    _selectedConversation.id = event.documentID;
+    fillParticipantsConversationData(_selectedConversation);
+    if (selectedConversation.lastMsgSenderId != _userService.currentUser.uid &&
+        !selectedConversation.lastMsgSeen) {
+      markConversationLastMsgAsSeen(selectedConversation.id);
+    }
+    _conversationListeners.forEach((element) {
       element.onConversationChange();
     });
   }
 
   Future<void> updateMessagesList() async {
     _messagesOffset += _messagesLimit;
-    _messagingRepository.subscribeConversation(
-        _selectedConversation, _messagesOffset, _onConversationChange);
+    _messagingRepository.subscribeConversation(_selectedConversation,
+        _messagesOffset, _onConversationMessagesChange, _onConversationChange);
   }
 
-  Future<void> updateProfileImageData(String userId,
-      String userProfileImageName) async {
-    for (int i = 0; i < _conversations.length; i++) {
+  Future<void> updateProfileImageData(
+      String userId, String userProfileImageName) async {
+    for (ConversationEntity conversation in _conversations) {
       await _messagingRepository.updateProfileImageData(
-          userId, userProfileImageName, _conversationsReferences[i]);
+          userId, userProfileImageName, conversation.id);
     }
   }
 
-  Future<void> updateUserData(String userId, String name,
-      String surname) async {
-    for (int i = 0; i < _conversations.length; i++) {
+  Future<void> updateUserData(
+      String userId, String name, String surname) async {
+    for (ConversationEntity conversation in _conversations) {
       await _messagingRepository.updateUserData(
-          userId, name, surname, _conversationsReferences[i]);
+          userId, name, surname, conversation.id);
     }
   }
 
@@ -170,14 +196,51 @@ class MessagingService {
       _selectedConversation = null;
       _selectedConversationMessages.clear();
     }
-    _hasMoreMessages = true;
+    _hasMoreMessages = false;
     _messagingRepository.cancelConversationSubscription();
   }
 
-  void sendMessage(ConversationEntity conversation, String text,
-      String senderId) {
-    _messagingRepository.sendConversationMessage(
-        conversation, MessageEntity(text, senderId, Timestamp.now()));
+  Future<void> sendMessage(String text) async {
+    if (_selectedConversation == null) {
+      _selectedConversation = ConversationEntity([
+        _userService.currentUser.uid,
+        _userService.selectedCoach.uid
+      ], {
+        _userService.currentUser.uid: ConversationParticipantEntity(
+            _userService.currentUser.profileImageName,
+            _userService.currentUser.name,
+            _userService.currentUser.surname),
+        _userService.selectedCoach.uid: ConversationParticipantEntity(
+            _userService.selectedCoach.profileImageName,
+            _userService.selectedCoach.name,
+            _userService.selectedCoach.surname)
+      }, null, null, null, false);
+      _selectedConversation.otherParticipantId = _userService.selectedCoach.uid;
+      _selectedConversation.otherParticipantData = _selectedConversation
+          .participantsData[_userService.selectedCoach.uid];
+      _selectedConversation.currentUserData =
+          _selectedConversation.participantsData[_userService.currentUser.uid];
+      _selectedConversation.id = ConversationEntity.getConversationId(
+          _userService.currentUser.uid, _userService.selectedCoach.uid);
+      await _messagingRepository.updateConversation(_selectedConversation);
+      await _messagingRepository.sendConversationMessage(_selectedConversation,
+          MessageEntity(text, _userService.currentUser.uid, Timestamp.now()));
+      updateMessagesList();
+    } else {
+      _selectedConversation.lastMsgSeen = false;
+      await _messagingRepository.sendConversationMessage(_selectedConversation,
+          MessageEntity(text, _userService.currentUser.uid, Timestamp.now()));
+    }
+  }
+
+  Future<void> markConversationLastMsgAsSeen(String conversationId) async {
+    await _messagingRepository.markConversationLastMsgAsSeen(conversationId);
+  }
+
+  Future<ConversationEntity> getConversation(String otherParticipantId) async {
+    return await _messagingRepository.getConversation(
+        ConversationEntity.getConversationId(
+            _userService.currentUser.uid, otherParticipantId));
   }
 }
 
@@ -186,5 +249,7 @@ abstract class ConversationPageListener {
 }
 
 abstract class ConversationListener {
+  void onConversationMessagesChange();
+
   void onConversationChange();
 }

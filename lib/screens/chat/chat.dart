@@ -11,19 +11,33 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 class Chat extends StatefulWidget {
+  static FloatingActionButton chatFloatingActionButton(BuildContext context) {
+    return FloatingActionButton(
+        onPressed: () {
+          AppStateManager appStateManager =
+              Provider.of<AppStateManager>(context, listen: false);
+          appStateManager.changeAppState(appStateManager.prevState);
+        },
+        backgroundColor: ThemeGlobalColor().mainColor,
+        child: Icon(Icons.arrow_back));
+  }
+
   @override
   State<StatefulWidget> createState() => _ChatState();
 }
 
 class _ChatState extends State<Chat>
-    implements CoachListProfileImagesListener, ConversationListener {
+    implements
+        CoachListProfileImagesListener,
+        ConversationListener,
+        CoachListener {
   MessagingService _messagingService;
   UserService _userService;
   StorageService _storageService;
+  AppStateManager _appStateManager;
   TextEditingController _textEditingController = TextEditingController();
   ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
-  AppStateManager _appStateManager;
 
   @override
   void initState() {
@@ -32,19 +46,25 @@ class _ChatState extends State<Chat>
     _messagingService = MessagingService.instance;
     _userService = UserService.instance;
     _storageService.coachListProfileImageListeners.add(this);
-    _messagingService.conversationListeners.add(this);
-    _messagingService.updateMessagesList();
-    _scrollController.addListener(() {
-      double maxScroll = _scrollController.position.maxScrollExtent;
-      double currentScroll = _scrollController.position.pixels;
-      double delta = MediaQuery.of(context).size.height * 0.20;
-      if (maxScroll - currentScroll <= delta) {
-        _loadMoreMessages();
-      }
-    });
+    if (_messagingService.selectedConversation != null) {
+      _messagingService.conversationListeners.add(this);
+      _messagingService.updateMessagesList();
+    } else {
+      _userService.coachListeners.add(this);
+    }
+    _scrollController.addListener(_onScroll);
     Future.delayed(Duration.zero, () {
       _appStateManager = Provider.of<AppStateManager>(context, listen: false);
     });
+  }
+
+  void _onScroll() {
+    double maxScroll = _scrollController.position.maxScrollExtent;
+    double currentScroll = _scrollController.position.pixels;
+    double delta = MediaQuery.of(context).size.height * 0.20;
+    if (maxScroll - currentScroll <= delta) {
+      _loadMoreMessages();
+    }
   }
 
   @override
@@ -64,7 +84,8 @@ class _ChatState extends State<Chat>
                 )
               : Container(),
           Expanded(
-            child: _messagingService.selectedConversationMessages == null ||
+            child: _messagingService.selectedConversation == null ||
+                    _messagingService.selectedConversationMessages == null ||
                     _messagingService.selectedConversationMessages.length == 0
                 ? Center()
                 : ListView.builder(
@@ -136,8 +157,11 @@ class _ChatState extends State<Chat>
 
   void _sendMessage() {
     if (_textEditingController.text.trim() != "") {
-      _messagingService.sendMessage(_messagingService.selectedConversation,
-          _textEditingController.text.trim(), _userService.currentUser.uid);
+      if (_messagingService.selectedConversation == null) {
+        _messagingService.conversationListeners.add(this);
+        _userService.coachListeners.remove(this);
+      }
+      _messagingService.sendMessage(_textEditingController.text.trim());
       _textEditingController.text = "";
     } else {
       Fluttertoast.showToast(
@@ -150,24 +174,50 @@ class _ChatState extends State<Chat>
         _messagingService.selectedConversationMessages[index];
     if (message.senderId == _userService.currentUser.uid) {
       // Right (my message)
-      return Row(
-        children: <Widget>[
-          Container(
-            child: Text(
-              message.text,
-              style: ThemeGlobalText().whiteText,
-            ),
-            padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
-            width: 200.0,
-            decoration: BoxDecoration(
-                color: ThemeGlobalColor().secondaryColor,
-                borderRadius: BorderRadius.circular(8.0)),
-            margin: EdgeInsets.only(
-                bottom: isLastMessageRight(index) ? 20.0 : 10.0, right: 10.0),
-          )
-        ],
-        mainAxisAlignment: MainAxisAlignment.end,
-      );
+      return index == 0 && _messagingService.selectedConversation.lastMsgSeen
+          ? Column(children: <Widget>[
+              Row(children: <Widget>[
+                Container(
+                  child: Text(
+                    message.text,
+                    style: ThemeGlobalText().whiteText,
+                  ),
+                  padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+                  width: 200.0,
+                  decoration: BoxDecoration(
+                      color: ThemeGlobalColor().secondaryColor,
+                      borderRadius: BorderRadius.circular(8.0)),
+                  margin: EdgeInsets.only(bottom: 10.0, right: 10.0),
+                )
+              ], mainAxisAlignment: MainAxisAlignment.end),
+              Container(
+                child: Text(
+                  Translations.of(context).text("seen"),
+                  style: ThemeGlobalText().smallText,
+                ),
+                margin: EdgeInsets.only(
+                    left: 50.0, top: 5.0, bottom: 5.0, right: 10.0),
+              )
+            ], crossAxisAlignment: CrossAxisAlignment.end)
+          : Row(
+              children: <Widget>[
+                Container(
+                  child: Text(
+                    message.text,
+                    style: ThemeGlobalText().whiteText,
+                  ),
+                  padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+                  width: 200.0,
+                  decoration: BoxDecoration(
+                      color: ThemeGlobalColor().secondaryColor,
+                      borderRadius: BorderRadius.circular(8.0)),
+                  margin: EdgeInsets.only(
+                      bottom: isLastMessageRightInRow(index) ? 20.0 : 10.0,
+                      right: 10.0),
+                )
+              ],
+              mainAxisAlignment: MainAxisAlignment.end,
+            );
     } else {
       // Left (peer message)
       return Container(
@@ -175,7 +225,7 @@ class _ChatState extends State<Chat>
           children: <Widget>[
             Row(
               children: <Widget>[
-                isLastMessageLeft(index)
+                isLastMessageLeftInRow(index)
                     ? Material(
                         elevation: 4.0,
                         shape: CircleBorder(),
@@ -209,7 +259,7 @@ class _ChatState extends State<Chat>
             ),
 
             // Time
-            isLastMessageLeft(index)
+            isLastMessageLeftInRow(index)
                 ? Container(
                     child: Text(
                       DateFormat('dd MMM kk:mm').format(
@@ -228,7 +278,7 @@ class _ChatState extends State<Chat>
     }
   }
 
-  bool isLastMessageLeft(int index) {
+  bool isLastMessageLeftInRow(int index) {
     if ((index > 0 &&
             _messagingService.selectedConversationMessages != null &&
             _messagingService
@@ -241,7 +291,7 @@ class _ChatState extends State<Chat>
     }
   }
 
-  bool isLastMessageRight(int index) {
+  bool isLastMessageRightInRow(int index) {
     if ((index > 0 &&
             _messagingService.selectedConversationMessages != null &&
             _messagingService
@@ -259,20 +309,33 @@ class _ChatState extends State<Chat>
     super.dispose();
     _messagingService.conversationListeners.remove(this);
     _storageService.coachListProfileImageListeners.remove(this);
+    _userService.coachListeners.remove(this);
     _messagingService.resetMessagesList();
+    if (_appStateManager.appState != AppState.COACH_PROFILE_PAGE) {
+      _storageService.disposeCoachImages();
+      _userService.cancelSelectedCoachSubscription();
+    }
   }
 
   @override
   void onCoachListProfileImagesChange() {
+    setState(() {});
+  }
+
+  @override
+  void onConversationMessagesChange() {
     setState(() {
-      _isLoading = false; //TODO check if setState itself rebuild widget
+      _isLoading = false;
     });
   }
 
   @override
   void onConversationChange() {
-    setState(() {
-      _isLoading = false;
-    });
+    setState(() {});
+  }
+
+  @override
+  void onCoachDataChange() {
+    setState(() {});
   }
 }

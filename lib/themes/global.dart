@@ -32,6 +32,8 @@ class ThemeGlobalText {
 
   TextStyle smallText = TextStyle(fontSize: 13.0, fontWeight: FontWeight.w300, color: ThemeGlobalColor().smallTextColor);
 
+  TextStyle boldSmallText = TextStyle(fontSize: 13.0, fontWeight: FontWeight.bold, color: ThemeGlobalColor().smallTextColor);
+
   TextStyle errorText = TextStyle(color: Colors.redAccent);
 
   TextStyle mainButtonText = TextStyle(fontSize: 16.0, color: Colors.white, fontWeight: FontWeight.w500);

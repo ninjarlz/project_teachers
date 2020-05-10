@@ -224,11 +224,17 @@ class StorageService {
 
   Future<void> updateSelectedCoachProfileImage(CoachEntity coach) async {
     if (coach.profileImageName != null) {
-      if (_selectedCoachProfileImage == null ||
-          (_selectedCoachProfileImage != null &&
-              _selectedCoachProfileImage.item1 != coach.profileImageName)) {
-        Image image = await _storageRepository.getProfileImageFromUser(coach);
-        _selectedCoachProfileImage = Tuple2(coach.profileImageName, image);
+      if (_coachImages.containsKey(coach.uid)) {
+        if (coach.profileImageName != coachImages[coach.uid].item1) {
+          await updateCoachProfileImage(coach);
+          _selectedCoachProfileImage = _coachImages[coach.uid];
+          _coachProfileImageListeners.forEach((element) {
+            element.onCoachProfileImageChange();
+          });
+        }
+      } else {
+        await updateCoachProfileImage(coach);
+        _selectedCoachProfileImage = _coachImages[coach.uid];
         _coachProfileImageListeners.forEach((element) {
           element.onCoachProfileImageChange();
         });

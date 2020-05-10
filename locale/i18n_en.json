@@ -98,5 +98,6 @@
   "my_contacts": "My contacts",
   "type_your_message": "Type your message",
   "nothing_to_send": "Nothing to send",
-  "chat": "Chat"
+  "chat": "Chat",
+  "seen":  "Seen"
 }
