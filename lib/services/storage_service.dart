@@ -8,7 +8,6 @@ import 'package:project_teachers/entities/coach_entity.dart';
 import 'package:project_teachers/entities/conversation_entity.dart';
 import 'package:project_teachers/entities/user_entity.dart';
 import 'package:project_teachers/repositories/storage_repository.dart';
-import 'package:project_teachers/repositories/user_repository.dart';
 import 'package:project_teachers/services/messaging_service.dart';
 import 'package:project_teachers/services/user_service.dart';
 import 'package:project_teachers/utils/constants/constants.dart';
