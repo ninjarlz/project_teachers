@@ -24,6 +24,8 @@ class ThemeGlobalText {
 
   TextStyle text = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: ThemeGlobalColor().textColor);
 
+  TextStyle tag = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: ThemeGlobalColor().secondaryColorDark);
+
   TextStyle whiteText = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: Colors.white);
 
   TextStyle inputText = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: ThemeGlobalColor().textColor);

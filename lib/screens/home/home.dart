@@ -62,6 +62,7 @@ class _HomeState extends State<Home>
             title: Text(Translations.of(context).text("timeline"),
                 style: TextStyle(color: Colors.white)),
             backgroundColor: Colors.transparent);
+        floatingButton = Timeline.timelineFloatingActionButton(context);
         navBarIndex = -1;
         break;
 

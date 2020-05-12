@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:project_teachers/widgets/pills/index.dart';
+import 'package:project_teachers/themes/index.dart';
+import 'package:project_teachers/widgets/article/index.dart';
 
 class CardArticleWidget extends StatefulWidget {
   @override
@@ -17,8 +18,8 @@ class _CardArticleState extends State<CardArticleWidget> {
   @override
   void initState() {
     super.initState();
-    _tags.add("Tag 1"); // TODO: Remove when real tags are loaded
-    _tags.add("Tag 2");
+    _tags.add("Tag1"); // TODO: Remove when real tags are loaded
+    _tags.add("Tag2");
   }
 
   void _updateLike() {
@@ -40,45 +41,10 @@ class _CardArticleState extends State<CardArticleWidget> {
 
   void _goToArticle() {}
 
-  void _goToProfile(BuildContext context) {}
-
-  Widget _buildUser(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 14),
-      child: MaterialButton(
-        minWidth: 0,
-        padding: EdgeInsets.all(0),
-        onPressed: () => _goToProfile(context),
-        child: Row(
-          children: <Widget>[
-            Image.asset(
-              "assets/img/default_profile_2.png",
-              width: 50,
-              alignment: Alignment.bottomCenter,
-            ),
-            SizedBox(width: 5),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text("Firstname Lastname",
-                    textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.grey[700])),
-                Text("01 April, 2020", textAlign: TextAlign.right, style: TextStyle(fontSize: 10, color: Colors.grey[500])),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildTagsRow(int rowIndex) {
     List<Widget> _rowElements = List<Widget>();
     for (int i = 0; i < 2 && (2 * rowIndex + i) < _tags.length; i++) {
-      _rowElements.add(PillProfileWidget(
-        text: _tags[2 * rowIndex + i],
-        height: 25,
-      ));
+      _rowElements.add(Text('#${_tags[2 * rowIndex + i]}', style: ThemeGlobalText().tag));
     }
     return Row(children: _rowElements);
   }
@@ -100,9 +66,15 @@ class _CardArticleState extends State<CardArticleWidget> {
   Widget _buildContent(BuildContext context) {
     return Container(
       margin: EdgeInsets.all(10.0),
-      child: Text(
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-        style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+      child: Column(
+        children: <Widget>[
+          Text(
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+          ),
+          SizedBox(height: 15),
+          Image.asset("assets/img/timeline/picture_example.png"),
+      ],
       ),
     );
   }
@@ -155,18 +127,21 @@ class _CardArticleState extends State<CardArticleWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        Card(
-          elevation: 2,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 14.0),
-            child: Column(
-              children: <Widget>[
-                _buildUser(context),
-                _buildContent(context),
-                _buildTags(),
-                _buildButtons(context),
-              ],
-            ),
+        Container(
+          margin: EdgeInsets.only(bottom: 10),
+          decoration: new BoxDecoration(color: Colors.white),
+          padding: const EdgeInsets.only(top: 14.0),
+          child: Column(
+            children: <Widget>[
+              ArticleUserWidget(
+                userName: "Firstname Lastname",
+                onPressedFunction: null,
+                articleDate: "21 April 2020",
+              ),
+              _buildContent(context),
+              _buildTags(),
+              _buildButtons(context),
+            ],
           ),
         ),
       ],
