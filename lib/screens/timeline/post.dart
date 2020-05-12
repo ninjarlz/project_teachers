@@ -54,24 +54,21 @@ class _TimelinePostState extends State<TimelinePost> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Card(elevation: 2, child: Padding(
-            padding: const EdgeInsets.all(14.0),
-            child: Column(
-              children: <Widget>[
-                ArticleUserWidget(userName: "Firstname Lastname", onPressedFunction: null),
-                SizedBox(height: 10),
-                InputWithIconWidget(
-                    ctrl: _ctrl,
-                    hint: Translations.of(context).text("timeline_content"),
-                    icon: Icons.edit,
-                    type: TextInputType.multiline,
-                    error: Translations.of(context).text("timeline_content_empty")),
-            Container(
-              padding: EdgeInsets.all(10),
-              child: InputDropDownButton("receiver", _receiverList, "global.receiver", _changeReceiver, _selectedReceiver)),
-              ],
-            ),
-          ),),
+          Column(
+            children: <Widget>[
+              ArticleUserWidget(userName: "Firstname Lastname", onPressedFunction: null),
+              SizedBox(height: 10),
+              InputWithIconWidget(
+                  ctrl: _ctrl,
+                  hint: Translations.of(context).text("timeline_content"),
+                  icon: Icons.edit,
+                  type: TextInputType.multiline,
+                  error: Translations.of(context).text("timeline_content_empty")),
+              Container(
+                  padding: EdgeInsets.all(10),
+                  child: InputDropDownButton("receiver", _receiverList, "global.receiver", _changeReceiver, _selectedReceiver)),
+            ],
+          ),
           ButtonPrimaryWidget(text: Translations.of(context).text("timeline_post"), submit: _postArticle),
           Container(
             margin: EdgeInsets.all(15.0),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:project_teachers/widgets/article/index.dart';
 import 'package:project_teachers/themes/index.dart';
+import 'package:project_teachers/widgets/article/index.dart';
 
 class CardArticleWidget extends StatefulWidget {
   @override
@@ -66,9 +66,15 @@ class _CardArticleState extends State<CardArticleWidget> {
   Widget _buildContent(BuildContext context) {
     return Container(
       margin: EdgeInsets.all(10.0),
-      child: Text(
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-        style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+      child: Column(
+        children: <Widget>[
+          Text(
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+          ),
+          SizedBox(height: 15),
+          Image.asset("assets/img/timeline/picture_example.png"),
+      ],
       ),
     );
   }
@@ -121,22 +127,21 @@ class _CardArticleState extends State<CardArticleWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        Card(
-          elevation: 2,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 14.0),
-            child: Column(
-              children: <Widget>[
-                ArticleUserWidget(
-                  userName: "Firstname Lastname",
-                  onPressedFunction: null,
-                  articleDate: "21 April 2020",
-                ),
-                _buildContent(context),
-                _buildTags(),
-                _buildButtons(context),
-              ],
-            ),
+        Container(
+          margin: EdgeInsets.only(bottom: 10),
+          decoration: new BoxDecoration(color: Colors.white),
+          padding: const EdgeInsets.only(top: 14.0),
+          child: Column(
+            children: <Widget>[
+              ArticleUserWidget(
+                userName: "Firstname Lastname",
+                onPressedFunction: null,
+                articleDate: "21 April 2020",
+              ),
+              _buildContent(context),
+              _buildTags(),
+              _buildButtons(context),
+            ],
           ),
         ),
       ],
