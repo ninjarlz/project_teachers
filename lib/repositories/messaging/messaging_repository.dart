@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:project_teachers/entities/conversation_entity.dart';
-import 'package:project_teachers/entities/message_entity.dart';
+import 'package:project_teachers/entities/messaging/conversation_entity.dart';
+import 'package:project_teachers/entities/messaging/message_entity.dart';
 
 class MessagingRepository {
   static const String DB_ERROR_MSG = "An error with database occured: ";

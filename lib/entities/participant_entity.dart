@@ -1,23 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ConversationParticipantEntity {
+class ParticipantEntity {
 
   String id;
   String profileImageName;
   String name;
   String surname;
 
-  ConversationParticipantEntity(this.profileImageName, this.name, this.surname);
+  ParticipantEntity(this.profileImageName, this.name, this.surname);
 
-  factory ConversationParticipantEntity.fromJson(Map<String, dynamic> json) {
-    return ConversationParticipantEntity(
+  factory ParticipantEntity.fromJson(Map<String, dynamic> json) {
+    return ParticipantEntity(
         json["profileImageName"],
         json["name"],
         json["surname"]);
   }
 
-  factory ConversationParticipantEntity.fromSnapshot(DocumentSnapshot documentSnapshot) {
-    return ConversationParticipantEntity(
+  factory ParticipantEntity.fromSnapshot(DocumentSnapshot documentSnapshot) {
+    return ParticipantEntity(
         documentSnapshot.data["profileImageName"],
         documentSnapshot.data["name"],
         documentSnapshot.data["surname"]);

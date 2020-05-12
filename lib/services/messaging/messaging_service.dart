@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:project_teachers/entities/conversation_entity.dart';
-import 'package:project_teachers/entities/conversation_participant_entity.dart';
-import 'package:project_teachers/entities/message_entity.dart';
-import 'package:project_teachers/repositories/messaging_repository.dart';
-import 'package:project_teachers/services/storage_service.dart';
-import 'package:project_teachers/services/user_service.dart';
+import 'package:project_teachers/entities/messaging/conversation_entity.dart';
+import 'package:project_teachers/entities/messaging/message_entity.dart';
+import 'package:project_teachers/entities/participant_entity.dart';
+import 'package:project_teachers/repositories/messaging/messaging_repository.dart';
+import 'package:project_teachers/services/storage/storage_service.dart';
+import 'package:project_teachers/services/users/user_service.dart';
 
 class MessagingService {
   MessagingService._privateConstructor();
@@ -206,11 +206,11 @@ class MessagingService {
         _userService.currentUser.uid,
         _userService.selectedCoach.uid
       ], {
-        _userService.currentUser.uid: ConversationParticipantEntity(
+        _userService.currentUser.uid: ParticipantEntity(
             _userService.currentUser.profileImageName,
             _userService.currentUser.name,
             _userService.currentUser.surname),
-        _userService.selectedCoach.uid: ConversationParticipantEntity(
+        _userService.selectedCoach.uid: ParticipantEntity(
             _userService.selectedCoach.profileImageName,
             _userService.selectedCoach.name,
             _userService.selectedCoach.surname)

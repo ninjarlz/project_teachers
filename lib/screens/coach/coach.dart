@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:project_teachers/entities/coach_entity.dart';
-import 'package:project_teachers/services/app_state_manager.dart';
-import 'package:project_teachers/services/coach_filtering_serivce.dart';
-import 'package:project_teachers/services/storage_service.dart';
-import 'package:project_teachers/services/user_service.dart';
+import 'package:project_teachers/entities/users/coach_entity.dart';
+import 'package:project_teachers/services/filtering/coach_filtering_serivce.dart';
+import 'package:project_teachers/services/managers/app_state_manager.dart';
+import 'package:project_teachers/services/storage/storage_service.dart';
+import 'package:project_teachers/services/users/user_service.dart';
 import 'package:project_teachers/themes/index.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/widgets/index.dart';

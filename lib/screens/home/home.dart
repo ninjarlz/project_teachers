@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project_teachers/entities/conversation_entity.dart';
+import 'package:project_teachers/entities/messaging/conversation_entity.dart';
 import 'package:project_teachers/screens/chat/chat.dart';
 import 'package:project_teachers/screens/coach/coach.dart';
 import 'package:project_teachers/screens/contacts/contacts.dart';
@@ -9,10 +9,10 @@ import 'package:project_teachers/screens/navigation_drawer/navigation_drawer.dar
 import 'package:project_teachers/screens/profile/coach_profile.dart';
 import 'package:project_teachers/screens/profile/user_profile.dart';
 import 'package:project_teachers/screens/timeline/timeline.dart';
-import 'package:project_teachers/services/app_state_manager.dart';
-import 'package:project_teachers/services/messaging_service.dart';
-import 'package:project_teachers/services/storage_service.dart';
-import 'package:project_teachers/services/user_service.dart';
+import 'package:project_teachers/services/managers/app_state_manager.dart';
+import 'package:project_teachers/services/messaging/messaging_service.dart';
+import 'package:project_teachers/services/storage/storage_service.dart';
+import 'package:project_teachers/services/users/user_service.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:provider/provider.dart';

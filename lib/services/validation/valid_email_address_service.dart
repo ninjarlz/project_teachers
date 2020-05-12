@@ -1,6 +1,6 @@
-import 'package:project_teachers/entities/user_enums.dart';
-import 'package:project_teachers/entities/valid_email_address.dart';
-import 'package:project_teachers/repositories/valid_email_address_repository.dart';
+import 'package:project_teachers/entities/users/user_enums.dart';
+import 'package:project_teachers/entities/validation/valid_email_address.dart';
+import 'package:project_teachers/repositories/validation/valid_email_address_repository.dart';
 
 class ValidEmailAddressService {
   ValidEmailAddressService._privateConstructor();

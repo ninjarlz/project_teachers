@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:grouped_buttons/grouped_buttons.dart';
-import 'package:project_teachers/entities/coach_entity.dart';
-import 'package:project_teachers/entities/user_entity.dart';
-import 'package:project_teachers/entities/user_enums.dart';
-import 'package:project_teachers/services/app_state_manager.dart';
+import 'package:project_teachers/entities/users/coach_entity.dart';
+import 'package:project_teachers/entities/users/user_entity.dart';
+import 'package:project_teachers/entities/users/user_enums.dart';
+import 'package:project_teachers/services/managers/app_state_manager.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/utils/translations/translation_mapper.dart';

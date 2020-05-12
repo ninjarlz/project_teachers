@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:project_teachers/services/index.dart';
-import 'package:project_teachers/services/valid_email_address_service.dart';
+import 'package:project_teachers/services/authentication/auth.dart';
+import 'package:project_teachers/services/validation/valid_email_address_service.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/widgets/index.dart';
 

@@ -1,14 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/widgets.dart';
-import 'package:project_teachers/entities/coach_entity.dart';
-import 'package:project_teachers/entities/expert_entity.dart';
-import 'package:project_teachers/entities/user_entity.dart';
-import 'package:project_teachers/entities/user_enums.dart';
-import 'package:project_teachers/repositories/user_repository.dart';
-import 'package:project_teachers/services/auth.dart';
-import 'package:project_teachers/services/coach_filtering_serivce.dart';
-import 'package:project_teachers/services/messaging_service.dart';
-import 'package:project_teachers/services/storage_service.dart';
+import 'package:project_teachers/entities/users/coach_entity.dart';
+import 'package:project_teachers/entities/users/expert_entity.dart';
+import 'package:project_teachers/entities/users/user_entity.dart';
+import 'package:project_teachers/entities/users/user_enums.dart';
+import 'package:project_teachers/repositories/users/user_repository.dart';
+import 'package:project_teachers/services/authentication/auth.dart';
+import 'package:project_teachers/services/filtering/coach_filtering_serivce.dart';
+import 'package:project_teachers/services/messaging/messaging_service.dart';
+import 'package:project_teachers/services/storage/storage_service.dart';
 import 'package:project_teachers/utils/helpers/function_wrappers.dart';
 import 'package:tuple/tuple.dart';
 

@@ -1,17 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:project_teachers/entities/conversation_participant_entity.dart';
+import 'package:project_teachers/entities/participant_entity.dart';
 
 class ConversationEntity {
   String id; //lowerParticipantId_higherParticipantId
   List<String> participants;
-  Map<String, ConversationParticipantEntity> participantsData;
+  Map<String, ParticipantEntity> participantsData;
   Timestamp lastMsgTimestamp;
   String lastMsgSenderId;
   String lastMsgText;
   bool lastMsgSeen;
   String otherParticipantId;
-  ConversationParticipantEntity otherParticipantData;
-  ConversationParticipantEntity currentUserData;
+  ParticipantEntity otherParticipantData;
+  ParticipantEntity currentUserData;
 
   ConversationEntity(
       this.participants,
@@ -52,15 +52,15 @@ class ConversationEntity {
     };
   }
 
-  static Map<String, ConversationParticipantEntity> mapParticipantsData(
+  static Map<String, ParticipantEntity> mapParticipantsData(
       Map<String, dynamic> data) {
     return data.map((key, value) =>
-        MapEntry<String, ConversationParticipantEntity>(
-            key, ConversationParticipantEntity.fromJson(value)));
+        MapEntry<String, ParticipantEntity>(
+            key, ParticipantEntity.fromJson(value)));
   }
 
   static Map<String, dynamic> participantsDataToMap(
-      Map<String, ConversationParticipantEntity> participantsData) {
+      Map<String, ParticipantEntity> participantsData) {
     return participantsData
         .map((key, value) => MapEntry<String, dynamic>(key, value.toJson()));
   }

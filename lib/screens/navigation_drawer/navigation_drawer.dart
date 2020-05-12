@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:project_teachers/entities/user_entity.dart';
-import 'package:project_teachers/services/app_state_manager.dart';
-import 'package:project_teachers/services/auth.dart';
-import 'package:project_teachers/services/auth_status_manager.dart';
-import 'package:project_teachers/services/storage_service.dart';
-import 'package:project_teachers/services/user_service.dart';
+import 'package:project_teachers/entities/users/user_entity.dart';
+import 'package:project_teachers/services/authentication/auth.dart';
+import 'package:project_teachers/services/managers/app_state_manager.dart';
+import 'package:project_teachers/services/managers/auth_status_manager.dart';
+import 'package:project_teachers/services/storage/storage_service.dart';
+import 'package:project_teachers/services/users/user_service.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:provider/provider.dart';
 

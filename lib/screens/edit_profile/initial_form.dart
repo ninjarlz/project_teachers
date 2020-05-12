@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:project_teachers/entities/user_enums.dart';
-import 'package:project_teachers/services/app_state_manager.dart';
-import 'package:project_teachers/services/auth_status_manager.dart';
+import 'package:project_teachers/entities/users/user_enums.dart';
+import 'package:project_teachers/services/managers/app_state_manager.dart';
+import 'package:project_teachers/services/managers/auth_status_manager.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/utils/translations/translation_mapper.dart';
 import 'package:project_teachers/widgets/animation/animation_circular_progress.dart';

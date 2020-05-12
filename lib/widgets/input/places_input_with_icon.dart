@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'package:project_teachers/services/google_places.dart';
+import 'package:project_teachers/services/places/google_places.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/utils/constants/constants.dart';
 import 'package:project_teachers/utils/helpers/uuid.dart';

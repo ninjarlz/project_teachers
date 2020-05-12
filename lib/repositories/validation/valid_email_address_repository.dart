@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:project_teachers/entities/valid_email_address.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:project_teachers/entities/validation/valid_email_address.dart';
 
 class ValidEmailAddressRepository {
   ValidEmailAddressRepository._privateConstructor();

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:project_teachers/entities/user_enums.dart';
-import 'package:project_teachers/services/base_filtering_service.dart';
+import 'package:project_teachers/entities/users/user_enums.dart';
+import 'base_filtering_service.dart';
 
 class CoachFilteringService extends BaseFilteringService {
   static CoachFilteringService _instance;

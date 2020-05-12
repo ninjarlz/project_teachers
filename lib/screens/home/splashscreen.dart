@@ -1,12 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:project_teachers/screens/edit_profile/initial_form.dart';
-import 'package:project_teachers/services/app_state_manager.dart';
-import 'package:project_teachers/services/auth_status_manager.dart';
-import 'package:project_teachers/services/index.dart';
-import 'package:project_teachers/screens/index.dart';
-import 'package:project_teachers/services/user_service.dart';
-import 'package:project_teachers/services/valid_email_address_service.dart';
+import 'package:project_teachers/screens/register_and_login/login.dart';
+import 'package:project_teachers/services/authentication/auth.dart';
+import 'package:project_teachers/services/managers/app_state_manager.dart';
+import 'package:project_teachers/services/managers/auth_status_manager.dart';
+import 'package:project_teachers/services/users/user_service.dart';
+import 'package:project_teachers/services/validation/valid_email_address_service.dart';
 import 'package:provider/provider.dart';
 
 import 'home.dart';

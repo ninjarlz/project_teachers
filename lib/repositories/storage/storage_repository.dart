@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:project_teachers/entities/user_entity.dart';
+import 'package:project_teachers/entities/users/user_entity.dart';
 import 'package:project_teachers/utils/constants/constants.dart';
 
 class StorageRepository {
