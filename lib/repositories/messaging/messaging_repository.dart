@@ -114,21 +114,32 @@ class MessagingRepository {
   }
 
   Future<void> updateProfileImageData(
-      String userId, String userProfileImageName, String conversationId) async {
-    await _database.runTransaction((transaction) async {
-      await transaction.update(_conversationsRef.document(conversationId),
-          {"participantsData.$userId.profileImageName": userProfileImageName});
-    });
+      String userId, String userProfileImageName) async {
+    QuerySnapshot querySnapshot = await _conversationsRef
+        .where("participants", arrayContains: userId)
+        .getDocuments();
+    for (DocumentSnapshot documentSnapshot in querySnapshot.documents) {
+      await _database.runTransaction((transaction) async {
+        await transaction.update(documentSnapshot.reference, {
+          "participantsData.$userId.profileImageName": userProfileImageName
+        });
+      });
+    }
   }
 
   Future<void> updateUserData(
-      String userId, String name, String surname, String conversationId) async {
-    await _database.runTransaction((transaction) async {
-      await transaction.update(_conversationsRef.document(conversationId), {
-        "participantsData.$userId.name": name,
-        "participantsData.$userId.surname": surname
+      String userId, String name, String surname) async {
+    QuerySnapshot querySnapshot = await _conversationsRef
+        .where("participants", arrayContains: userId)
+        .getDocuments();
+    for (DocumentSnapshot documentSnapshot in querySnapshot.documents) {
+      await _database.runTransaction((transaction) async {
+        await transaction.update(documentSnapshot.reference, {
+          "participantsData.$userId.name": name,
+          "participantsData.$userId.surname": surname
+        });
       });
-    });
+    }
   }
 
   Future<void> markConversationLastMsgAsSeen(String conversationId) async {
@@ -138,7 +149,6 @@ class MessagingRepository {
       });
     });
   }
-
 
   Future<ConversationEntity> getConversation(String conversationId) async {
     DocumentSnapshot conversationSnapshot =

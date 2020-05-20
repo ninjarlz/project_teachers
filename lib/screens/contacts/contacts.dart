@@ -15,7 +15,7 @@ class Contacts extends StatefulWidget {
 }
 
 class _ContactsState extends State<Contacts>
-    implements CoachListProfileImagesListener, ConversationPageListener {
+    implements UserListProfileImagesListener, ConversationPageListener {
   MessagingService _messagingService;
   UserService _userService;
   StorageService _storageService;
@@ -29,7 +29,7 @@ class _ContactsState extends State<Contacts>
     _storageService = StorageService.instance;
     _messagingService = MessagingService.instance;
     _userService = UserService.instance;
-    _storageService.coachListProfileImageListeners.add(this);
+    _storageService.userListProfileImageListeners.add(this);
     _messagingService.conversationPageListeners.add(this);
     _scrollController.addListener(() {
       double maxScroll = _scrollController.position.maxScrollExtent;
@@ -50,10 +50,10 @@ class _ContactsState extends State<Contacts>
         "${conversation.otherParticipantData.name} ${conversation.otherParticipantData.surname}";
     return ListTile(
         leading: Material(
-          child: _storageService.coachImages
+          child: _storageService.userImages
                   .containsKey(conversation.otherParticipantId)
               ? _storageService
-                  .coachImages[conversation.otherParticipantId].item2
+                  .userImages[conversation.otherParticipantId].item2
               : Image.asset(
                   "assets/img/default_profile_2.png",
                   fit: BoxFit.cover,
@@ -145,12 +145,20 @@ class _ContactsState extends State<Contacts>
   void dispose() {
     super.dispose();
     _messagingService.conversationPageListeners.remove(this);
-    _storageService.coachListProfileImageListeners.remove(this);
+    _storageService.userListProfileImageListeners.remove(this);
   }
 
   @override
-  void onCoachListProfileImagesChange(List<String> updatedCoachesIds) {
-    setState(() {});
+  void onUserListProfileImagesChange(List<String> updatedUsersIds) {
+    List<String> usersIds = _messagingService.conversations
+        .map((e) => e.otherParticipantId)
+        .toList();
+    String id = usersIds.firstWhere(
+        (element) => updatedUsersIds.contains(element),
+        orElse: () => null);
+    if (id != null) {
+      setState(() {});
+    }
   }
 
   @override

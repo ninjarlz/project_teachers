@@ -100,7 +100,11 @@
   "nothing_to_send": "Nothing to send",
   "chat": "Chat",
   "seen":  "Seen",
-  "timeline": "timeline",
+  "timeline": "Timeline",
   "timeline_content": "Content",
-  "timeline_post": "Post"
+  "timeline_post": "Post",
+  "filter": "Filter",
+  "suggestions": "Suggestions",
+  "posts": "Posts",
+  "my_posts": "My posts"
 }

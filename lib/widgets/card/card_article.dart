@@ -1,8 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:project_teachers/entities/timeline/question_entity.dart';
+import 'package:project_teachers/services/storage/storage_service.dart';
+import 'package:project_teachers/services/timeline/timeline_service.dart';
 import 'package:project_teachers/themes/index.dart';
 import 'package:project_teachers/widgets/article/index.dart';
 
 class CardArticleWidget extends StatefulWidget {
+  final String userId;
+  final String username;
+  final String content;
+  final String date;
+  final List<String> tags;
+  final List<String> images;
+  final int reactionsNumber;
+  final int answersNumber;
+
+  CardArticleWidget(
+      {@required this.userId,
+      @required this.username,
+      @required this.content,
+      @required this.date,
+      this.tags,
+      this.images,
+      @required this.reactionsNumber,
+      this.answersNumber});
+
   @override
   State<StatefulWidget> createState() {
     return _CardArticleState();
@@ -11,31 +33,21 @@ class CardArticleWidget extends StatefulWidget {
 
 class _CardArticleState extends State<CardArticleWidget> {
   bool _isLiked = false;
-  int _likeNb = 0;
-  int _commentNb = 0;
-  List<String> _tags = List<String>();
+  TimelineService _timelineService;
+  StorageService _storageService;
 
   @override
   void initState() {
     super.initState();
-    _tags.add("Tag1"); // TODO: Remove when real tags are loaded
-    _tags.add("Tag2");
+    _timelineService = TimelineService.instance;
+    _storageService = StorageService.instance;
   }
 
   void _updateLike() {
-    if (_likeNb != -1) {
-      if (!_isLiked) {
-        // TODO: Post like
-      } else {
-        // TODO: delete like
-      }
-      setState(() {
-        _isLiked = !_isLiked;
-        if (_isLiked)
-          _likeNb++;
-        else
-          _likeNb--;
-      });
+    if (!_isLiked) {
+      // TODO: Post like
+    } else {
+      // TODO: delete like
     }
   }
 
@@ -43,8 +55,9 @@ class _CardArticleState extends State<CardArticleWidget> {
 
   Widget _buildTagsRow(int rowIndex) {
     List<Widget> _rowElements = List<Widget>();
-    for (int i = 0; i < 2 && (2 * rowIndex + i) < _tags.length; i++) {
-      _rowElements.add(Text('#${_tags[2 * rowIndex + i]}', style: ThemeGlobalText().tag));
+    for (int i = 0; i < 2 && (2 * rowIndex + i) < widget.tags.length; i++) {
+      _rowElements.add(Text('#${widget.tags[2 * rowIndex + i]}',
+          style: ThemeGlobalText().tag));
     }
     return Row(children: _rowElements);
   }
@@ -56,7 +69,7 @@ class _CardArticleState extends State<CardArticleWidget> {
           shrinkWrap: true,
           physics: NeverScrollableScrollPhysics(),
           padding: EdgeInsets.all(0),
-          itemCount: (_tags.length / 2).ceil(),
+          itemCount: (widget.tags.length / 2).ceil(),
           itemBuilder: (context, index) {
             return _buildTagsRow(index);
           }),
@@ -68,13 +81,15 @@ class _CardArticleState extends State<CardArticleWidget> {
       margin: EdgeInsets.all(10.0),
       child: Column(
         children: <Widget>[
-          Text(
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            style: TextStyle(fontSize: 16, color: Colors.grey[700]),
-          ),
+          Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                widget.content,
+                style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+              )),
           SizedBox(height: 15),
-          Image.asset("assets/img/timeline/picture_example.png"),
-      ],
+          //Image.asset("assets/img/timeline/picture_example.png"),
+        ],
       ),
     );
   }
@@ -90,34 +105,38 @@ class _CardArticleState extends State<CardArticleWidget> {
             child: Row(
               children: <Widget>[
                 Image.asset(
-                  (_isLiked) ? "assets/img/timeline/like_enabled.png" : "assets/img/timeline/like_disabled.png",
+                  (_isLiked)
+                      ? "assets/img/timeline/like_enabled.png"
+                      : "assets/img/timeline/like_disabled.png",
                   scale: 2.5,
                 ),
                 SizedBox(width: 5),
                 Text(
-                  (_likeNb >= 0) ? _likeNb.toString() : "...",
+                  widget.reactionsNumber.toString(),
                   style: TextStyle(fontSize: 20, color: Colors.grey[700]),
                 ),
               ],
             ),
           ),
-          MaterialButton(
-            onPressed: () => _goToArticle(),
-            minWidth: 0,
-            child: Row(
-              children: <Widget>[
-                Image.asset(
-                  "assets/img/timeline/comment2.png",
-                  scale: 2.5,
-                ),
-                SizedBox(width: 5),
-                Text(
-                  (_commentNb >= 0) ? _commentNb.toString() : "...",
-                  style: TextStyle(fontSize: 20, color: Colors.grey[700]),
-                ),
-              ],
-            ),
-          ),
+          widget.answersNumber != null
+              ? MaterialButton(
+                  onPressed: () => _goToArticle(),
+                  minWidth: 0,
+                  child: Row(
+                    children: <Widget>[
+                      Image.asset(
+                        "assets/img/timeline/comment2.png",
+                        scale: 2.5,
+                      ),
+                      SizedBox(width: 5),
+                      Text(
+                        widget.answersNumber.toString(),
+                        style: TextStyle(fontSize: 20, color: Colors.grey[700]),
+                      ),
+                    ],
+                  ),
+                )
+              : null,
         ],
       ),
     );
@@ -134,12 +153,13 @@ class _CardArticleState extends State<CardArticleWidget> {
           child: Column(
             children: <Widget>[
               ArticleUserWidget(
-                userName: "Firstname Lastname",
+                userId: widget.userId,
+                userName: widget.username,
                 onPressedFunction: null,
-                articleDate: "21 April 2020",
+                articleDate: widget.date,
               ),
               _buildContent(context),
-              _buildTags(),
+              widget.tags != null ? _buildTags() : null,
               _buildButtons(context),
             ],
           ),

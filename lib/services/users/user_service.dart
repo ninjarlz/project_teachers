@@ -6,9 +6,11 @@ import 'package:project_teachers/entities/users/user_entity.dart';
 import 'package:project_teachers/entities/users/user_enums.dart';
 import 'package:project_teachers/repositories/users/user_repository.dart';
 import 'package:project_teachers/services/authentication/auth.dart';
+import 'package:project_teachers/services/filtering/base_filtering_service.dart';
 import 'package:project_teachers/services/filtering/coach_filtering_serivce.dart';
 import 'package:project_teachers/services/messaging/messaging_service.dart';
 import 'package:project_teachers/services/storage/storage_service.dart';
+import 'package:project_teachers/services/timeline/timeline_service.dart';
 import 'package:project_teachers/utils/helpers/function_wrappers.dart';
 import 'package:tuple/tuple.dart';
 
@@ -23,6 +25,7 @@ class UserService {
       _instance._userRepository = UserRepository.instance;
       _instance._filteringService = CoachFilteringService.instance;
       _instance._messagingService = MessagingService.instance;
+      _instance._timelineService = TimelineService.instance;
       _instance._auth = Auth.instance;
       _instance._storageService = StorageService.instance;
     }
@@ -72,16 +75,18 @@ class UserService {
   CoachEntity get currentCoach => _currentCoach;
 
   UserRepository _userRepository;
-  CoachFilteringService _filteringService;
+  BaseFilteringService _filteringService;
   MessagingService _messagingService;
+  TimelineService _timelineService;
   BaseAuth _auth;
   StorageService _storageService;
 
-  void loginUser() {
+  Future<void> loginUser() async {
     updateCoachList();
-    _storageService.getUserProfileImage();
+    await _storageService.getUserProfileImage();
     _storageService.getUserBackgroundImage();
     _messagingService.loginUser();
+    _timelineService.loginUser();
   }
 
   void logoutUser() {
@@ -96,6 +101,7 @@ class UserService {
     resetCoachList();
     _storageService.logoutUser();
     _messagingService.logoutUser();
+    _timelineService.logoutUser();
   }
 
   void _onCoachListChange(QuerySnapshot event) {
@@ -111,7 +117,7 @@ class UserService {
         _coachList.add(coach);
       }
     });
-    _storageService.updateCoachListProfileImages(_coachList);
+    _storageService.updateUserListProfileImages(_coachList);
     for (CoachListListener coachListListener in _coachListListeners) {
       coachListListener.onCoachListChange();
     }
@@ -297,6 +303,7 @@ class UserService {
         remainingAvailabilityPerWeek);
     await updateUser(coach);
     _messagingService.updateUserData(_currentUser.uid, name, surname);
+    _timelineService.updateUserData(_currentUser.uid, name, surname);
   }
 
   Future<void> updateCurrentExpertData(
@@ -330,6 +337,7 @@ class UserService {
         specializations);
     await updateUser(expert);
     _messagingService.updateUserData(_currentUser.uid, name, surname);
+    _timelineService.updateUserData(_currentUser.uid, name, surname);
   }
 
   Future<void> updateUser(UserEntity userEntity) async {

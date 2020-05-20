@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 
 enum AppState {
   TIMELINE,
+  POST_QUESTION,
+  POST_ANSWER,
+  QUESTION_ANSWERS,
+  USER_TIMELINE,
+  FILTER_QUESTIONS,
   PROFILE_PAGE,
   COACH,
   COACH_PROFILE_PAGE,

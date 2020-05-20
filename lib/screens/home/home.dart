@@ -18,6 +18,8 @@ import 'package:project_teachers/translations/translations.dart';
 import 'package:provider/provider.dart';
 import 'package:tuple/tuple.dart';
 
+enum NavBarType { USERS, TIMELINE }
+
 class Home extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _HomeState();
@@ -28,7 +30,7 @@ class _HomeState extends State<Home>
         ConversationPageListener,
         CoachListener,
         CoachProfileImageListener,
-        CoachListProfileImagesListener {
+        UserListProfileImagesListener {
   MessagingService _messagingService;
   StorageService _storageService;
   UserService _userService;
@@ -41,7 +43,7 @@ class _HomeState extends State<Home>
     _userService = UserService.instance;
     _messagingService.conversationPageListeners.add(this);
     _storageService.coachProfileImageListeners.add(this);
-    _storageService.coachListProfileImageListeners.add(this);
+    _storageService.userListProfileImageListeners.add(this);
     _userService.coachListeners.add(this);
   }
 
@@ -53,6 +55,7 @@ class _HomeState extends State<Home>
     Widget floatingButton = null;
     bool extendBodyBehindAppBar = false;
     int navBarIndex = 0;
+    NavBarType navBarType = null;
     FloatingActionButtonLocation floatingActionButtonLocation = null;
 
     switch (appState) {
@@ -61,10 +64,14 @@ class _HomeState extends State<Home>
         appBar = AppBar(
             title: Text(Translations.of(context).text("timeline"),
                 style: TextStyle(color: Colors.white)),
-            backgroundColor: Colors.transparent);
+            backgroundColor: ThemeGlobalColor().secondaryColor);
         floatingButton = Timeline.timelineFloatingActionButton(context);
-        navBarIndex = -1;
+        navBarIndex = 0;
+        navBarType = NavBarType.TIMELINE;
         break;
+
+      //case AppState.POST_QUESTION:
+
 
       case AppState.PROFILE_PAGE:
         body = UserProfile();
@@ -84,6 +91,7 @@ class _HomeState extends State<Home>
                 style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
         navBarIndex = 0;
+        navBarType = NavBarType.USERS;
         break;
 
       case AppState.COACH_PROFILE_PAGE:
@@ -113,6 +121,7 @@ class _HomeState extends State<Home>
                 style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
         navBarIndex = 1;
+        navBarType = NavBarType.USERS;
         break;
 
       case AppState.CONTACTS:
@@ -122,6 +131,7 @@ class _HomeState extends State<Home>
                 style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
         navBarIndex = 2;
+        navBarType = NavBarType.USERS;
         break;
 
       case AppState.CHAT:
@@ -130,7 +140,7 @@ class _HomeState extends State<Home>
         String otherUserId = conversation != null
             ? conversation.otherParticipantId
             : _userService.selectedCoach.uid;
-        Map<String, Tuple2<String, Image>> images = _storageService.coachImages;
+        Map<String, Tuple2<String, Image>> images = _storageService.userImages;
         body = Chat();
         appBar = AppBar(
             title: Row(children: <Widget>[
@@ -179,7 +189,7 @@ class _HomeState extends State<Home>
       body: body,
       floatingActionButton: floatingButton,
       floatingActionButtonLocation: floatingActionButtonLocation,
-      bottomNavigationBar: _buildNavBar(navBarIndex, context),
+      bottomNavigationBar: _buildNavBar(navBarIndex, context, navBarType),
       drawer: NavigationDrawer(),
     );
   }
@@ -191,12 +201,8 @@ class _HomeState extends State<Home>
     );
   }
 
-  void _goToScreen(int index, BuildContext context) {
+  void _goToScreenUsers(int index, BuildContext context) {
     switch (index) {
-      case 0:
-        Provider.of<AppStateManager>(context, listen: false)
-            .changeAppState(AppState.COACH);
-        break;
       case 1:
         Provider.of<AppStateManager>(context, listen: false)
             .changeAppState(AppState.FILTER_COACH);
@@ -208,30 +214,63 @@ class _HomeState extends State<Home>
       default:
         Provider.of<AppStateManager>(context, listen: false)
             .changeAppState(AppState.COACH);
+        break;
     }
   }
 
-  Widget _buildNavBar(int navBarIndex, BuildContext context) {
+  void _goToScreenTimeline(int index, BuildContext context) {
+    switch (index) {
+      default:
+        Provider.of<AppStateManager>(context, listen: false)
+            .changeAppState(AppState.TIMELINE);
+    }
+  }
+
+  Widget _buildNavBar(
+      int navBarIndex, BuildContext context, NavBarType navBarType) {
     if (navBarIndex == -1) return null;
-    return BottomNavigationBar(
-      onTap: (index) {
-        _goToScreen(index, context);
-      },
-      currentIndex: navBarIndex,
-      type: BottomNavigationBarType.fixed,
-      items: [
-        BottomNavigationBarItem(
-            icon: Icon(Icons.supervised_user_circle),
-            title: Text("Suggestions")),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.filter_list), title: Text("Filter")),
-        BottomNavigationBarItem(
-            icon: _messagingService.hasUnreadMessages
-                ? Icon(Icons.sms_failed, color: Colors.red)
-                : Icon(Icons.message),
-            title: Text(Translations.of(context).text("my_contacts"))),
-      ],
-    );
+    switch (navBarType) {
+      case NavBarType.TIMELINE:
+        return BottomNavigationBar(
+          onTap: (index) {
+            _goToScreenTimeline(index, context);
+          },
+          currentIndex: navBarIndex,
+          type: BottomNavigationBarType.fixed,
+          items: [
+            BottomNavigationBarItem(
+                icon: Icon(Icons.question_answer),
+                title: Text(Translations.of(context).text("posts"))),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.filter_list),
+                title: Text(Translations.of(context).text("filter"))),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.person_pin),
+                title: Text(Translations.of(context).text("my_posts"))),
+          ],
+        );
+      default:
+        return BottomNavigationBar(
+          onTap: (index) {
+            _goToScreenUsers(index, context);
+          },
+          currentIndex: navBarIndex,
+          type: BottomNavigationBarType.fixed,
+          items: [
+            BottomNavigationBarItem(
+                icon: Icon(Icons.supervised_user_circle),
+                title: Text(Translations.of(context).text("suggestions"))),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.filter_list),
+                title: Text(Translations.of(context).text("filter"))),
+            BottomNavigationBarItem(
+                icon: _messagingService.hasUnreadMessages
+                    ? Icon(Icons.sms_failed, color: Colors.red)
+                    : Icon(Icons.message),
+                title: Text(Translations.of(context).text("my_contacts"))),
+          ],
+        );
+    }
   }
 
   @override
@@ -239,7 +278,7 @@ class _HomeState extends State<Home>
     super.dispose();
     _messagingService.conversationPageListeners.remove(this);
     _userService.coachListeners.remove(this);
-    _storageService.coachListProfileImageListeners.remove(this);
+    _storageService.userListProfileImageListeners.remove(this);
     _storageService.coachProfileImageListeners.remove(this);
   }
 
@@ -272,7 +311,7 @@ class _HomeState extends State<Home>
   }
 
   @override
-  void onCoachListProfileImagesChange(List<String> updatedCoachesIds) {
+  void onUserListProfileImagesChange(List<String> updatedCoachesIds) {
     if (Provider.of<AppStateManager>(context, listen: false).appState ==
             AppState.CHAT &&
         _messagingService.selectedConversation != null &&

@@ -91,7 +91,7 @@ class MessagingService {
       fillParticipantsConversationData(conversation);
     });
     _storageService
-        .updateCoachListProfileImagesWithConversationList(_conversations);
+        .updateUserListProfileImagesWithConversationList(_conversations);
     _conversationPageListeners.forEach((element) {
       element.onConversationListChange();
     });
@@ -118,7 +118,7 @@ class MessagingService {
 
   void logoutUser() {
     resetConversationList();
-    _messagingRepository.cancelConversationListSubscription();
+    resetMessagesList();
   }
 
   Future<void> updateConversationList() async {
@@ -167,18 +167,13 @@ class MessagingService {
 
   Future<void> updateProfileImageData(
       String userId, String userProfileImageName) async {
-    for (ConversationEntity conversation in _conversations) {
-      await _messagingRepository.updateProfileImageData(
-          userId, userProfileImageName, conversation.id);
-    }
+    await _messagingRepository.updateProfileImageData(
+        userId, userProfileImageName);
   }
 
   Future<void> updateUserData(
       String userId, String name, String surname) async {
-    for (ConversationEntity conversation in _conversations) {
-      await _messagingRepository.updateUserData(
-          userId, name, surname, conversation.id);
-    }
+    await _messagingRepository.updateUserData(userId, name, surname);
   }
 
   void resetConversationList() {

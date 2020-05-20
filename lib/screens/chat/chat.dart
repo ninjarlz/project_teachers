@@ -28,7 +28,7 @@ class Chat extends StatefulWidget {
 
 class _ChatState extends State<Chat>
     implements
-        CoachListProfileImagesListener,
+        UserListProfileImagesListener,
         ConversationListener,
         CoachListener {
   MessagingService _messagingService;
@@ -45,7 +45,7 @@ class _ChatState extends State<Chat>
     _storageService = StorageService.instance;
     _messagingService = MessagingService.instance;
     _userService = UserService.instance;
-    _storageService.coachListProfileImageListeners.add(this);
+    _storageService.userListProfileImageListeners.add(this);
     if (_messagingService.selectedConversation != null) {
       _messagingService.conversationListeners.add(this);
       _messagingService.updateMessagesList();
@@ -233,10 +233,10 @@ class _ChatState extends State<Chat>
                         child: Container(
                             width: 45,
                             height: 45,
-                            child: _storageService.coachImages
+                            child: _storageService.userImages
                                     .containsKey(message.senderId)
                                 ? _storageService
-                                    .coachImages[message.senderId].item2
+                                    .userImages[message.senderId].item2
                                 : Image.asset(
                                     "assets/img/default_profile_2.png",
                                     fit: BoxFit.cover,
@@ -308,7 +308,7 @@ class _ChatState extends State<Chat>
   void dispose() {
     super.dispose();
     _messagingService.conversationListeners.remove(this);
-    _storageService.coachListProfileImageListeners.remove(this);
+    _storageService.userListProfileImageListeners.remove(this);
     _userService.coachListeners.remove(this);
     _messagingService.resetMessagesList();
     if (_appStateManager.appState != AppState.COACH_PROFILE_PAGE) {
@@ -318,7 +318,7 @@ class _ChatState extends State<Chat>
   }
 
   @override
-  void onCoachListProfileImagesChange(List<String> updatedCoachesIds) {
+  void onUserListProfileImagesChange(List<String> updatedCoachesIds) {
     if (updatedCoachesIds
         .contains(_messagingService.selectedConversation.otherParticipantId)) {
       setState(() {});

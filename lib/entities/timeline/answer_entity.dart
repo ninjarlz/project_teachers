@@ -8,9 +8,10 @@ class AnswerEntity {
   Timestamp timestamp;
   String content;
   int reactionsCounter;
+  List<String> photoNames;
 
   AnswerEntity(this.authorId, this.authorData, this.timestamp, this.content,
-      this.reactionsCounter);
+      this.reactionsCounter, this.photoNames);
 
   factory AnswerEntity.fromJson(Map<String, dynamic> json) {
     return AnswerEntity(
@@ -18,7 +19,8 @@ class AnswerEntity {
         ParticipantEntity.fromJson(json["authorData"]),
         json["timestamp"],
         json["content"],
-        json["reactionsCounter"]);
+        json["reactionsCounter"],
+        json["photoNames"]);
   }
 
   factory AnswerEntity.fromSnapshot(DocumentSnapshot documentSnapshot) {
@@ -27,7 +29,8 @@ class AnswerEntity {
         ParticipantEntity.fromJson(documentSnapshot.data["authorData"]),
         documentSnapshot.data["timestamp"],
         documentSnapshot.data["content"],
-        documentSnapshot.data["reactionsCounter"]);
+        documentSnapshot.data["reactionsCounter"],
+        documentSnapshot.data["photoNames"]);
   }
 
   toJson() {
@@ -36,10 +39,8 @@ class AnswerEntity {
       "authorData": authorData.toJson(),
       "timestamp": timestamp,
       "content": content,
-      "reactionsCounter": reactionsCounter
+      "reactionsCounter": reactionsCounter,
+      "photoNames": photoNames
     };
   }
-
-
-
 }

@@ -9,10 +9,11 @@ class QuestionEntity {
   String content;
   int reactionsCounter;
   int answersCounter;
+  List<String> photoNames;
   List<String> tags;
 
-  QuestionEntity(this.authorId, this.authorData, this.timestamp,
-      this.reactionsCounter, this.content, this.answersCounter, this.tags);
+  QuestionEntity(this.authorId, this.authorData, this.timestamp, this.content,
+      this.reactionsCounter, this.answersCounter, this.photoNames, this.tags);
 
   factory QuestionEntity.fromJson(Map<String, dynamic> json) {
     return QuestionEntity(
@@ -22,7 +23,10 @@ class QuestionEntity {
         json["content"],
         json["reactionsCounter"],
         json["answersCounter"],
-        json["tags"]);
+        json["photoNames"] != null
+            ? List<String>.from(json["photoNames"])
+            : null,
+        List<String>.from(json["tags"]));
   }
 
   factory QuestionEntity.fromSnapshot(DocumentSnapshot documentSnapshot) {
@@ -33,7 +37,10 @@ class QuestionEntity {
         documentSnapshot.data["content"],
         documentSnapshot.data["reactionsCounter"],
         documentSnapshot.data["answersCounter"],
-        documentSnapshot.data["tags"]);
+        documentSnapshot.data["photoNames"] != null
+            ? List<String>.from(documentSnapshot.data["photoNames"])
+            : null,
+        List<String>.from(documentSnapshot.data["tags"]));
   }
 
   toJson() {
@@ -44,6 +51,7 @@ class QuestionEntity {
       "content": content,
       "reactionsCounter": reactionsCounter,
       "answersCounter": answersCounter,
+      "photoNames": photoNames,
       "tags": tags
     };
   }

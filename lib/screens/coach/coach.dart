@@ -17,7 +17,7 @@ class Coach extends StatefulWidget {
 }
 
 class _CoachState extends State<Coach>
-    implements CoachListListener, CoachListProfileImagesListener {
+    implements CoachListListener, UserListProfileImagesListener {
   UserService _userService;
   CoachFilteringService _filteringService;
   StorageService _storageService;
@@ -36,7 +36,7 @@ class _CoachState extends State<Coach>
       _searchCtrl.text = _filteringService.searchFilter;
     }
     _userService.coachListListeners.add(this);
-    _storageService.coachListProfileImageListeners.add(this);
+    _storageService.userListProfileImageListeners.add(this);
     _scrollController.addListener(() {
       double maxScroll = _scrollController.position.maxScrollExtent;
       double currentScroll = _scrollController.position.pixels;
@@ -64,8 +64,8 @@ class _CoachState extends State<Coach>
     String fullName = "${coach.name} ${coach.surname}";
     return ListTile(
         leading: Material(
-          child: _storageService.coachImages.containsKey(coach.uid)
-              ? _storageService.coachImages[coach.uid].item2
+          child: _storageService.userImages.containsKey(coach.uid)
+              ? _storageService.userImages[coach.uid].item2
               : Image.asset(
                   "assets/img/default_profile_2.png",
                   fit: BoxFit.cover,
@@ -84,8 +84,8 @@ class _CoachState extends State<Coach>
         onTap: () {
           _userService.setSelectedCoach(
               coach,
-              _storageService.coachImages.containsKey(coach.uid)
-                  ? _storageService.coachImages[coach.uid]
+              _storageService.userImages.containsKey(coach.uid)
+                  ? _storageService.userImages[coach.uid]
                   : null);
           _appStateManager.changeAppState(AppState.COACH_PROFILE_PAGE);
         });
@@ -145,7 +145,7 @@ class _CoachState extends State<Coach>
   void dispose() {
     super.dispose();
     _userService.coachListListeners.remove(this);
-    _storageService.coachListProfileImageListeners.remove(this);
+    _storageService.userListProfileImageListeners.remove(this);
   }
 
   @override
@@ -156,7 +156,13 @@ class _CoachState extends State<Coach>
   }
 
   @override
-  void onCoachListProfileImagesChange(List<String> updatedCoachesIds) {
-    setState(() {});
+  void onUserListProfileImagesChange(List<String> updatedUsersIds) {
+    List<String> coachIds = _userService.coachList.map((e) => e.uid).toList();
+    String id = coachIds.firstWhere(
+        (element) => updatedUsersIds.contains(element),
+        orElse: () => null);
+    if (id != null) {
+      setState(() {});
+    }
   }
 }
