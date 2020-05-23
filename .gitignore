@@ -30,6 +30,8 @@
 .pub/
 /build/
 
+lib/utils/constants/restricted_constants.dart
+
 # Web related
 lib/generated_plugin_registrant.dart
 

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:project_teachers/screens/edit_profile/initial_form.dart';
@@ -8,7 +9,6 @@ import 'package:project_teachers/services/managers/auth_status_manager.dart';
 import 'package:project_teachers/services/users/user_service.dart';
 import 'package:project_teachers/services/validation/valid_email_address_service.dart';
 import 'package:provider/provider.dart';
-
 import 'home.dart';
 
 
@@ -40,6 +40,7 @@ class _SplashscreenState extends State<Splashscreen> {
       _determineLoginState(_auth.currentUser);
     });
   }
+
 
 
   Future<void> _determineLoginState(FirebaseUser user) async {
@@ -101,4 +102,5 @@ class _SplashscreenState extends State<Splashscreen> {
       ),
     );
   }
+
 }

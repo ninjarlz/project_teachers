@@ -9,8 +9,8 @@ class ArticleUserWidget extends StatefulWidget {
 
   ArticleUserWidget(
       {@required this.userName,
-      @required this.onPressedFunction,
-      this.userId,
+      this.onPressedFunction,
+      @required this.userId,
       this.articleDate});
 
   @override
@@ -33,7 +33,7 @@ class _ArticleUserState extends State<ArticleUserWidget> {
       child: MaterialButton(
         minWidth: 0,
         padding: EdgeInsets.all(0),
-        onPressed: () => widget.onPressedFunction(),
+        onPressed: widget.onPressedFunction,
         child: Row(
           children: <Widget>[
             Container(
@@ -64,7 +64,8 @@ class _ArticleUserState extends State<ArticleUserWidget> {
                 ),
                 Padding(
                     padding: EdgeInsets.symmetric(horizontal: 5),
-                    child: Text(widget.articleDate,
+                    child: Text(
+                        widget.articleDate != null ? widget.articleDate : "",
                         textAlign: TextAlign.right,
                         style:
                             TextStyle(fontSize: 10, color: Colors.grey[500]))),

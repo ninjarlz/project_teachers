@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:project_teachers/entities/timeline/question_entity.dart';
-import 'package:project_teachers/screens/timeline/post.dart';
+import 'package:project_teachers/services/managers/app_state_manager.dart';
 import 'package:project_teachers/services/storage/storage_service.dart';
 import 'package:project_teachers/services/timeline/timeline_service.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/widgets/index.dart';
 import 'package:project_teachers/themes/index.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class Timeline extends StatefulWidget {
   static FloatingActionButton timelineFloatingActionButton(
       BuildContext context) {
     return FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => TimelinePost()));
+          AppStateManager appStateManager =
+          Provider.of<AppStateManager>(context, listen: false);
+          appStateManager.changeAppState(AppState.POST_QUESTION);
         },
         backgroundColor: ThemeGlobalColor().mainColor,
         child: Icon(Icons.add));

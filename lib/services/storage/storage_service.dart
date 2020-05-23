@@ -97,6 +97,7 @@ class StorageService {
   MessagingService _messagingService;
   TimelineService _timelineService;
 
+
   Future<void> uploadProfileImage() async {
     File image = await ImagePicker.pickImage(source: ImageSource.gallery);
     if (image != null) {

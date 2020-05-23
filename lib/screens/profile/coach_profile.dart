@@ -18,55 +18,61 @@ class CoachProfile extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _CoachProfileState();
 
-  static SpeedDial buildSpeedDial(BuildContext context) {
+  static Stack buildCoachProfileFloatingActionButtons(BuildContext context) {
     AppStateManager appStateManager =
         Provider.of<AppStateManager>(context, listen: false);
-    return SpeedDial(
-      animatedIcon: AnimatedIcons.menu_close,
-      animatedIconTheme: IconThemeData(size: 22.0),
-      // child: Icon(Icons.add),
-      onOpen: () => print('OPENING DIAL'),
-      onClose: () => print('DIAL CLOSED'),
-      visible: true,
-      curve: Curves.bounceIn,
-      backgroundColor: ThemeGlobalColor().secondaryColor,
-      children: [
-        SpeedDialChild(
-          child: Icon(Icons.arrow_back),
-          backgroundColor: ThemeGlobalColor().secondaryColor,
-          onTap: () {
-            appStateManager.changeAppState(AppState.COACH);
-          },
-          label: Translations.of(context).text("global_back"),
-          labelStyle:
-              TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
-          labelBackgroundColor: ThemeGlobalColor().secondaryColor,
+
+    return Stack(
+      children: <Widget>[
+        Align(
+          alignment: Alignment.lerp(Alignment.topRight,
+              Alignment.centerRight, 0.19),
+          child: FloatingActionButton(
+              onPressed:
+              Provider.of<AppStateManager>(context, listen: false).previousState,
+              backgroundColor: ThemeGlobalColor().mainColor,
+              child: Icon(Icons.arrow_back))
         ),
-        SpeedDialChild(
-            child: Icon(Icons.message, color: Colors.white),
+        Align(
+          alignment: Alignment.bottomRight,
+          child: SpeedDial(
+            animatedIcon: AnimatedIcons.menu_close,
+            animatedIconTheme: IconThemeData(size: 22.0),
+            // child: Icon(Icons.add),
+            onOpen: () => print('OPENING DIAL'),
+            onClose: () => print('DIAL CLOSED'),
+            visible: true,
+            curve: Curves.bounceIn,
             backgroundColor: ThemeGlobalColor().secondaryColor,
-            label: Translations.of(context).text("message"),
-            labelStyle:
+            children: [
+              SpeedDialChild(
+                  child: Icon(Icons.message, color: Colors.white),
+                  backgroundColor: ThemeGlobalColor().secondaryColor,
+                  label: Translations.of(context).text("message"),
+                  labelStyle:
+                  TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
+                  labelBackgroundColor: ThemeGlobalColor().secondaryColor,
+                  onTap: () async {
+                    MessagingService messagingService = MessagingService.instance;
+                    UserService userService = UserService.instance;
+                    ConversationEntity conversation = await messagingService
+                        .getConversation(userService.selectedCoach.uid);
+                    if (conversation != null) {
+                      messagingService.setSelectedConversation(conversation);
+                    }
+                    appStateManager.changeAppState(AppState.CHAT);
+                  }),
+              SpeedDialChild(
+                child: Icon(Icons.add_circle_outline, color: Colors.white),
+                backgroundColor: ThemeGlobalColor().secondaryColor,
+                label: Translations.of(context).text("book_consultation_hours"),
+                labelStyle:
                 TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
-            labelBackgroundColor: ThemeGlobalColor().secondaryColor,
-            onTap: () async {
-              MessagingService messagingService = MessagingService.instance;
-              UserService userService = UserService.instance;
-              ConversationEntity conversation = await messagingService
-                  .getConversation(userService.selectedCoach.uid);
-              if (conversation != null) {
-                messagingService.setSelectedConversation(conversation);
-              }
-              appStateManager.changeAppState(AppState.CHAT);
-            }),
-        SpeedDialChild(
-          child: Icon(Icons.add_circle_outline, color: Colors.white),
-          backgroundColor: ThemeGlobalColor().secondaryColor,
-          label: Translations.of(context).text("book_consultation_hours"),
-          labelStyle:
-              TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
-          labelBackgroundColor: ThemeGlobalColor().secondaryColor,
-        )
+                labelBackgroundColor: ThemeGlobalColor().secondaryColor,
+              )
+            ],
+          )
+        ),
       ],
     );
   }

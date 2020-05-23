@@ -1,5 +1,5 @@
 import 'package:google_maps_webservice/places.dart';
-import 'package:project_teachers/utils/constants/constants.dart';
+import 'package:project_teachers/utils/constants/restricted_constants.dart';
 
 class GooglePlaces {
 
@@ -11,7 +11,7 @@ class GooglePlaces {
   static GooglePlaces get instance {
     if (_instance == null) {
       _instance = GooglePlaces._privateConstructor();
-      _instance._places =  GoogleMapsPlaces(apiKey: Constants.API_KEY);
+      _instance._places =  GoogleMapsPlaces(apiKey: RestrictedConstants.API_KEY);
     }
     return _instance;
   }

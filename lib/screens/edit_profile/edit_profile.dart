@@ -11,9 +11,19 @@ import 'package:project_teachers/utils/translations/translation_mapper.dart';
 import 'package:project_teachers/widgets/index.dart';
 import 'package:project_teachers/widgets/input/places_input_with_icon.dart';
 import 'package:project_teachers/widgets/slider/slider_widget.dart';
+import 'package:provider/provider.dart';
 import 'base_edit_form.dart';
 
 class EditProfile extends StatefulWidget {
+  static FloatingActionButton editProfileFloatingActionButton(
+      BuildContext context) {
+    return FloatingActionButton(
+        onPressed:
+            Provider.of<AppStateManager>(context, listen: false).previousState,
+        backgroundColor: ThemeGlobalColor().mainColor,
+        child: Icon(Icons.arrow_back));
+  }
+
   @override
   State<StatefulWidget> createState() => _EditProfileState();
 }
@@ -88,7 +98,7 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
 
   @override
   void onBack() {
-    appStateManager.changeAppState(AppState.PROFILE_PAGE);
+    appStateManager.previousState();
   }
 
   @override
@@ -254,6 +264,12 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
                             max: maxAvailability,
                             onChanged: onRemainingAvailabilityValueChanged)
                         : Text("-", style: ThemeGlobalText().titleText)),
+                Visibility(
+                    visible: errorMessage != null && errorMessage != "",
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      child: Center(child: TextErrorWidget(text: errorMessage)),
+                    )),
                 ButtonPrimaryWidget(
                     text: Translations.of(context).text(submitLabel),
                     submit: validateAndSubmit),

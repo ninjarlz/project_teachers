@@ -128,7 +128,7 @@ class MessagingRepository {
   }
 
   Future<void> updateUserData(
-      String userId, String name, String surname) async {
+      String userId, String name, String surname, WriteBatch writeBatch) async {
     QuerySnapshot querySnapshot = await _conversationsRef
         .where("participants", arrayContains: userId)
         .getDocuments();

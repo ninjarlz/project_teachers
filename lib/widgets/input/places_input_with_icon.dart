@@ -3,7 +3,7 @@ import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:project_teachers/services/places/google_places.dart';
 import 'package:project_teachers/translations/translations.dart';
-import 'package:project_teachers/utils/constants/constants.dart';
+import 'package:project_teachers/utils/constants/restricted_constants.dart';
 import 'package:project_teachers/utils/helpers/uuid.dart';
 import 'base_input_with_icon.dart';
 
@@ -33,17 +33,20 @@ class PlacesInputWithIconWidgetState
     extends BaseInputWithIconWidgetState<PlacesInputWithIconWidget> {
   GooglePlaces _googlePlaces;
   bool _pickerError = false;
+  FocusNode _focusNode;
 
   @override
   void initState() {
     super.initState();
+    _focusNode = FocusNode();
     _googlePlaces = GooglePlaces.instance;
   }
 
   Future<void> onTap() async {
+    _focusNode.unfocus();
     Prediction prediction = await PlacesAutocomplete.show(
         context: context,
-        apiKey: Constants.API_KEY,
+        apiKey: RestrictedConstants.API_KEY,
         mode: Mode.overlay,
         language: widget.language,
         types: ["establishment"],
@@ -93,6 +96,7 @@ class PlacesInputWithIconWidgetState
     return Padding(
         padding: EdgeInsets.symmetric(vertical: 5),
         child: TextFormField(
+            focusNode: _focusNode,
             controller: widget.ctrl,
             maxLines: 1,
             autofocus: false,

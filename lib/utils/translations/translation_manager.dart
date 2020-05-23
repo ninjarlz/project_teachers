@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:project_teachers/translations/application.dart';
 import 'package:project_teachers/utils/index.dart';
 

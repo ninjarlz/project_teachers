@@ -18,7 +18,8 @@ enum AppState {
   EDIT_PROFILE,
   FILTER_COACH,
   CONTACTS,
-  CHAT
+  CHAT,
+  CONNECTION_LOST
 }
 
 
@@ -27,11 +28,23 @@ class AppStateManager extends ChangeNotifier {
   AppState get appState => _appState;
   AppState _prevState = AppState.LOGIN;
   AppState get prevState => _prevState;
+  AppState _userViewPrevState;
 
   void changeAppState(AppState appState) {
+    if (appState == AppState.COACH) {
+      _userViewPrevState = appState;
+    }
     _prevState = _appState;
     _appState = appState;
     notifyListeners();
+  }
+
+  void previousState() {
+    if (_appState == AppState.COACH_PROFILE_PAGE) {
+      changeAppState(_userViewPrevState);
+    } else {
+      changeAppState(prevState);
+    }
   }
 
 

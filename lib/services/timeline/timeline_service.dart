@@ -59,13 +59,13 @@ class TimelineService {
   int _answersOffset = 0;
 
   List<QuestionListListener> _questionListListeners =
-  List<QuestionListListener>();
+      List<QuestionListListener>();
 
   List<QuestionListListener> get questionListListeners =>
       _questionListListeners;
 
   List<UserQuestionListListener> _userQuestionListListeners =
-  List<UserQuestionListListener>();
+      List<UserQuestionListListener>();
 
   List<UserQuestionListListener> get userQuestionListListeners =>
       _userQuestionListListeners;
@@ -139,7 +139,9 @@ class TimelineService {
 
   void updateQuestionList() {
     _questionsOffset += _questionsLimit;
-    Query query = _timelineRepository.questionsRef.limit(_questionsOffset);
+    Query query = _timelineRepository.questionsRef
+        .limit(_questionsOffset)
+        .orderBy("timestamp", descending: true);
     query = _filteringService.prepareQuery(query);
     _timelineRepository.subscribeQuestions(query, _onQuestionListChange);
   }
@@ -161,6 +163,20 @@ class TimelineService {
             photoNames));
   }
 
+  Future<void> sendQuestion(
+      String content, List<String> tags, List<String> photoNames) async {
+    await _timelineRepository.sendQuestion(QuestionEntity(
+        _userService.currentUser.uid,
+        ParticipantEntity(_userService.currentUser.profileImageName,
+            _userService.currentUser.name, _userService.currentUser.surname),
+        Timestamp.now(),
+        content,
+        0,
+        0,
+        photoNames,
+        tags));
+  }
+
   Future<void> updateProfileImageData(
       String userId, String userProfileImageName) async {
     await _timelineRepository.updateProfileImageData(
@@ -171,9 +187,6 @@ class TimelineService {
       String userId, String name, String surname) async {
     await _timelineRepository.updateUserData(userId, name, surname);
   }
-
-
-
 }
 
 abstract class QuestionListListener {

@@ -1,14 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:project_teachers/entities/messaging/conversation_entity.dart';
 import 'package:project_teachers/screens/chat/chat.dart';
 import 'package:project_teachers/screens/coach/coach.dart';
+import 'package:project_teachers/screens/connection_lost/connection_lost.dart';
 import 'package:project_teachers/screens/contacts/contacts.dart';
 import 'package:project_teachers/screens/edit_profile/edit_profile.dart';
 import 'package:project_teachers/screens/filter/filter_page.dart';
 import 'package:project_teachers/screens/navigation_drawer/navigation_drawer.dart';
 import 'package:project_teachers/screens/profile/coach_profile.dart';
 import 'package:project_teachers/screens/profile/user_profile.dart';
+import 'package:project_teachers/screens/timeline/post_question.dart';
 import 'package:project_teachers/screens/timeline/timeline.dart';
+import 'package:project_teachers/services/connection/connection_service.dart';
 import 'package:project_teachers/services/managers/app_state_manager.dart';
 import 'package:project_teachers/services/messaging/messaging_service.dart';
 import 'package:project_teachers/services/storage/storage_service.dart';
@@ -34,6 +39,8 @@ class _HomeState extends State<Home>
   MessagingService _messagingService;
   StorageService _storageService;
   UserService _userService;
+  ConnectionService _connectionService;
+  StreamSubscription _connectionChangeStream;
 
   @override
   void initState() {
@@ -41,10 +48,16 @@ class _HomeState extends State<Home>
     _messagingService = MessagingService.instance;
     _storageService = StorageService.instance;
     _userService = UserService.instance;
+    _connectionService = ConnectionService.instance;
+    _connectionChangeStream =
+        _connectionService.connectionChange.listen(connectionChanged);
     _messagingService.conversationPageListeners.add(this);
     _storageService.coachProfileImageListeners.add(this);
     _storageService.userListProfileImageListeners.add(this);
     _userService.coachListeners.add(this);
+    Future.delayed(Duration.zero, () async {
+      connectionChanged(await _connectionService.checkConnection());
+    });
   }
 
   @override
@@ -70,8 +83,16 @@ class _HomeState extends State<Home>
         navBarType = NavBarType.TIMELINE;
         break;
 
-      //case AppState.POST_QUESTION:
-
+      case AppState.POST_QUESTION:
+        body = PostQuestion();
+        appBar = AppBar(
+            title: Text(Translations.of(context).text("post_question"),
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: ThemeGlobalColor().secondaryColor);
+        floatingButton = PostQuestion.postQuestionFloatingActionButton(context);
+        floatingActionButtonLocation = FloatingActionButtonLocation.endTop;
+        navBarIndex = -1;
+        break;
 
       case AppState.PROFILE_PAGE:
         body = UserProfile();
@@ -100,7 +121,8 @@ class _HomeState extends State<Home>
             title: Text(Translations.of(context).text("coach"),
                 style: TextStyle(color: Colors.white)),
             backgroundColor: Colors.transparent);
-        floatingButton = CoachProfile.buildSpeedDial(context);
+        floatingButton =
+            CoachProfile.buildCoachProfileFloatingActionButtons(context);
         extendBodyBehindAppBar = true;
         navBarIndex = -1;
         break;
@@ -112,6 +134,8 @@ class _HomeState extends State<Home>
                 style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
         navBarIndex = -1;
+        floatingButton = EditProfile.editProfileFloatingActionButton(context);
+        floatingActionButtonLocation = FloatingActionButtonLocation.endTop;
         break;
 
       case AppState.FILTER_COACH:
@@ -273,6 +297,12 @@ class _HomeState extends State<Home>
     }
   }
 
+  void connectionChanged(dynamic hasConnection) {
+    if (!hasConnection) {
+      Navigator.of(context).pushNamed(ConnectionLost.routeName);
+    }
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -280,6 +310,7 @@ class _HomeState extends State<Home>
     _userService.coachListeners.remove(this);
     _storageService.userListProfileImageListeners.remove(this);
     _storageService.coachProfileImageListeners.remove(this);
+    _connectionChangeStream.cancel();
   }
 
   @override

@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:project_teachers/entities/users/user_entity.dart';
 import 'package:project_teachers/utils/constants/constants.dart';
+import 'package:project_teachers/utils/constants/restricted_constants.dart';
 
 class StorageRepository {
   StorageRepository._privateConstructor();
@@ -14,7 +15,7 @@ class StorageRepository {
     if (_instance == null) {
       _instance = StorageRepository._privateConstructor();
       _instance._storage = FirebaseStorage(
-          app: FirebaseApp.instance, storageBucket: Constants.STORAGE_BUCKET);
+          app: FirebaseApp.instance, storageBucket: RestrictedConstants.STORAGE_BUCKET);
       _instance._storageReference = _instance._storage.ref();
     }
     return _instance;

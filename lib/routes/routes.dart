@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:project_teachers/screens/connection_lost/connection_lost.dart';
 import 'package:project_teachers/screens/home/splashscreen.dart';
 import 'package:project_teachers/screens/register_and_login/login.dart';
 import 'package:project_teachers/utils/index.dart';
@@ -37,6 +38,7 @@ class _RoutesState extends State<Routes> {
 
     routes = <String, WidgetBuilder>{
       Splashscreen.routeName: (BuildContext context) => Splashscreen(),
+      ConnectionLost.routeName: (BuildContext context) => ConnectionLost(),
     };
   }
 
@@ -63,11 +65,7 @@ class _RoutesState extends State<Routes> {
         if (pathElements[0] != "") return null;
         return null;
       },
-      // 404 Route
-      onUnknownRoute: (RouteSettings settings) {
-        return MaterialPageRoute<bool>(builder: (context) => Login());
-      },
-      theme: ThemeData(
+  theme: ThemeData(
         primaryTextTheme: TextTheme(title: ThemeGlobalText().appBarText),
         primaryIconTheme: Theme.of(context)
             .primaryIconTheme

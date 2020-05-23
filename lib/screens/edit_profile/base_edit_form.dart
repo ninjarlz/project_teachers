@@ -236,6 +236,12 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
                       min: 0,
                       max: 8,
                       onChanged: onMaxAvailabilityValueChanged)),
+              Visibility(
+                  visible: errorMessage != null && errorMessage != "",
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    child: Center(child: TextErrorWidget(text: errorMessage)),
+                  )),
               ButtonPrimaryWidget(
                   text: Translations.of(context).text(submitLabel),
                   submit: validateAndSubmit),
@@ -329,6 +335,12 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
                 activeColor: ThemeGlobalColor().mainColorDark,
                 labelStyle: ThemeGlobalText().text,
               ),
+              Visibility(
+                  visible: errorMessage != null && errorMessage != "",
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    child: Center(child: TextErrorWidget(text: errorMessage)),
+                  )),
               ButtonPrimaryWidget(
                   text: Translations.of(context).text(submitLabel),
                   submit: validateAndSubmit),

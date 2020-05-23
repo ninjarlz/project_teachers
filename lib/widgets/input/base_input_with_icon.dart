@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:project_teachers/themes/global.dart';
 
 abstract class  BaseInputWithIconWidgetState<T extends StatefulWidget> extends State<T> {
+
   InputDecoration setDecoration(String hint, [Icon icon]) {
     return InputDecoration(
       labelText: hint,

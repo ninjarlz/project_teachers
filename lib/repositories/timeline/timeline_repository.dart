@@ -116,14 +116,19 @@ class TimelineRepository {
           .collection("Answers")
           .add(answer.toJson());
       await transaction.update(_questionsRef.document(question.id),
-          {"answersCounter": question.answersCounter + 1});
+          {"answersCounter": FieldValue.increment(1)});
     });
+  }
+
+  Future<void> sendQuestion(
+      QuestionEntity question) async {
+    await _questionsRef.add(question.toJson());
   }
 
   Future<void> addQuestionReaction(QuestionEntity question) async {
     await _database.runTransaction((transaction) async {
       await transaction.update(_questionsRef.document(question.id),
-          {"answersCounter": question.reactionsCounter + 1});
+          {"answersCounter": FieldValue.increment(1)});
     });
   }
 
@@ -135,7 +140,7 @@ class TimelineRepository {
               .document(question.id)
               .collection("Answers")
               .document(answer.id),
-          {"answersCounter": answer.reactionsCounter + 1});
+          {"answersCounter": FieldValue.increment(1)});
     });
   }
 
