@@ -34,19 +34,21 @@ class TagRepository {
     return suggestions;
   }
 
-  Future<void> increaseTagCounter(String tag) async {
-    _database.runTransaction((transaction) async {
-      await transaction.update(
-          _tagsRef.document(tag), {"postsCounter": FieldValue.increment(1)});
-    });
-  }
-
   Future<bool> checkIfTagExists(String tag) async {
     DocumentSnapshot documentSnapshot = await _tagsRef.document(tag).get();
     return documentSnapshot.exists;
   }
 
-  Future<void> createTag(String tag) async {
-    await _tagsRef.document(tag).setData(TagEntity(tag, 1).toJson());
+  Future<void> transactionPostTags(
+      List<String> tags, Transaction transaction) async {
+    for (String tag in tags) {
+      bool tagExists = await checkIfTagExists(tag);
+      if (tagExists) {
+        transaction.update(
+            await _tagsRef.document(tag), {"postsCounter": FieldValue.increment(1)});
+      } else {
+        await transaction.set(_tagsRef.document(tag), TagEntity(tag, 1).toJson());
+      }
+    }
   }
 }

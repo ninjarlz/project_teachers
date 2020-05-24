@@ -87,6 +87,11 @@ class UserRepository {
     });
   }
 
+  Future<void> transactionUpdateUser(
+      UserEntity user, Transaction transaction) async {
+    await transaction.set(_userListRef.document(user.uid), user.toJson());
+  }
+
   Future<void> updateUser(UserEntity user) async {
     await _userListRef.document(user.uid).setData(user.toJson());
   }

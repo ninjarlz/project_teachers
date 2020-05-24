@@ -27,7 +27,7 @@ class Timeline extends StatefulWidget {
 }
 
 class _TimelineState extends State<Timeline>
-    implements QuestionListListener, UserListProfileImagesListener {
+    implements QuestionListListener, UserListProfileImagesListener, QuestionsListImagesListener {
   TextEditingController _searchCtrl = TextEditingController();
   bool _isLoading = false;
   TimelineService _timelineService;
@@ -41,6 +41,7 @@ class _TimelineState extends State<Timeline>
     _storageService = StorageService.instance;
     _timelineService.questionListListeners.add(this);
     _storageService.userListProfileImageListeners.add(this);
+    _storageService.questionsListImagesListener.add(this);
     _scrollController.addListener(() {
       double maxScroll = _scrollController.position.maxScrollExtent;
       double currentScroll = _scrollController.position.pixels;
@@ -92,6 +93,8 @@ class _TimelineState extends State<Timeline>
                           _timelineService.questions[index];
                       return CardArticleWidget(
                           userId: question.authorId,
+                          postId: question.id,
+                          isAnswer: false,
                           username: question.authorData.name +
                               " " +
                               question.authorData.surname,
@@ -131,11 +134,33 @@ class _TimelineState extends State<Timeline>
   void dispose() {
     super.dispose();
     _timelineService.questionListListeners.remove(this);
+    _storageService.questionsListImagesListener.remove(this);
     _storageService.userListProfileImageListeners.remove(this);
   }
 
   @override
   void onUserListProfileImagesChange(List<String> updatedUsersIds) {
-    setState(() {});
+    List<String> usersIds = _timelineService.questions
+        .map((e) => e.authorId)
+        .toList();
+    String id = usersIds.firstWhere(
+            (element) => updatedUsersIds.contains(element),
+        orElse: () => null);
+    if (id != null) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void onQuestionListImagesChange(List<String> updatedQuestions) {
+    List<String> questionIds = _timelineService.questions
+        .map((e) => e.authorId)
+        .toList();
+    String id = questionIds.firstWhere(
+            (element) => updatedQuestions.contains(element),
+        orElse: () => null);
+    if (id != null) {
+      setState(() {});
+    }
   }
 }

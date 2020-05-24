@@ -11,6 +11,7 @@ import 'package:project_teachers/services/filtering/coach_filtering_serivce.dart
 import 'package:project_teachers/services/messaging/messaging_service.dart';
 import 'package:project_teachers/services/storage/storage_service.dart';
 import 'package:project_teachers/services/timeline/timeline_service.dart';
+import 'package:project_teachers/services/managers/transaction_manager.dart';
 import 'package:project_teachers/utils/helpers/function_wrappers.dart';
 import 'package:tuple/tuple.dart';
 
@@ -28,6 +29,7 @@ class UserService {
       _instance._timelineService = TimelineService.instance;
       _instance._auth = Auth.instance;
       _instance._storageService = StorageService.instance;
+      _instance._transactionManager = TransactionManager.instance;
     }
     return _instance;
   }
@@ -80,6 +82,7 @@ class UserService {
   TimelineService _timelineService;
   BaseAuth _auth;
   StorageService _storageService;
+  TransactionManager _transactionManager;
 
   Future<void> loginUser() async {
     updateCoachList();
@@ -138,7 +141,6 @@ class UserService {
     _hasMoreCoaches = true;
     _userRepository.cancelCoachListSubscription();
   }
-
 
   void _onCoachDataChange(DocumentSnapshot event, int cnt) {
     if (!event.exists) {
@@ -301,9 +303,14 @@ class UserService {
         coachType,
         maxAvailabilityPerWeek,
         remainingAvailabilityPerWeek);
-    await updateUser(coach);
-    _messagingService.updateUserData(_currentUser.uid, name, surname);
-    _timelineService.updateUserData(_currentUser.uid, name, surname);
+    await _transactionManager
+        .runTransaction(await (Transaction transaction) async {
+      await transactionUpdateUser(coach, transaction);
+      await _messagingService.transactionUpdateUserData(
+          _currentUser.uid, name, surname, transaction);
+      await _timelineService.transactionUpdateUserData(
+          _currentUser.uid, name, surname, transaction);
+    });
   }
 
   Future<void> updateCurrentExpertData(
@@ -335,12 +342,22 @@ class UserService {
         backgroundImageName,
         schoolSubjects,
         specializations);
-    await updateUser(expert);
-    _messagingService.updateUserData(_currentUser.uid, name, surname);
-    _timelineService.updateUserData(_currentUser.uid, name, surname);
+    await _transactionManager
+        .runTransaction(await (Transaction transaction) async {
+      await transactionUpdateUser(expert, transaction);
+      await _messagingService.transactionUpdateUserData(
+          _currentUser.uid, name, surname, transaction);
+      await _timelineService.transactionUpdateUserData(
+          _currentUser.uid, name, surname, transaction);
+    });
   }
 
-  Future<void> updateUser(UserEntity userEntity) async {
+  Future<void> transactionUpdateUser(
+      UserEntity userEntity, Transaction transaction) async {
+    await _userRepository.transactionUpdateUser(userEntity, transaction);
+  }
+
+  void updateUser(UserEntity userEntity) async {
     await _userRepository.updateUser(userEntity);
   }
 

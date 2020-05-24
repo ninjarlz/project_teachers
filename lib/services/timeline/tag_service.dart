@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project_teachers/entities/timeline/tag_entity.dart';
 import 'package:project_teachers/repositories/timeline/tag_repository.dart';
 
@@ -27,12 +28,8 @@ class TagService {
         .toList();
   }
 
-  Future<void> postTag(String tag) async {
-    bool tagExists = await _tagRepository.checkIfTagExists(tag);
-    if (tagExists) {
-      _tagRepository.increaseTagCounter(tag);
-    } else {
-      _tagRepository.createTag(tag);
-    }
+  Future<void> transactionPostTags(
+      List<String> tags, Transaction transaction) async {
+    await _tagRepository.transactionPostTags(tags, transaction);
   }
 }

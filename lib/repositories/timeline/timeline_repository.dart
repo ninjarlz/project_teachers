@@ -110,23 +110,25 @@ class TimelineRepository {
 
   Future<void> sendQuestionAnswer(
       QuestionEntity question, AnswerEntity answer) async {
-    await _database.runTransaction((transaction) async {
-      await _questionsRef
-          .document(question.id)
-          .collection("Answers")
-          .add(answer.toJson());
-      await transaction.update(_questionsRef.document(question.id),
+    await _database.runTransaction(await (Transaction transaction) async {
+      transaction.set(
+          _questionsRef.document(question.id).collection("Answers").document(),
+          answer.toJson());
+      transaction.update(_questionsRef.document(question.id),
           {"answersCounter": FieldValue.increment(1)});
     });
   }
 
-  Future<void> sendQuestion(
-      QuestionEntity question) async {
-    await _questionsRef.add(question.toJson());
+  Future<String> transactionSendQuestion(
+      QuestionEntity question, Transaction transaction) async {
+    DocumentReference documentRef = _questionsRef.document();
+    String questionId = documentRef.documentID;
+    await transaction.set(documentRef, question.toJson());
+    return questionId;
   }
 
   Future<void> addQuestionReaction(QuestionEntity question) async {
-    await _database.runTransaction((transaction) async {
+    await _database.runTransaction(await (transaction) async {
       await transaction.update(_questionsRef.document(question.id),
           {"answersCounter": FieldValue.increment(1)});
     });
@@ -134,7 +136,7 @@ class TimelineRepository {
 
   Future<void> addAnswerReaction(
       QuestionEntity question, AnswerEntity answer) async {
-    await _database.runTransaction((transaction) async {
+    await _database.runTransaction(await (transaction) async {
       await transaction.update(
           _questionsRef
               .document(question.id)
@@ -144,27 +146,23 @@ class TimelineRepository {
     });
   }
 
-  Future<void> updateProfileImageData(
-      String userId, String userProfileImageName) async {
+  Future<void> transactionUpdateProfileImageData(String userId,
+      String userProfileImageName, Transaction transaction) async {
     QuerySnapshot querySnapshot =
         await _questionsRef.where("authorId", isEqualTo: userId).getDocuments();
     for (DocumentSnapshot documentSnapshot in querySnapshot.documents) {
-      await _database.runTransaction((transaction) async {
-        await transaction.update(documentSnapshot.reference,
-            {"authorData.profileImageName": userProfileImageName});
-      });
+      await transaction.update(documentSnapshot.reference,
+          {"authorData.profileImageName": userProfileImageName});
     }
   }
 
-  Future<void> updateUserData(
-      String userId, String name, String surname) async {
+  Future<void> transactionUpdateUserData(String userId, String name,
+      String surname, Transaction transaction) async {
     QuerySnapshot querySnapshot =
         await _questionsRef.where("authorId", isEqualTo: userId).getDocuments();
     for (DocumentSnapshot documentSnapshot in querySnapshot.documents) {
-      await _database.runTransaction((transaction) async {
-        await transaction.update(documentSnapshot.reference,
-            {"authorData.name": name, "authorData.surname": surname});
-      });
+      await transaction.update(documentSnapshot.reference,
+          {"authorData.name": name, "authorData.surname": surname});
     }
   }
 }

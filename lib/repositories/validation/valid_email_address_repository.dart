@@ -94,7 +94,7 @@ class ValidEmailAddressRepository {
     }
     DocumentReference dr =
         _database.collection("ValidEmailAdresses").document(list[0].documentID);
-    await _database.runTransaction((transaction) async {
+    await _database.runTransaction(await (transaction) async {
       await transaction.update(
           dr, {"isInitialized": isInitialized, "isValidated": isValidated});
     }).catchError((e) {

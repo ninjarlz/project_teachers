@@ -1,13 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class WriteBatchManager {
-  WriteBatchManager.privateConstructor();
+class TransactionManager {
+  TransactionManager.privateConstructor();
 
-  static WriteBatchManager _instance;
+  static TransactionManager _instance;
 
-  static WriteBatchManager get instance {
+  static TransactionManager get instance {
     if (_instance == null) {
-      _instance = WriteBatchManager.privateConstructor();
+      _instance = TransactionManager.privateConstructor();
       _instance._database = Firestore.instance;
     }
     return _instance;
@@ -15,11 +15,7 @@ class WriteBatchManager {
   
   Firestore _database;
   
-  WriteBatch createWriteBatch() {
-    return _database.batch();
-  }
-
-  Future<void> commitWriteBatch(WriteBatch writeBatch) async {
-    await writeBatch.commit();
+  Future<void> runTransaction(Function(Transaction) onTransaction) async {
+    await _database.runTransaction(await onTransaction);
   }
 }

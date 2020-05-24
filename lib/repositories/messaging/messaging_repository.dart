@@ -99,12 +99,14 @@ class MessagingRepository {
 
   Future<void> sendConversationMessage(
       ConversationEntity conversation, MessageEntity message) async {
-    await _database.runTransaction((transaction) async {
-      await _conversationsRef
-          .document(conversation.id)
-          .collection("Messages")
-          .add(message.toJson());
-      await transaction.update(_conversationsRef.document(conversation.id), {
+    await _database.runTransaction(await (Transaction transaction) async {
+      transaction.set(
+          _conversationsRef
+              .document(conversation.id)
+              .collection("Messages")
+              .document(),
+          message.toJson());
+      transaction.update(_conversationsRef.document(conversation.id), {
         "lastMsgTimestamp": message.timestamp,
         "lastMsgSenderId": message.senderId,
         "lastMsgText": message.text,
@@ -113,40 +115,34 @@ class MessagingRepository {
     });
   }
 
-  Future<void> updateProfileImageData(
-      String userId, String userProfileImageName) async {
+  Future<void> transactionUpdateProfileImageData(String userId,
+      String userProfileImageName, Transaction transaction) async {
     QuerySnapshot querySnapshot = await _conversationsRef
         .where("participants", arrayContains: userId)
         .getDocuments();
     for (DocumentSnapshot documentSnapshot in querySnapshot.documents) {
-      await _database.runTransaction((transaction) async {
-        await transaction.update(documentSnapshot.reference, {
-          "participantsData.$userId.profileImageName": userProfileImageName
-        });
-      });
+      await transaction.update(documentSnapshot.reference,
+          {"participantsData.$userId.profileImageName": userProfileImageName});
     }
   }
 
-  Future<void> updateUserData(
-      String userId, String name, String surname, WriteBatch writeBatch) async {
+  Future<void> transactionUpdateUserData(String userId, String name,
+      String surname, Transaction transaction) async {
     QuerySnapshot querySnapshot = await _conversationsRef
         .where("participants", arrayContains: userId)
         .getDocuments();
     for (DocumentSnapshot documentSnapshot in querySnapshot.documents) {
-      await _database.runTransaction((transaction) async {
-        await transaction.update(documentSnapshot.reference, {
-          "participantsData.$userId.name": name,
-          "participantsData.$userId.surname": surname
-        });
+      await transaction.update(documentSnapshot.reference, {
+        "participantsData.$userId.name": name,
+        "participantsData.$userId.surname": surname
       });
     }
   }
 
   Future<void> markConversationLastMsgAsSeen(String conversationId) async {
-    await _database.runTransaction((transaction) async {
-      await transaction.update(_conversationsRef.document(conversationId), {
-        "lastMsgSeen": true,
-      });
+    await _database.runTransaction(await (Transaction transaction) async {
+      await transaction.update(
+          _conversationsRef.document(conversationId), {"lastMsgSeen": true});
     });
   }
 

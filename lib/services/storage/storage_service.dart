@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:path/path.dart';
 import 'package:flutter/widgets.dart';
@@ -10,6 +11,7 @@ import 'package:project_teachers/entities/users/coach_entity.dart';
 import 'package:project_teachers/entities/users/user_entity.dart';
 import 'package:project_teachers/repositories/storage/storage_repository.dart';
 import 'package:project_teachers/services/messaging/messaging_service.dart';
+import 'package:project_teachers/services/managers/transaction_manager.dart';
 import 'package:project_teachers/services/timeline/timeline_service.dart';
 import 'package:project_teachers/services/users/user_service.dart';
 import 'package:project_teachers/utils/constants/constants.dart';
@@ -28,6 +30,7 @@ class StorageService {
       _instance._userService = UserService.instance;
       _instance._messagingService = MessagingService.instance;
       _instance._timelineService = TimelineService.instance;
+      _instance._transactionManager = TransactionManager.instance;
     }
     return _instance;
   }
@@ -75,6 +78,15 @@ class StorageService {
       Tuple2<String, Image>>(); // <coachId, Tuple2<profileImageName, Image>>
   Map<String, Tuple2<String, Image>> get userImages => _userImages;
 
+  Map<String, List<Tuple2<String, Image>>> _questionImages = Map<
+      String,
+      List<
+          Tuple2<String,
+              Image>>>(); // <questionId, List<Tuple2<photoName, Image>>>
+
+  Map<String, List<Tuple2<String, Image>>> get questionImages =>
+      _questionImages;
+
   List<CoachProfileImageListener> _coachProfileImageListeners =
       List<CoachProfileImageListener>();
 
@@ -90,13 +102,19 @@ class StorageService {
   List<UserListProfileImagesListener> _userListProfileImageListeners =
       List<UserListProfileImagesListener>();
 
+  List<QuestionsListImagesListener> _questionsListImagesListener =
+      List<QuestionsListImagesListener>();
+
+  List<QuestionsListImagesListener> get questionsListImagesListener =>
+      _questionsListImagesListener;
+
   List<UserListProfileImagesListener> get userListProfileImageListeners =>
       _userListProfileImageListeners;
   StorageRepository _storageRepository;
   UserService _userService;
   MessagingService _messagingService;
   TimelineService _timelineService;
-
+  TransactionManager _transactionManager;
 
   Future<void> uploadProfileImage() async {
     File image = await ImagePicker.pickImage(source: ImageSource.gallery);
@@ -110,12 +128,17 @@ class StorageService {
         if (user.profileImageName != null) {
           await _storageRepository.deleteUserProfileImage(user);
         }
-        await _storageRepository.uploadImage(
+        await _storageRepository.uploadUserImage(
             croppedImage, fileName, Constants.PROFILE_IMAGE_DIR, user.uid);
         user.profileImageName = fileName;
-        await _userService.updateUser(user);
-        await _messagingService.updateProfileImageData(user.uid, fileName);
-        await _timelineService.updateProfileImageData(user.uid, fileName);
+        await _transactionManager
+            .runTransaction(await (Transaction transaction) async {
+          await _userService.transactionUpdateUser(user, transaction);
+          await _messagingService.transactionUpdateProfileImageData(
+              user.uid, fileName, transaction);
+          await _timelineService.transactionUpdateProfileImageData(
+              user.uid, fileName, transaction);
+        });
         _userProfileImage = await Image.file(
           croppedImage,
           fit: BoxFit.cover,
@@ -224,7 +247,7 @@ class StorageService {
       if (user.backgroundImageName != null) {
         await _storageRepository.deleteUserBackgroundImage(user);
       }
-      await _storageRepository.uploadImage(
+      await _storageRepository.uploadUserImage(
           image, fileName, Constants.BACKGROUND_IMAGE_DIR, user.uid);
       user.backgroundImageName = fileName;
       await _userService.updateUser(user);
@@ -234,6 +257,69 @@ class StorageService {
         element.onUserBackgroundImageChange();
       });
     }
+  }
+
+  Future<void> updateQuestionListImages(List<QuestionEntity> questions) async {
+    List<String> updatedQuestions = List<String>();
+    for (QuestionEntity question in questions) {
+      if (question.photoNames != null) {
+        if (_questionImages.containsKey(question.id)) {
+          List<String> oldImagesNames = List<String>();
+          for (Tuple2<String, Image> image in _questionImages[question.id]) {
+            if (!question.photoNames.contains(image.item1)) {
+              _questionImages[question.id].remove(image);
+            } else {
+              oldImagesNames.add(image.item1);
+            }
+          }
+          for (String imageName in question.photoNames) {
+            if (!oldImagesNames.contains(imageName)) {
+              if (!updatedQuestions.contains(question.id)) {
+                updatedQuestions.add(question.id);
+              }
+              Image image = await _storageRepository.getQuestionImage(
+                  question.id, imageName);
+              _questionImages[question.id]
+                  .add(Tuple2<String, Image>(imageName, image));
+            }
+          }
+        } else {
+          _questionImages[question.id] = List<Tuple2<String, Image>>();
+          for (String imageName in question.photoNames) {
+            if (!updatedQuestions.contains(question.id)) {
+              updatedQuestions.add(question.id);
+            }
+            Image image = await _storageRepository.getQuestionImage(
+                question.id, imageName);
+            _questionImages[question.id]
+                .add(Tuple2<String, Image>(imageName, image));
+          }
+        }
+      }
+    }
+    _questionsListImagesListener.forEach((element) {
+      element.onQuestionListImagesChange(updatedQuestions);
+    });
+  }
+
+  Future<void> uploadQuestionImages(
+      List<Image> images, List<File> files, List<String> fileNames, String questionId) async {
+    List<String> updatedQuestions = [questionId];
+    for (int i = 0; i < images.length; i++) {
+      await uploadQuestionImage(images[i], files[i], fileNames[i], questionId);
+    }
+    _questionsListImagesListener.forEach((element) {
+      element.onQuestionListImagesChange(updatedQuestions);
+    });
+  }
+
+  Future<void> uploadQuestionImage(
+      Image image, File file, String fileName, String questionId) async {
+    if (!_questionImages.containsKey(questionId)) {
+      _questionImages[questionId] = List<Tuple2<String, Image>>();
+    }
+    _questionImages[questionId].add(Tuple2<String, Image>(fileName, image));
+    await _storageRepository.uploadQuestionImage(file, fileName, questionId);
   }
 
   Future<void> getUserProfileImage() async {
@@ -334,4 +420,8 @@ abstract class CoachBackgroundImageListener {
 
 abstract class UserListProfileImagesListener {
   void onUserListProfileImagesChange(List<String> updatedUsersIds);
+}
+
+abstract class QuestionsListImagesListener {
+  void onQuestionListImagesChange(List<String> updatedQuestions);
 }

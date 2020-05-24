@@ -7,6 +7,8 @@ import 'package:project_teachers/repositories/timeline/timeline_repository.dart'
 import 'package:project_teachers/services/filtering/base_filtering_service.dart';
 import 'package:project_teachers/services/filtering/question_filtering_service.dart';
 import 'package:project_teachers/services/storage/storage_service.dart';
+import 'package:project_teachers/services/timeline/tag_service.dart';
+import 'package:project_teachers/services/managers/transaction_manager.dart';
 import 'package:project_teachers/services/users/user_service.dart';
 
 class TimelineService {
@@ -21,6 +23,8 @@ class TimelineService {
       _instance._storageService = StorageService.instance;
       _instance._userService = UserService.instance;
       _instance._filteringService = QuestionFilteringService.instance;
+      _instance._tagService = TagService.instance;
+      _instance._transactionManager = TransactionManager.instance;
     }
     return _instance;
   }
@@ -78,6 +82,8 @@ class TimelineService {
   UserService _userService;
   StorageService _storageService;
   BaseFilteringService _filteringService;
+  TagService _tagService;
+  TransactionManager _transactionManager;
 
   void loginUser() {
     updateQuestionList();
@@ -132,6 +138,7 @@ class TimelineService {
       _questions.add(question);
     });
     _storageService.updateUserListProfileImagesWithQuestions(_questions);
+    _storageService.updateQuestionListImages(questions);
     for (QuestionListListener questionListListener in _questionListListeners) {
       questionListListener.onQuestionListChange();
     }
@@ -163,29 +170,40 @@ class TimelineService {
             photoNames));
   }
 
-  Future<void> sendQuestion(
+  Future<String> sendQuestion(
       String content, List<String> tags, List<String> photoNames) async {
-    await _timelineRepository.sendQuestion(QuestionEntity(
-        _userService.currentUser.uid,
-        ParticipantEntity(_userService.currentUser.profileImageName,
-            _userService.currentUser.name, _userService.currentUser.surname),
-        Timestamp.now(),
-        content,
-        0,
-        0,
-        photoNames,
-        tags));
+    String questionId = null;
+    await _transactionManager
+        .runTransaction(await (Transaction transaction) async {
+      questionId = await _timelineRepository.transactionSendQuestion(
+          QuestionEntity(
+              _userService.currentUser.uid,
+              ParticipantEntity(
+                  _userService.currentUser.profileImageName,
+                  _userService.currentUser.name,
+                  _userService.currentUser.surname),
+              Timestamp.now(),
+              content,
+              0,
+              0,
+              photoNames,
+              tags),
+          transaction);
+      await _tagService.transactionPostTags(tags, transaction);
+    });
+    return questionId;
   }
 
-  Future<void> updateProfileImageData(
-      String userId, String userProfileImageName) async {
-    await _timelineRepository.updateProfileImageData(
-        userId, userProfileImageName);
+  Future<void> transactionUpdateProfileImageData(
+      String userId, String userProfileImageName, Transaction transaction) async {
+    await _timelineRepository.transactionUpdateProfileImageData(
+        userId, userProfileImageName, transaction);
   }
 
-  Future<void> updateUserData(
-      String userId, String name, String surname) async {
-    await _timelineRepository.updateUserData(userId, name, surname);
+  Future<void> transactionUpdateUserData(
+      String userId, String name, String surname, Transaction transaction) async {
+    await _timelineRepository.transactionUpdateUserData(
+        userId, name, surname, transaction);
   }
 }
 

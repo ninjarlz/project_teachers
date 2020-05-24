@@ -165,15 +165,16 @@ class MessagingService {
         _messagesOffset, _onConversationMessagesChange, _onConversationChange);
   }
 
-  Future<void> updateProfileImageData(
-      String userId, String userProfileImageName) async {
-    await _messagingRepository.updateProfileImageData(
-        userId, userProfileImageName);
+  Future<void> transactionUpdateProfileImageData(
+      String userId, String userProfileImageName, Transaction transaction) async {
+    await _messagingRepository.transactionUpdateProfileImageData(
+        userId, userProfileImageName, transaction);
   }
 
-  Future<void> updateUserData(
-      String userId, String name, String surname) async {
-    await _messagingRepository.updateUserData(userId, name, surname);
+  Future<void> transactionUpdateUserData(
+      String userId, String name, String surname, Transaction transaction) async {
+    await _messagingRepository.transactionUpdateUserData(
+        userId, name, surname, transaction);
   }
 
   void resetConversationList() {

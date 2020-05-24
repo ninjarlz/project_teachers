@@ -7,6 +7,8 @@ import 'package:project_teachers/widgets/article/index.dart';
 
 class CardArticleWidget extends StatefulWidget {
   final String userId;
+  final String postId;
+  final bool isAnswer;
   final String username;
   final String content;
   final String date;
@@ -18,6 +20,8 @@ class CardArticleWidget extends StatefulWidget {
   CardArticleWidget(
       {@required this.userId,
       @required this.username,
+      @required this.postId,
+      @required this.isAnswer,
       @required this.content,
       @required this.date,
       this.tags,
@@ -88,7 +92,22 @@ class _CardArticleState extends State<CardArticleWidget> {
                 style: TextStyle(fontSize: 16, color: Colors.grey[700]),
               )),
           SizedBox(height: 15),
-          //Image.asset("assets/img/timeline/picture_example.png"),
+          widget.isAnswer
+              ? Container()
+              : widget.images != null &&
+                      _storageService.questionImages.containsKey(widget.postId)
+                  ? ListView.builder(
+                      itemBuilder: (context, index) {
+                        return Padding(
+                            padding: EdgeInsets.symmetric(vertical: 10),
+                            child: _storageService
+                                .questionImages[widget.postId][index].item2);
+                      },
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount:
+                          _storageService.questionImages[widget.postId].length,
+                      shrinkWrap: true)
+                  : Container(),
         ],
       ),
     );
