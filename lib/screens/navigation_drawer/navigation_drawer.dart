@@ -7,6 +7,8 @@ import 'package:project_teachers/services/managers/auth_status_manager.dart';
 import 'package:project_teachers/services/storage/storage_service.dart';
 import 'package:project_teachers/services/users/user_service.dart';
 import 'package:project_teachers/themes/global.dart';
+import 'package:project_teachers/utils/index.dart';
+import 'package:project_teachers/translations/translations.dart';
 import 'package:provider/provider.dart';
 
 class NavigationDrawer extends StatefulWidget {
@@ -67,7 +69,7 @@ class _NavigationDrawerState extends State<NavigationDrawer>
           ),
           ListTile(
             leading: Icon(Icons.access_time),
-            title: Text('Timeline'),
+            title: Text(Translations.of(context).text("timeline")),
             onTap: () {
               Navigator.of(context).pop();
               if (_appStateManager.appState != AppState.TIMELINE) {
@@ -77,7 +79,7 @@ class _NavigationDrawerState extends State<NavigationDrawer>
           ),
           ListTile(
             leading: Icon(Icons.person),
-            title: Text('Profile page'),
+            title: Text(Translations.of(context).text("profile")),
             onTap: () {
               Navigator.of(context).pop();
               if (_appStateManager.appState != AppState.PROFILE_PAGE) {
@@ -87,7 +89,7 @@ class _NavigationDrawerState extends State<NavigationDrawer>
           ),
           ListTile(
             leading: Icon(Icons.school),
-            title: Text('Coach'),
+            title: Text(Translations.of(context).text("coach")),
             onTap: () {
               Navigator.of(context).pop();
               if (_appStateManager.appState != AppState.COACH) {
@@ -97,28 +99,28 @@ class _NavigationDrawerState extends State<NavigationDrawer>
           ),
           ListTile(
             leading: Icon(Icons.access_alarms),
-            title: Text('Events'),
+            title: Text(Translations.of(context).text("events")),
             onTap: () {
               Navigator.of(context).pop();
             },
           ),
           ListTile(
             leading: Icon(Icons.event_available),
-            title: Text('Calendar'),
+            title: Text(Translations.of(context).text("calendar")),
             onTap: () {
               Navigator.of(context).pop();
             },
           ),
           ListTile(
             leading: Icon(Icons.people),
-            title: Text('Other Experts'),
+            title: Text(Translations.of(context).text("other_experts")),
             onTap: () {
               Navigator.of(context).pop();
             },
           ),
           ListTile(
             leading: Icon(Icons.arrow_back),
-            title: Text('Log out'),
+            title: Text(Translations.of(context).text("logout")),
             onTap: () {
               Navigator.of(context).pop();
               _auth.signOut();
@@ -126,6 +128,15 @@ class _NavigationDrawerState extends State<NavigationDrawer>
               _authStatusManager.changeAuthState(AuthStatus.NOT_LOGGED_IN);
               _appStateManager.changeAppState(AppState.LOGIN);
             },
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 25),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                TranslationManagerWidget()
+              ],
+            ),
           ),
         ],
       ),

@@ -120,5 +120,8 @@
   "error_images_up_to_3": "You can submit up to 3 images",
   "waiting_for_connection": "Waiting for connection...",
   "connection_lost": "Connection lost",
-  "error_no_tag": "Your question must have at least one tag"
+  "error_no_tag": "Your question must have at least one tag",
+  "events": "Events",
+  "calendar": "Calendar",
+  "other_experts": "Calendar"
 }
