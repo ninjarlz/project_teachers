@@ -16,17 +16,16 @@ class TypeAheadInputWithIconWidget extends StatefulWidget {
   final ValueChanged<String> suggestionsCallback;
   final ValueChanged<String> onSuggestionSelected;
 
-  TypeAheadInputWithIconWidget(
-      {@required this.ctrl,
-      @required this.hint,
-      @required this.icon,
-      @required this.suggestionsCallback,
-      @required this.onSuggestionSelected,
-      @required this.onFieldSubmitted,
-      this.error,
-      this.type,
-      this.maxLines,
-      this.decoration});
+  TypeAheadInputWithIconWidget({@required this.ctrl,
+    @required this.hint,
+    @required this.icon,
+    @required this.suggestionsCallback,
+    @required this.onSuggestionSelected,
+    this.onFieldSubmitted,
+    this.error,
+    this.type,
+    this.maxLines,
+    this.decoration});
 
   @override
   State<StatefulWidget> createState() => _TypeAheadInputWithIconWidgetState();
@@ -57,7 +56,9 @@ class _TypeAheadInputWithIconWidgetState
           textFieldConfiguration: TextFieldConfiguration(
             focusNode: _focusNode,
             onSubmitted: (value) {
-              widget.onFieldSubmitted(value);
+              if (widget.onFieldSubmitted != null) {
+                widget.onFieldSubmitted(value);
+              };
             },
             controller: widget.ctrl,
             decoration: setDecoration(
@@ -74,7 +75,7 @@ class _TypeAheadInputWithIconWidgetState
           },
           onSuggestionSelected: widget.onSuggestionSelected,
           validator: (value) =>
-              value.isEmpty ? widget.error == null ? null : widget.error : null,
+          value.isEmpty ? widget.error == null ? null : widget.error : null,
         ));
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_teachers/entities/timeline/question_entity.dart';
+import 'package:project_teachers/entities/users/user_enums.dart';
 import 'package:project_teachers/services/managers/app_state_manager.dart';
 import 'package:project_teachers/services/storage/storage_service.dart';
 import 'package:project_teachers/services/timeline/timeline_service.dart';
@@ -15,7 +16,7 @@ class Timeline extends StatefulWidget {
     return FloatingActionButton(
         onPressed: () {
           AppStateManager appStateManager =
-          Provider.of<AppStateManager>(context, listen: false);
+              Provider.of<AppStateManager>(context, listen: false);
           appStateManager.changeAppState(AppState.POST_QUESTION);
         },
         backgroundColor: ThemeGlobalColor().mainColor,
@@ -27,7 +28,10 @@ class Timeline extends StatefulWidget {
 }
 
 class _TimelineState extends State<Timeline>
-    implements QuestionListListener, UserListProfileImagesListener, QuestionsListImagesListener {
+    implements
+        QuestionListListener,
+        UserListProfileImagesListener,
+        QuestionsListImagesListener {
   TextEditingController _searchCtrl = TextEditingController();
   bool _isLoading = false;
   TimelineService _timelineService;
@@ -51,9 +55,6 @@ class _TimelineState extends State<Timeline>
       }
     });
   }
-
-  void _searchFilter() {}
-
   Future<void> _loadMoreQuestions() async {
     if (!_timelineService.hasMoreQuestions || _isLoading) {
       return;
@@ -71,14 +72,6 @@ class _TimelineState extends State<Timeline>
       decoration: new BoxDecoration(color: ThemeGlobalColor().containerColor),
       child: Column(
         children: [
-          Container(
-            decoration: new BoxDecoration(color: Colors.white),
-            padding: EdgeInsets.only(left: 20, top: 10, right: 20),
-            child: InputSearchWidget(
-              ctrl: _searchCtrl,
-              submitChange: _searchFilter,
-            ),
-          ),
           Expanded(
             child: _timelineService.questions == null ||
                     _timelineService.questions.length == 0
@@ -92,20 +85,23 @@ class _TimelineState extends State<Timeline>
                       QuestionEntity question =
                           _timelineService.questions[index];
                       return CardArticleWidget(
-                          userId: question.authorId,
-                          postId: question.id,
-                          isAnswer: false,
-                          username: question.authorData.name +
-                              " " +
-                              question.authorData.surname,
-                          content: question.content,
-                          date: DateFormat('dd MMM kk:mm').format(
-                              DateTime.fromMillisecondsSinceEpoch(
-                                  question.timestamp.millisecondsSinceEpoch)),
-                          reactionsNumber: question.reactionsCounter,
-                          answersNumber: question.answersCounter,
-                          images: question.photoNames,
-                          tags: question.tags);
+                        userId: question.authorId,
+                        postId: question.id,
+                        isAnswer: false,
+                        username: question.authorData.name +
+                            " " +
+                            question.authorData.surname,
+                        content: question.content,
+                        date: DateFormat('dd MMM kk:mm').format(
+                            DateTime.fromMillisecondsSinceEpoch(
+                                question.timestamp.millisecondsSinceEpoch)),
+                        reactionsNumber: question.reactionsCounter,
+                        answersNumber: question.answersCounter,
+                        images: question.photoNames,
+                        tags: question.tags,
+                        subjectsTranslation: Translations.of(context)
+                            .text(question.schoolSubject.label),
+                      );
                     },
                   ),
           ),
@@ -140,11 +136,10 @@ class _TimelineState extends State<Timeline>
 
   @override
   void onUserListProfileImagesChange(List<String> updatedUsersIds) {
-    List<String> usersIds = _timelineService.questions
-        .map((e) => e.authorId)
-        .toList();
+    List<String> usersIds =
+        _timelineService.questions.map((e) => e.authorId).toList();
     String id = usersIds.firstWhere(
-            (element) => updatedUsersIds.contains(element),
+        (element) => updatedUsersIds.contains(element),
         orElse: () => null);
     if (id != null) {
       setState(() {});
@@ -153,11 +148,10 @@ class _TimelineState extends State<Timeline>
 
   @override
   void onQuestionListImagesChange(List<String> updatedQuestions) {
-    List<String> questionIds = _timelineService.questions
-        .map((e) => e.authorId)
-        .toList();
+    List<String> questionIds =
+        _timelineService.questions.map((e) => e.id).toList();
     String id = questionIds.firstWhere(
-            (element) => updatedQuestions.contains(element),
+        (element) => updatedQuestions.contains(element),
         orElse: () => null);
     if (id != null) {
       setState(() {});

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -83,8 +84,7 @@ class StorageRepository {
         fit: BoxFit.cover, alignment: Alignment.bottomCenter);
   }
 
-  Future<Image> getQuestionImage(
-      String questionId, String imageName) async {
+  Future<Image> getQuestionImage(String questionId, String imageName) async {
     var url = await _storage
         .ref()
         .child(Constants.QUESTIONS_DIR)
@@ -92,10 +92,10 @@ class StorageRepository {
         .child(imageName)
         .getDownloadURL();
     return await Image.network(url);
+    //return await Image(image: CachedNetworkImageProvider(url));
   }
 
-  Future<Image> getAnswerImage(
-      String answerId, String imageName) async {
+  Future<Image> getAnswerImage(String answerId, String imageName) async {
     var url = await _storage
         .ref()
         .child(Constants.ANSWERS_DIR)

@@ -107,16 +107,6 @@ class _CoachProfileState extends BaseProfileState<CoachProfile>
         userName = coach.name + " " + coach.surname;
         city = coach.city;
         school = coach.school;
-        if (coach.schoolSubjects != null && coach.schoolSubjects.isNotEmpty) {
-          school += " - ";
-          for (int i = 0; i < coach.schoolSubjects.length - 1; i++) {
-            school +=
-                Translations.of(context).text(coach.schoolSubjects[i].label) +
-                    ", ";
-          }
-          school += Translations.of(context).text(
-              coach.schoolSubjects[coach.schoolSubjects.length - 1].label);
-        }
         profession = coach.profession +
             " | Coach - " +
             Translations.of(context).text(coach.coachType.label);
@@ -186,6 +176,8 @@ class _CoachProfileState extends BaseProfileState<CoachProfile>
         Text(school, style: ThemeGlobalText().text),
         SizedBox(height: 5),
         Text(availability, style: ThemeGlobalText().text),
+        SizedBox(height: 10),
+        buildProfileSubjects(),
         SizedBox(height: 10),
         buildProfileCompetencies(),
         SizedBox(height: 10),

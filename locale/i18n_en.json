@@ -120,5 +120,12 @@
   "error_images_up_to_3": "You can submit up to 3 images",
   "waiting_for_connection": "Waiting for connection...",
   "connection_lost": "Connection lost",
-  "error_no_tag": "Your question must have at least one tag"
+  "error_no_tag": "Your question must have at least one tag",
+  "reconnect": "Reconnect",
+  "sort_by": "Sort by",
+  "date": "Date",
+  "number_of_reactions": "Number of reactions",
+  "number_of_answers": "Number of answers",
+  "filter_questions": "Filter questions",
+  "subject": "Subject"
 }

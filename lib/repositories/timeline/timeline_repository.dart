@@ -108,6 +108,10 @@ class TimelineRepository {
     await _questionsRef.document(question.id).delete();
   }
 
+  String generateQuestionId() {
+    return _questionsRef.document().documentID;
+  }
+
   Future<void> sendQuestionAnswer(
       QuestionEntity question, AnswerEntity answer) async {
     await _database.runTransaction(await (Transaction transaction) async {
@@ -119,37 +123,39 @@ class TimelineRepository {
     });
   }
 
-  Future<String> transactionSendQuestion(
+  Future<void> transactionSendQuestion(String questionId,
       QuestionEntity question, Transaction transaction) async {
-    DocumentReference documentRef = _questionsRef.document();
-    String questionId = documentRef.documentID;
-    await transaction.set(documentRef, question.toJson());
+    await transaction.set(
+        _questionsRef.document(questionId), question.toJson());
     return questionId;
   }
 
-  Future<void> addQuestionReaction(QuestionEntity question) async {
-    await _database.runTransaction(await (transaction) async {
-      await transaction.update(_questionsRef.document(question.id),
-          {"answersCounter": FieldValue.increment(1)});
-    });
+  Future<void> transactionAddQuestionReaction(
+      String questionId, Transaction transaction) async {
+    await transaction.update(_questionsRef.document(questionId),
+        {"reactionsCounter": FieldValue.increment(1)});
   }
 
-  Future<void> addAnswerReaction(
-      QuestionEntity question, AnswerEntity answer) async {
-    await _database.runTransaction(await (transaction) async {
-      await transaction.update(
-          _questionsRef
-              .document(question.id)
-              .collection("Answers")
-              .document(answer.id),
-          {"answersCounter": FieldValue.increment(1)});
-    });
+  Future<void> transactionRemoveQuestionReaction(
+      String questionId, Transaction transaction) async {
+    await transaction.update(_questionsRef.document(questionId),
+        {"reactionsCounter": FieldValue.increment(-1)});
+  }
+
+  Future<void> transactionAddAnswerReaction(QuestionEntity question,
+      AnswerEntity answer, Transaction transaction) async {
+    await transaction.update(
+        _questionsRef
+            .document(question.id)
+            .collection("Answers")
+            .document(answer.id),
+        {"reactionsCounter": FieldValue.increment(1)});
   }
 
   Future<void> transactionUpdateProfileImageData(String userId,
       String userProfileImageName, Transaction transaction) async {
     QuerySnapshot querySnapshot =
-        await _questionsRef.where("authorId", isEqualTo: userId).getDocuments();
+    await _questionsRef.where("authorId", isEqualTo: userId).getDocuments();
     for (DocumentSnapshot documentSnapshot in querySnapshot.documents) {
       await transaction.update(documentSnapshot.reference,
           {"authorData.profileImageName": userProfileImageName});

@@ -96,6 +96,26 @@ class UserRepository {
     await _userListRef.document(user.uid).setData(user.toJson());
   }
 
+  Future<void> transactionAddLikedPost(UserEntity userEntity,
+      String likedPostId, Transaction transaction) async {
+    List<String> likedPosts = userEntity.likedPosts != null
+        ? List<String>.from(userEntity.likedPosts)
+        : List<String>();
+    likedPosts.add(likedPostId);
+    transaction.update(
+        _userListRef.document(userEntity.uid), {"likedPosts": likedPosts});
+  }
+
+  Future<void> transactionRemoveLikedPost(UserEntity userEntity,
+      String likedPostId, Transaction transaction) async {
+    List<String> likedPosts = userEntity.likedPosts != null
+        ? List<String>.from(userEntity.likedPosts)
+        : List<String>();
+    likedPosts.remove(likedPostId);
+    transaction.update(
+        _userListRef.document(userEntity.uid), {"likedPosts": likedPosts});
+  }
+
   Future<CoachEntity> getCoach(String coachId) async {
     DocumentSnapshot documentSnapshot =
         await _userListRef.document(coachId).get();
@@ -104,6 +124,19 @@ class UserRepository {
       return null;
     }
     return CoachEntity.fromJson(documentSnapshot.data);
+  }
+
+  Future<bool> transactionCheckIfPostIsLiked(
+      UserEntity userEntity, String postId, Transaction transaction) async {
+    DocumentSnapshot documentSnapshot =
+        await transaction.get(_userListRef.document(userEntity.uid));
+    transaction.update(_userListRef.document(userEntity.uid), {});
+    if (documentSnapshot.data["likedPosts"] == null) {
+      return false;
+    }
+    List<String> likedPosts =
+        List<String>.from(documentSnapshot.data["likedPosts"]);
+    return likedPosts.contains(postId);
   }
 
   Future<List<CoachEntity>> getCoaches(List<String> coachIds) async {

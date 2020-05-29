@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:project_teachers/entities/timeline/question_entity.dart';
 import 'package:project_teachers/services/storage/storage_service.dart';
 import 'package:project_teachers/services/timeline/timeline_service.dart';
+import 'package:project_teachers/services/users/user_service.dart';
 import 'package:project_teachers/themes/index.dart';
 import 'package:project_teachers/widgets/article/index.dart';
+import 'package:project_teachers/widgets/pills/pill_profile.dart';
 
 class CardArticleWidget extends StatefulWidget {
   final String userId;
@@ -12,6 +14,7 @@ class CardArticleWidget extends StatefulWidget {
   final String username;
   final String content;
   final String date;
+  final String subjectsTranslation;
   final List<String> tags;
   final List<String> images;
   final int reactionsNumber;
@@ -24,6 +27,7 @@ class CardArticleWidget extends StatefulWidget {
       @required this.isAnswer,
       @required this.content,
       @required this.date,
+      this.subjectsTranslation,
       this.tags,
       this.images,
       @required this.reactionsNumber,
@@ -36,22 +40,29 @@ class CardArticleWidget extends StatefulWidget {
 }
 
 class _CardArticleState extends State<CardArticleWidget> {
-  bool _isLiked = false;
-  TimelineService _timelineService;
   StorageService _storageService;
+  TimelineService _timelineService;
+  UserService _userService;
 
   @override
   void initState() {
     super.initState();
-    _timelineService = TimelineService.instance;
     _storageService = StorageService.instance;
+    _timelineService = TimelineService.instance;
+    _userService = UserService.instance;
   }
 
-  void _updateLike() {
-    if (!_isLiked) {
-      // TODO: Post like
+  Future<void> _updateLike() async {
+
+    if (_userService.currentUser.likedPosts != null &&
+        !_userService.currentUser.likedPosts.contains(widget.postId)) {
+      if (!widget.isAnswer) {
+        await _timelineService.addQuestionReaction(widget.postId);
+      } else {}
     } else {
-      // TODO: delete like
+      if (!widget.isAnswer) {
+        await _timelineService.removeQuestionReaction(widget.postId);
+      } else {}
     }
   }
 
@@ -64,6 +75,22 @@ class _CardArticleState extends State<CardArticleWidget> {
           style: ThemeGlobalText().tag));
     }
     return Row(children: _rowElements);
+  }
+
+  Widget _buildSubjectRow() {
+    return Align(
+        alignment: Alignment.centerLeft,
+        child: PillProfileWidget(
+          text: widget.subjectsTranslation,
+          color: ThemeGlobalColor().secondaryColor,
+        ));
+  }
+
+  Widget _buildWaitingScreen() {
+    return Container(
+      alignment: Alignment.center,
+      child: CircularProgressIndicator(),
+    );
   }
 
   Widget _buildTags() {
@@ -94,20 +121,22 @@ class _CardArticleState extends State<CardArticleWidget> {
           SizedBox(height: 15),
           widget.isAnswer
               ? Container()
-              : widget.images != null &&
-                      _storageService.questionImages.containsKey(widget.postId)
-                  ? ListView.builder(
-                      itemBuilder: (context, index) {
-                        return Padding(
-                            padding: EdgeInsets.symmetric(vertical: 10),
-                            child: _storageService
-                                .questionImages[widget.postId][index].item2);
-                      },
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount:
-                          _storageService.questionImages[widget.postId].length,
-                      shrinkWrap: true)
-                  : Container(),
+              : (widget.images != null
+                  ? _storageService.questionImages.containsKey(widget.postId)
+                      ? ListView.builder(
+                          itemBuilder: (context, index) {
+                            return Padding(
+                                padding: EdgeInsets.symmetric(vertical: 10),
+                                child: _storageService
+                                    .questionImages[widget.postId][index]
+                                    .item2);
+                          },
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: _storageService
+                              .questionImages[widget.postId].length,
+                          shrinkWrap: true)
+                      : _buildWaitingScreen()
+                  : Container()),
         ],
       ),
     );
@@ -119,12 +148,14 @@ class _CardArticleState extends State<CardArticleWidget> {
       child: Row(
         children: <Widget>[
           MaterialButton(
-            onPressed: () => _updateLike(),
+            onPressed: _updateLike,
             minWidth: 0,
             child: Row(
               children: <Widget>[
                 Image.asset(
-                  (_isLiked)
+                  (_userService.currentUser.likedPosts != null &&
+                          _userService.currentUser.likedPosts
+                              .contains(widget.postId))
                       ? "assets/img/timeline/like_enabled.png"
                       : "assets/img/timeline/like_disabled.png",
                   scale: 2.5,
@@ -178,6 +209,7 @@ class _CardArticleState extends State<CardArticleWidget> {
                 articleDate: widget.date,
               ),
               _buildContent(context),
+              widget.subjectsTranslation != null ? _buildSubjectRow() : null,
               widget.tags != null ? _buildTags() : null,
               _buildButtons(context),
             ],

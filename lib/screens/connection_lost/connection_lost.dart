@@ -10,6 +10,7 @@ import 'package:project_teachers/services/users/user_service.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/widgets/button/button_primary.dart';
+import 'package:project_teachers/widgets/button/button_secondary.dart';
 import 'package:provider/provider.dart';
 
 class ConnectionLost extends StatefulWidget {
@@ -38,15 +39,20 @@ class _ConnectionLostState extends State<ConnectionLost> {
     Future.delayed(Duration.zero, () {
       _authStatusManager =
           Provider.of<AuthStatusManager>(context, listen: false);
-      _appStateManager =
-          Provider.of<AppStateManager>(context, listen: false);
+      _appStateManager = Provider.of<AppStateManager>(context, listen: false);
     });
   }
 
   void connectionChanged(dynamic hasConnection) {
     if (hasConnection) {
       Navigator.pop(context);
+      _connectionChangeStream.cancel();
     }
+  }
+
+  Future<void> checkConnection() async {
+//    bool hasConnection = await _connectionService.checkConnection();
+//    connectionChanged(hasConnection);
   }
 
   @override
@@ -77,9 +83,14 @@ class _ConnectionLostState extends State<ConnectionLost> {
                               style: ThemeGlobalText().titleText)),
                       Padding(
                           padding: EdgeInsets.symmetric(vertical: 20),
-                          child: ButtonPrimaryWidget(
-                              text: Translations.of(context).text("logout"),
-                              submit: logout))
+                          child: Column(children: [
+                            ButtonPrimaryWidget(
+                                text: Translations.of(context).text("reconnect"),
+                                submit: checkConnection),
+                            ButtonSecondaryWidget(
+                                text: Translations.of(context).text("logout"),
+                                submit: logout)
+                          ], crossAxisAlignment: CrossAxisAlignment.stretch))
                     ]))));
   }
 
@@ -89,11 +100,6 @@ class _ConnectionLostState extends State<ConnectionLost> {
     _authStatusManager.changeAuthState(AuthStatus.NOT_LOGGED_IN);
     _appStateManager.changeAppState(AppState.LOGIN);
     Navigator.pop(context);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
     _connectionChangeStream.cancel();
   }
 }

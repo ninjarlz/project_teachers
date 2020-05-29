@@ -117,7 +117,11 @@ class StorageService {
   TransactionManager _transactionManager;
 
   Future<void> uploadProfileImage() async {
-    File image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    File image = await ImagePicker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1600,
+        maxHeight: 900,
+        imageQuality: 80);
     if (image != null) {
       File croppedImage = await ImageCropper.cropImage(
           sourcePath: image.path,
@@ -240,7 +244,11 @@ class StorageService {
   }
 
   Future<void> uploadBackgroundImage() async {
-    File image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    File image = await ImagePicker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1920,
+        maxHeight: 1080,
+        imageQuality: 90);
     if (image != null) {
       String fileName = Uuid().generateV4() + basename(image.path);
       UserEntity user = _userService.currentUser;
@@ -302,8 +310,8 @@ class StorageService {
     });
   }
 
-  Future<void> uploadQuestionImages(
-      List<Image> images, List<File> files, List<String> fileNames, String questionId) async {
+  Future<void> uploadQuestionImages(List<Image> images, List<File> files,
+      List<String> fileNames, String questionId) async {
     List<String> updatedQuestions = [questionId];
     for (int i = 0; i < images.length; i++) {
       await uploadQuestionImage(images[i], files[i], fileNames[i], questionId);

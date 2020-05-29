@@ -14,12 +14,12 @@ import 'package:project_teachers/widgets/input/places_input_with_icon.dart';
 import 'package:project_teachers/widgets/slider/slider_widget.dart';
 import 'package:provider/provider.dart';
 
-class FilterPage extends StatefulWidget {
+class UserFilterPage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => _FilterPageState();
+  State<StatefulWidget> createState() => _UserFilterPageState();
 }
 
-class _FilterPageState extends State<FilterPage> {
+class _UserFilterPageState extends State<UserFilterPage> {
   CoachFilteringService _filteringService;
   AppStateManager _appStateManager;
   String _pickedCoachTypeTranslation;

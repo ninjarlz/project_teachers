@@ -7,13 +7,15 @@ import 'package:project_teachers/screens/coach/coach.dart';
 import 'package:project_teachers/screens/connection_lost/connection_lost.dart';
 import 'package:project_teachers/screens/contacts/contacts.dart';
 import 'package:project_teachers/screens/edit_profile/edit_profile.dart';
-import 'package:project_teachers/screens/filter/filter_page.dart';
+import 'package:project_teachers/screens/filter/question_filter_page.dart';
+import 'package:project_teachers/screens/filter/user_filter_page.dart';
 import 'package:project_teachers/screens/navigation_drawer/navigation_drawer.dart';
 import 'package:project_teachers/screens/profile/coach_profile.dart';
 import 'package:project_teachers/screens/profile/user_profile.dart';
 import 'package:project_teachers/screens/timeline/post_question.dart';
 import 'package:project_teachers/screens/timeline/timeline.dart';
 import 'package:project_teachers/services/connection/connection_service.dart';
+import 'package:project_teachers/services/filtering/question_filtering_service.dart';
 import 'package:project_teachers/services/managers/app_state_manager.dart';
 import 'package:project_teachers/services/messaging/messaging_service.dart';
 import 'package:project_teachers/services/storage/storage_service.dart';
@@ -83,6 +85,16 @@ class _HomeState extends State<Home>
         navBarType = NavBarType.TIMELINE;
         break;
 
+      case AppState.FILTER_QUESTIONS:
+        body = QuestionFilterPage();
+        appBar = AppBar(
+            title: Text(Translations.of(context).text("filter_questions"),
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: ThemeGlobalColor().secondaryColor);
+        navBarIndex = 1;
+        navBarType = NavBarType.TIMELINE;
+        break;
+
       case AppState.POST_QUESTION:
         body = PostQuestion();
         appBar = AppBar(
@@ -139,7 +151,7 @@ class _HomeState extends State<Home>
         break;
 
       case AppState.FILTER_COACH:
-        body = FilterPage();
+        body = UserFilterPage();
         appBar = AppBar(
             title: Text(Translations.of(context).text("filter_coaches"),
                 style: TextStyle(color: Colors.white)),
@@ -244,6 +256,10 @@ class _HomeState extends State<Home>
 
   void _goToScreenTimeline(int index, BuildContext context) {
     switch (index) {
+      case 1:
+        Provider.of<AppStateManager>(context, listen: false)
+            .changeAppState(AppState.FILTER_QUESTIONS);
+        break;
       default:
         Provider.of<AppStateManager>(context, listen: false)
             .changeAppState(AppState.TIMELINE);

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:project_teachers/services/storage/storage_service.dart';
+import 'package:project_teachers/entities/users/user_enums.dart';
 import 'package:project_teachers/services/users/user_service.dart';
 import 'package:project_teachers/themes/index.dart';
+import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/widgets/index.dart';
 
 abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
@@ -72,8 +74,8 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
   Widget buildProfileBio() {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
-      child:
-          Text(bio != null ? bio : "", style: ThemeGlobalText().text, textAlign: TextAlign.center),
+      child: Text(bio != null ? bio : "",
+          style: ThemeGlobalText().text, textAlign: TextAlign.center),
     );
   }
 
@@ -96,6 +98,36 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
         itemCount: (competencies.length / 3).ceil(),
         itemBuilder: (context, index) {
           return buildProfileCompetencyRow(index);
+        });
+  }
+
+  @protected
+  Widget buildProfileSubjectRow(int rowIndex) {
+    List<Widget> _rowElements = List<Widget>();
+    for (int i = 0;
+        i < 3 &&
+            (3 * rowIndex + i) <
+                userService.currentExpert.schoolSubjects.length;
+        i++) {
+      _rowElements.add(PillProfileWidget(
+        text: Translations.of(context).text(
+            userService.currentExpert.schoolSubjects[3 * rowIndex + i].label),
+        color: ThemeGlobalColor().secondaryColor,
+      ));
+    }
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.center, children: _rowElements);
+  }
+
+  @protected
+  Widget buildProfileSubjects() {
+    return ListView.builder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.all(0),
+        itemCount: (userService.currentExpert.schoolSubjects.length / 3).ceil(),
+        itemBuilder: (context, index) {
+          return buildProfileSubjectRow(index);
         });
   }
 

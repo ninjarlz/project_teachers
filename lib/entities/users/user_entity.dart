@@ -13,6 +13,7 @@ class UserEntity {
   String bio;
   String profileImageName;
   String backgroundImageName;
+  List<String> likedPosts;
   UserType userType;
 
   UserEntity(
@@ -27,6 +28,7 @@ class UserEntity {
       String bio,
       String profileImageName,
       String backgroundImageName,
+          List<String> likedPosts,
       UserType userType) {
     this.uid = uid;
     this.name = name;
@@ -39,6 +41,7 @@ class UserEntity {
     this.bio = bio;
     this.profileImageName = profileImageName;
     this.backgroundImageName = backgroundImageName;
+    this.likedPosts = likedPosts;
     this.userType = userType;
   }
 
@@ -55,6 +58,9 @@ class UserEntity {
         json["bio"],
         json["profileImageName"],
         json["backgroundImageName"],
+        json["likedPosts"] != null
+            ? List<String>.from(json["likedPosts"])
+            : List<String>(),
         UserTypeExtension.getValue(json["userType"]));
   }
 
@@ -71,6 +77,9 @@ class UserEntity {
         documentSnapshot.data["bio"],
         documentSnapshot.data["profileImageName"],
         documentSnapshot.data["backgroundImageName"],
+        documentSnapshot.data["likedPosts"] != null
+            ? List<String>.from(documentSnapshot.data["likedPosts"])
+            : List<String>(),
         UserTypeExtension.getValue(documentSnapshot.data["userType"]));
   }
 
@@ -88,6 +97,7 @@ class UserEntity {
       "bio": bio,
       "profileImageName" : profileImageName,
       "backgroundImageName" : backgroundImageName,
+      "likedPosts": likedPosts,
       "userType": userType.label
     };
   }

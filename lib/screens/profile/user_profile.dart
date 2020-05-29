@@ -95,16 +95,6 @@ class _UserProfileState extends BaseProfileState<UserProfile>
         userName = expert.name + " " + expert.surname;
         city = expert.city;
         school = expert.school;
-        if (expert.schoolSubjects != null && expert.schoolSubjects.isNotEmpty) {
-          school += " - ";
-          for (int i = 0; i < expert.schoolSubjects.length - 1; i++) {
-            school +=
-                Translations.of(context).text(expert.schoolSubjects[i].label) +
-                    ", ";
-          }
-          school += Translations.of(context).text(
-              expert.schoolSubjects[expert.schoolSubjects.length - 1].label);
-        }
         profession = expert.profession + " | " + expert.userType.label;
         if (_userType == UserType.COACH) {
           CoachEntity coach = userService.currentCoach;
@@ -183,6 +173,8 @@ class _UserProfileState extends BaseProfileState<UserProfile>
             Text(school, style: ThemeGlobalText().text),
             SizedBox(height: 5),
             Text(availability, style: ThemeGlobalText().text),
+            SizedBox(height: 10),
+            buildProfileSubjects(),
             SizedBox(height: 10),
             buildProfileCompetencies(),
             SizedBox(height: 10),

@@ -19,6 +19,7 @@ class CoachEntity extends ExpertEntity {
       String bio,
       String profileImageName,
       String backgroundImageName,
+      List<String> likedPosts,
       List<SchoolSubject> schoolSubjects,
       List<Specialization> specializations,
       CoachType coachType,
@@ -36,6 +37,7 @@ class CoachEntity extends ExpertEntity {
             bio,
             profileImageName,
             backgroundImageName,
+            likedPosts,
             schoolSubjects,
             specializations) {
     userType = UserType.COACH;
@@ -57,6 +59,9 @@ class CoachEntity extends ExpertEntity {
         json["bio"],
         json["profileImageName"],
         json["backgroundImageName"],
+        json["likedPosts"] != null
+            ? List<String>.from(json["likedPosts"])
+            : List<String>(),
         ExpertEntity.subjectsListFromSnapshot(json),
         ExpertEntity.specializationListFromSnapshot(json),
         CoachTypeExtension.getValue(json["coachType"]),
@@ -77,6 +82,9 @@ class CoachEntity extends ExpertEntity {
         documentSnapshot.data["bio"],
         documentSnapshot.data["profileImageName"],
         documentSnapshot.data["backgroundImageName"],
+        documentSnapshot.data["likedPosts"] != null
+            ? List<String>.from(documentSnapshot.data["likedPosts"])
+            : List<String>(),
         ExpertEntity.subjectsListFromSnapshot(documentSnapshot.data),
         ExpertEntity.specializationListFromSnapshot(documentSnapshot.data),
         CoachTypeExtension.getValue(documentSnapshot.data["coachType"]),
@@ -99,6 +107,7 @@ class CoachEntity extends ExpertEntity {
       "bio": bio,
       "profileImageName": profileImageName,
       "backgroundImageName": backgroundImageName,
+      "likedPosts": likedPosts,
       "userType": userType.label,
       "schoolSubjects": ExpertEntity.schoolSubjectsMapFromList(schoolSubjects),
       "specializations":
@@ -129,7 +138,8 @@ class CoachEntity extends ExpertEntity {
   static int maxAvailabilityFromSnapshot(Map<dynamic, dynamic> snapshot) {
     int maxAvailability = null;
     if (snapshot.containsKey("maxAvailabilityPerWeek")) {
-      Map<dynamic, dynamic> maxAvailabilityMap = snapshot["maxAvailabilityPerWeek"];
+      Map<dynamic, dynamic> maxAvailabilityMap =
+          snapshot["maxAvailabilityPerWeek"];
       maxAvailability = maxAvailabilityMap.values.length;
     }
     return maxAvailability;

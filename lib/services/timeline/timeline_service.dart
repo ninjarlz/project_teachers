@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project_teachers/entities/participant_entity.dart';
 import 'package:project_teachers/entities/timeline/answer_entity.dart';
 import 'package:project_teachers/entities/timeline/question_entity.dart';
+import 'package:project_teachers/entities/users/user_enums.dart';
 import 'package:project_teachers/repositories/timeline/timeline_repository.dart';
 import 'package:project_teachers/services/filtering/base_filtering_service.dart';
 import 'package:project_teachers/services/filtering/question_filtering_service.dart';
@@ -146,9 +147,7 @@ class TimelineService {
 
   void updateQuestionList() {
     _questionsOffset += _questionsLimit;
-    Query query = _timelineRepository.questionsRef
-        .limit(_questionsOffset)
-        .orderBy("timestamp", descending: true);
+    Query query = _timelineRepository.questionsRef.limit(_questionsOffset);
     query = _filteringService.prepareQuery(query);
     _timelineRepository.subscribeQuestions(query, _onQuestionListChange);
   }
@@ -170,12 +169,16 @@ class TimelineService {
             photoNames));
   }
 
-  Future<String> sendQuestion(
-      String content, List<String> tags, List<String> photoNames) async {
-    String questionId = null;
+  String generateQuestionId() {
+    return _timelineRepository.generateQuestionId();
+  }
+
+  Future<void> sendQuestion(String questionId, String content,
+      SchoolSubject subject, List<String> tags, List<String> photoNames) async {
     await _transactionManager
         .runTransaction(await (Transaction transaction) async {
-      questionId = await _timelineRepository.transactionSendQuestion(
+      await _timelineRepository.transactionSendQuestion(
+          questionId,
           QuestionEntity(
               _userService.currentUser.uid,
               ParticipantEntity(
@@ -187,23 +190,53 @@ class TimelineService {
               0,
               0,
               photoNames,
+              subject,
               tags),
           transaction);
       await _tagService.transactionPostTags(tags, transaction);
     });
-    return questionId;
   }
 
-  Future<void> transactionUpdateProfileImageData(
-      String userId, String userProfileImageName, Transaction transaction) async {
+  Future<void> transactionUpdateProfileImageData(String userId,
+      String userProfileImageName, Transaction transaction) async {
     await _timelineRepository.transactionUpdateProfileImageData(
         userId, userProfileImageName, transaction);
   }
 
-  Future<void> transactionUpdateUserData(
-      String userId, String name, String surname, Transaction transaction) async {
+  Future<void> transactionUpdateUserData(String userId, String name,
+      String surname, Transaction transaction) async {
     await _timelineRepository.transactionUpdateUserData(
         userId, name, surname, transaction);
+  }
+
+  Future<void> addQuestionReaction(String questionId) async {
+    _transactionManager.runTransaction(await (Transaction transaction) async {
+      bool isLiked = await _userService.transactionCheckIfPostIsLiked(
+          questionId, transaction);
+      if (!isLiked) {
+        await _userService.transactionAddLikedPost(questionId, transaction);
+        await _timelineRepository.transactionAddQuestionReaction(
+            questionId, transaction);
+      }
+    });
+  }
+
+  Future<void> removeQuestionReaction(String questionId) async {
+    _transactionManager.runTransaction(await (Transaction transaction) async {
+      bool isLiked = await _userService.transactionCheckIfPostIsLiked(
+          questionId, transaction);
+      if (isLiked) {
+        await _userService.transactionRemoveLikedPost(questionId, transaction);
+        await _timelineRepository.transactionRemoveQuestionReaction(
+            questionId, transaction);
+      }
+    });
+  }
+
+  Future<void> addAnswerReaction(
+      QuestionEntity question, AnswerEntity answer) async {
+//    await _timelineRepository.transactionAddAnswerReaction(
+//        question, answer, transaction);
   }
 }
 

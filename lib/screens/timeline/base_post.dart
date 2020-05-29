@@ -154,7 +154,10 @@ abstract class BasePostState<T extends StatefulWidget> extends State<T>
           msg: Translations.of(context).text("error_images_up_to_3"));
       return;
     }
-    File image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    File image = await ImagePicker.pickImage(
+        source: ImageSource.gallery, maxWidth: 1600,
+        maxHeight: 900,
+        imageQuality: 80);
     if (image != null) {
       setState(() {
         imageList.add(Image.file(image));

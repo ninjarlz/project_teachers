@@ -19,10 +19,11 @@ class ExpertEntity extends UserEntity {
       String bio,
       String profileImageName,
       String backgroundImageName,
+      List<String> likedPosts,
       List<SchoolSubject> schoolSubjects,
       List<Specialization> specializations)
       : super(uid, name, surname, email, city, school, schoolID, profession, bio,
-            profileImageName, backgroundImageName, UserType.EXPERT) {
+            profileImageName, backgroundImageName, likedPosts, UserType.EXPERT) {
     this.schoolSubjects = schoolSubjects;
     this.specializations = specializations;
   }
@@ -40,6 +41,9 @@ class ExpertEntity extends UserEntity {
         json["bio"],
         json["profileImageName"],
         json["backgroundImageName"],
+        json["likedPosts"] != null
+            ? List<String>.from(json["likedPosts"])
+            : List<String>(),
         subjectsListFromSnapshot(json),
         specializationListFromSnapshot(json));
   }
@@ -57,6 +61,9 @@ class ExpertEntity extends UserEntity {
         documentSnapshot.data["bio"],
         documentSnapshot.data["profileImageName"],
         documentSnapshot.data["backgroundImageName"],
+        documentSnapshot.data["likedPosts"] != null
+            ? List<String>.from(documentSnapshot.data["likedPosts"])
+            : List<String>(),
         subjectsListFromSnapshot(documentSnapshot.data),
         specializationListFromSnapshot(documentSnapshot.data));
   }
@@ -76,6 +83,7 @@ class ExpertEntity extends UserEntity {
       "bio": bio,
       "profileImageName": profileImageName,
       "backgroundImageName": backgroundImageName,
+      "likedPosts": likedPosts,
       "userType": userType.label,
       "schoolSubjects": schoolSubjectsMapFromList(schoolSubjects),
       "specializations": specializationsMapFromList(specializations)

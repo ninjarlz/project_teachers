@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:grouped_buttons/grouped_buttons.dart';
+import 'package:project_teachers/entities/users/user_enums.dart';
 import 'package:project_teachers/screens/timeline/base_post.dart';
 import 'package:project_teachers/services/managers/app_state_manager.dart';
 import 'package:project_teachers/services/timeline/tag_service.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/utils/helpers/uuid.dart';
+import 'package:project_teachers/utils/translations/translation_mapper.dart';
 import 'package:project_teachers/widgets/animation/animation_circular_progress.dart';
 import 'package:project_teachers/widgets/input/type_ahead_input_with_icon.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +29,8 @@ class PostQuestion extends StatefulWidget {
 
 class _PostQuestionState extends BasePostState {
   List<String> _tags = List<String>();
+  List<String> _subjectsTranslations = List<String>();
+  String _pickedSubjectTranslation;
   TextEditingController _tagsCtrl = TextEditingController();
   GlobalKey<FormState> _tagFormKey = GlobalKey<FormState>();
   TagService _tagService;
@@ -34,6 +39,13 @@ class _PostQuestionState extends BasePostState {
   void initState() {
     super.initState();
     _tagService = TagService.instance;
+    Future.delayed(Duration.zero, () {
+      setState(() {
+        _subjectsTranslations = TranslationMapper.translateList(
+            SchoolSubjectExtension.labels, this.context);
+        _pickedSubjectTranslation = _subjectsTranslations[0];
+      });
+    });
   }
 
   @override
@@ -69,11 +81,37 @@ class _PostQuestionState extends BasePostState {
     List<String> fileNames = fileList
         .map((file) => Uuid().generateV4() + basename(file.path))
         .toList();
-    String questionId =
-        await timelineService.sendQuestion(content.text, _tags, fileNames);
+    String questionId = timelineService.generateQuestionId();
     await storageService.uploadQuestionImages(
         imageList, fileList, fileNames, questionId);
+    await timelineService.sendQuestion(
+        questionId,
+        content.text,
+        SchoolSubjectExtension.getValue(
+            Translations.of(this.context).key(_pickedSubjectTranslation)),
+        _tags,
+        fileNames);
     appStateManager.previousState();
+  }
+
+  Widget _buildSubjectsForm() {
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Text(Translations.of(this.context).text("subject"),
+          style: ThemeGlobalText().titleText),
+      RadioButtonGroup(
+        onSelected: _onSubjectValueChanged,
+        labels: _subjectsTranslations,
+        picked: _pickedSubjectTranslation,
+        activeColor: ThemeGlobalColor().mainColorDark,
+        labelStyle: ThemeGlobalText().text,
+      )
+    ]);
+  }
+
+  void _onSubjectValueChanged(String value) {
+    setState(() {
+      _pickedSubjectTranslation = value;
+    });
   }
 
   Widget _buildTagsForm() {
@@ -174,6 +212,7 @@ class _PostQuestionState extends BasePostState {
               buildArticle(),
               buildContentForm(),
               buildImagesForm(),
+              _buildSubjectsForm(),
               _buildTagsForm(),
               buildErrorMsg(),
               buildPostButton()

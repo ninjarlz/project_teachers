@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project_teachers/entities/participant_entity.dart';
+import 'package:project_teachers/entities/users/expert_entity.dart';
+import 'package:project_teachers/entities/users/user_enums.dart';
 
 class QuestionEntity {
   String id;
@@ -10,10 +12,19 @@ class QuestionEntity {
   int reactionsCounter;
   int answersCounter;
   List<String> photoNames;
+  SchoolSubject schoolSubject;
   List<String> tags;
 
-  QuestionEntity(this.authorId, this.authorData, this.timestamp, this.content,
-      this.reactionsCounter, this.answersCounter, this.photoNames, this.tags);
+  QuestionEntity(
+      this.authorId,
+      this.authorData,
+      this.timestamp,
+      this.content,
+      this.reactionsCounter,
+      this.answersCounter,
+      this.photoNames,
+      this.schoolSubject,
+      this.tags);
 
   factory QuestionEntity.fromJson(Map<String, dynamic> json) {
     return QuestionEntity(
@@ -26,6 +37,7 @@ class QuestionEntity {
         json["photoNames"] != null
             ? List<String>.from(json["photoNames"])
             : null,
+        SchoolSubjectExtension.getValue(json["schoolSubject"]),
         List<String>.from(json["tags"]));
   }
 
@@ -40,6 +52,7 @@ class QuestionEntity {
         documentSnapshot.data["photoNames"] != null
             ? List<String>.from(documentSnapshot.data["photoNames"])
             : null,
+        SchoolSubjectExtension.getValue(documentSnapshot.data["schoolSubject"]),
         List<String>.from(documentSnapshot.data["tags"]));
   }
 
@@ -52,7 +65,10 @@ class QuestionEntity {
       "reactionsCounter": reactionsCounter,
       "answersCounter": answersCounter,
       "photoNames": photoNames,
+      "schoolSubject": schoolSubject.label,
       "tags": tags
     };
   }
+
+
 }

@@ -6,8 +6,8 @@ import 'package:project_teachers/entities/users/user_entity.dart';
 import 'package:project_teachers/entities/users/user_enums.dart';
 import 'package:project_teachers/repositories/users/user_repository.dart';
 import 'package:project_teachers/services/authentication/auth.dart';
-import 'package:project_teachers/services/filtering/base_filtering_service.dart';
 import 'package:project_teachers/services/filtering/coach_filtering_serivce.dart';
+import 'package:project_teachers/services/filtering/question_filtering_service.dart';
 import 'package:project_teachers/services/messaging/messaging_service.dart';
 import 'package:project_teachers/services/storage/storage_service.dart';
 import 'package:project_teachers/services/timeline/timeline_service.dart';
@@ -24,7 +24,8 @@ class UserService {
     if (_instance == null) {
       _instance = UserService._privateConstructor();
       _instance._userRepository = UserRepository.instance;
-      _instance._filteringService = CoachFilteringService.instance;
+      _instance._coachFilteringService = CoachFilteringService.instance;
+      _instance._questionFilteringService = QuestionFilteringService.instance;
       _instance._messagingService = MessagingService.instance;
       _instance._timelineService = TimelineService.instance;
       _instance._auth = Auth.instance;
@@ -56,10 +57,6 @@ class UserService {
 
   List<CoachEntity> get coachList => _coachList;
 
-  Map<String, CoachEntity> _contactedCoachMap = Map<String, CoachEntity>();
-
-  Map<String, CoachEntity> get contactedCoachMap => _contactedCoachMap;
-
   List<UserListener> _userListeners = List<UserListener>();
 
   List<UserListener> get userListeners => _userListeners;
@@ -77,7 +74,8 @@ class UserService {
   CoachEntity get currentCoach => _currentCoach;
 
   UserRepository _userRepository;
-  BaseFilteringService _filteringService;
+  CoachFilteringService _coachFilteringService;
+  QuestionFilteringService _questionFilteringService;
   MessagingService _messagingService;
   TimelineService _timelineService;
   BaseAuth _auth;
@@ -100,7 +98,8 @@ class UserService {
     _userListeners.clear();
     _coachListListeners.clear();
     _coachListeners.clear();
-    _filteringService.resetFilters();
+    _coachFilteringService.resetFilters();
+    _questionFilteringService.resetFilters();
     resetCoachList();
     _storageService.logoutUser();
     _messagingService.logoutUser();
@@ -129,7 +128,7 @@ class UserService {
   Future<void> updateCoachList() async {
     _coachesOffset += _coachesLimit;
     Query query = _userRepository.coachesQuery();
-    query = _filteringService.prepareQuery(query).limit(_coachesOffset);
+    query = _coachFilteringService.prepareQuery(query).limit(_coachesOffset);
     _userRepository.subscribeCoachList(query, _onCoachListChange);
   }
 
@@ -175,18 +174,17 @@ class UserService {
   }
 
   Future<void> setInitializedCurrentExpert(
-    String userId,
-    String email,
-    String name,
-    String surname,
-    String city,
-    String school,
-    String schoolID,
-    String profession,
-    String bio,
-    List<SchoolSubject> schoolSubjects,
-    List<Specialization> specializations,
-  ) async {
+      String userId,
+      String email,
+      String name,
+      String surname,
+      String city,
+      String school,
+      String schoolID,
+      String profession,
+      String bio,
+      List<SchoolSubject> schoolSubjects,
+      List<Specialization> specializations) async {
     ExpertEntity expertEntity = ExpertEntity(
         userId,
         name,
@@ -199,6 +197,7 @@ class UserService {
         bio,
         null,
         null,
+        List<String>(),
         schoolSubjects,
         specializations);
     await _userRepository.updateUser(expertEntity);
@@ -231,6 +230,7 @@ class UserService {
         bio,
         null,
         null,
+        List<String>(),
         schoolSubjects,
         specializations,
         coachType,
@@ -268,6 +268,12 @@ class UserService {
     _userRepository.subscribeCurrentUser(userId, onUserDataChangeWithCounter);
   }
 
+  Future<bool> transactionCheckIfPostIsLiked(
+      String postId, Transaction transaction) async {
+    return await _userRepository.transactionCheckIfPostIsLiked(
+        _currentUser, postId, transaction);
+  }
+
   Future<void> updateCurrentCoachData(
       String name,
       String surname,
@@ -298,6 +304,7 @@ class UserService {
         bio,
         profileImageName,
         backgroundImageName,
+        _currentUser.likedPosts,
         schoolSubjects,
         specializations,
         coachType,
@@ -311,6 +318,18 @@ class UserService {
       await _timelineService.transactionUpdateUserData(
           _currentUser.uid, name, surname, transaction);
     });
+  }
+
+  Future<void> transactionAddLikedPost(
+      String likedPostId, Transaction transaction) async {
+    await _userRepository.transactionAddLikedPost(
+        _currentUser, likedPostId, transaction);
+  }
+
+  Future<void> transactionRemoveLikedPost(
+      String likedPostId, Transaction transaction) async {
+    await _userRepository.transactionRemoveLikedPost(
+        _currentUser, likedPostId, transaction);
   }
 
   Future<void> updateCurrentExpertData(
@@ -340,6 +359,7 @@ class UserService {
         bio,
         profileImageName,
         backgroundImageName,
+        _currentUser.likedPosts,
         schoolSubjects,
         specializations);
     await _transactionManager
