@@ -5,6 +5,7 @@ import 'package:project_teachers/utils/index.dart';
 class TranslationManagerWidget extends StatelessWidget {
 
   void _changeLang(String lang) {
+    print(lang);
     applic.onLocaleChanged(new Locale(lang, ''));
     AuthenticationSave().saveString("lang", lang);
   }
@@ -19,16 +20,17 @@ class TranslationManagerWidget extends StatelessWidget {
           padding: EdgeInsets.all(0),
           child: Image.asset(
             "assets/img/lang/lang_en.png",
-            scale: 2.5,
+            scale: 2,
           ),
         ),
+        SizedBox(width: 10),
         MaterialButton(
           minWidth: 20,
           onPressed: () => _changeLang('nl'),
           padding: EdgeInsets.all(0),
           child: Image.asset(
             "assets/img/lang/lang_nl.png",
-            scale: 2.5,
+            scale: 2,
           ),
           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap
         ),

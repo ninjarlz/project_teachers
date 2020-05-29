@@ -127,5 +127,8 @@
   "number_of_reactions": "Number of reactions",
   "number_of_answers": "Number of answers",
   "filter_questions": "Filter questions",
-  "subject": "Subject"
+  "subject": "Subject",
+  "events": "Events",
+  "calendar": "Calendar",
+  "other_experts": "Other experts"
 }
