@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:keyboard_visibility/keyboard_visibility.dart';
-import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/widgets/input/base_input_with_icon.dart';
 
 class TypeAheadInputWithIconWidget extends StatefulWidget {

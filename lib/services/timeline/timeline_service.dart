@@ -152,7 +152,34 @@ class TimelineService {
     _timelineRepository.subscribeQuestions(query, _onQuestionListChange);
   }
 
-  void updateUserQuestionList() {}
+  void _onUserQuestionListChange(QuerySnapshot event) {
+    _userQuestions = List<QuestionEntity>();
+    if (event.documents.length < _questionsOffset) {
+      _hasMoreUserQuestions = false;
+    } else {
+      _hasMoreUserQuestions = true;
+    }
+    event.documents.forEach((element) {
+      QuestionEntity question = QuestionEntity.fromJson(element.data);
+      question.id = element.documentID;
+      question.authorData.id = question.authorId;
+      _userQuestions.add(question);
+    });
+    _storageService.updateQuestionListImages(_userQuestions);
+    for (UserQuestionListListener questionListListener
+        in _userQuestionListListeners) {
+      questionListListener.onUserQuestionListChange();
+    }
+  }
+
+  void updateUserQuestionList() {
+    _userQuestionsOffset += _userQuestionsLimit;
+    Query query = _timelineRepository
+        .getUserQuestionsQuery(_userService.currentUser.uid)
+        .orderBy("timestamp", descending: true)
+        .limit(_userQuestionsOffset);
+    _timelineRepository.subscribeUserQuestions(query, _onUserQuestionListChange);
+  }
 
   Future<void> sendQuestionAnswer(String text, List<String> photoNames) async {
     await _timelineRepository.sendQuestionAnswer(

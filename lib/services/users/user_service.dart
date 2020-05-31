@@ -84,7 +84,7 @@ class UserService {
 
   Future<void> loginUser() async {
     updateCoachList();
-    await _storageService.getUserProfileImage();
+    _storageService.getUserProfileImage();
     _storageService.getUserBackgroundImage();
     _messagingService.loginUser();
     _timelineService.loginUser();

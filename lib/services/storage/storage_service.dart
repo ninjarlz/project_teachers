@@ -16,6 +16,7 @@ import 'package:project_teachers/services/timeline/timeline_service.dart';
 import 'package:project_teachers/services/users/user_service.dart';
 import 'package:project_teachers/utils/constants/constants.dart';
 import 'package:project_teachers/utils/helpers/uuid.dart';
+import 'package:synchronized_lite/synchronized_lite.dart';
 import 'package:tuple/tuple.dart';
 
 class StorageService {
@@ -110,6 +111,10 @@ class StorageService {
 
   List<UserListProfileImagesListener> get userListProfileImageListeners =>
       _userListProfileImageListeners;
+
+  Lock _questionListImagesLock = Lock();
+  Lock _userProfileImagesListLock = Lock();
+
   StorageRepository _storageRepository;
   UserService _userService;
   MessagingService _messagingService;
@@ -158,66 +163,72 @@ class StorageService {
   }
 
   Future<void> updateUserListProfileImages(List<UserEntity> users) async {
-    List<String> updatedUsersIds = List<String>();
-    for (UserEntity user in users) {
-      if (user.profileImageName != null) {
-        if (_userImages.containsKey(user.uid)) {
-          if (user.profileImageName != userImages[user.uid].item1) {
+    await _userProfileImagesListLock.synchronized(await () async {
+      List<String> updatedUsersIds = List<String>();
+      for (UserEntity user in users) {
+        if (user.profileImageName != null) {
+          if (_userImages.containsKey(user.uid)) {
+            if (user.profileImageName != userImages[user.uid].item1) {
+              await updateUserProfileImage(user);
+              updatedUsersIds.add(user.uid);
+            }
+          } else {
             await updateUserProfileImage(user);
             updatedUsersIds.add(user.uid);
           }
-        } else {
-          await updateUserProfileImage(user);
-          updatedUsersIds.add(user.uid);
         }
       }
-    }
-    _userListProfileImageListeners.forEach((element) {
-      element.onUserListProfileImagesChange(updatedUsersIds);
+      _userListProfileImageListeners.forEach((element) {
+        element.onUserListProfileImagesChange(updatedUsersIds);
+      });
     });
   }
 
   Future<void> updateUserListProfileImagesWithConversationList(
       List<ConversationEntity> conversations) async {
-    List<String> updatedUsersIds = List<String>();
-    for (ConversationEntity conversation in conversations) {
-      if (conversation.otherParticipantData.profileImageName != null) {
-        if (_userImages.containsKey(conversation.otherParticipantId)) {
-          if (conversation.otherParticipantData.profileImageName !=
-              userImages[conversation.otherParticipantId].item1) {
+    await _userProfileImagesListLock.synchronized(await () async {
+      List<String> updatedUsersIds = List<String>();
+      for (ConversationEntity conversation in conversations) {
+        if (conversation.otherParticipantData.profileImageName != null) {
+          if (_userImages.containsKey(conversation.otherParticipantId)) {
+            if (conversation.otherParticipantData.profileImageName !=
+                userImages[conversation.otherParticipantId].item1) {
+              await updateUserProfileImageWithConversation(conversation);
+              updatedUsersIds.add(conversation.otherParticipantId);
+            }
+          } else {
             await updateUserProfileImageWithConversation(conversation);
             updatedUsersIds.add(conversation.otherParticipantId);
           }
-        } else {
-          await updateUserProfileImageWithConversation(conversation);
-          updatedUsersIds.add(conversation.otherParticipantId);
         }
       }
-    }
-    _userListProfileImageListeners.forEach((element) {
-      element.onUserListProfileImagesChange(updatedUsersIds);
+      _userListProfileImageListeners.forEach((element) {
+        element.onUserListProfileImagesChange(updatedUsersIds);
+      });
     });
   }
 
   Future<void> updateUserListProfileImagesWithQuestions(
       List<QuestionEntity> questions) async {
-    List<String> updatedUsersIds = List<String>();
-    for (QuestionEntity question in questions) {
-      if (question.authorData.profileImageName != null) {
-        if (_userImages.containsKey(question.authorId)) {
-          if (question.authorData.profileImageName !=
-              userImages[question.authorId].item1) {
+    await _userProfileImagesListLock.synchronized(await () async {
+      List<String> updatedUsersIds = List<String>();
+      for (QuestionEntity question in questions) {
+        if (question.authorData.profileImageName != null) {
+          if (_userImages.containsKey(question.authorId)) {
+            if (question.authorData.profileImageName !=
+                userImages[question.authorId].item1) {
+              await updateUserProfileImageWithQuestion(question);
+              updatedUsersIds.add(question.authorId);
+            }
+          } else {
             await updateUserProfileImageWithQuestion(question);
             updatedUsersIds.add(question.authorId);
           }
-        } else {
-          await updateUserProfileImageWithQuestion(question);
-          updatedUsersIds.add(question.authorId);
         }
       }
-    }
-    _userListProfileImageListeners.forEach((element) {
-      element.onUserListProfileImagesChange(updatedUsersIds);
+      _userListProfileImageListeners.forEach((element) {
+        element.onUserListProfileImagesChange(updatedUsersIds);
+      });
     });
   }
 
@@ -268,20 +279,33 @@ class StorageService {
   }
 
   Future<void> updateQuestionListImages(List<QuestionEntity> questions) async {
-    List<String> updatedQuestions = List<String>();
-    for (QuestionEntity question in questions) {
-      if (question.photoNames != null) {
-        if (_questionImages.containsKey(question.id)) {
-          List<String> oldImagesNames = List<String>();
-          for (Tuple2<String, Image> image in _questionImages[question.id]) {
-            if (!question.photoNames.contains(image.item1)) {
-              _questionImages[question.id].remove(image);
-            } else {
-              oldImagesNames.add(image.item1);
+    await _questionListImagesLock.synchronized(await () async {
+      List<String> updatedQuestions = List<String>();
+      for (QuestionEntity question in questions) {
+        if (question.photoNames != null) {
+          if (_questionImages.containsKey(question.id)) {
+            List<String> oldImagesNames = List<String>();
+            for (Tuple2<String, Image> image in _questionImages[question.id]) {
+              if (!question.photoNames.contains(image.item1)) {
+                _questionImages[question.id].remove(image);
+              } else {
+                oldImagesNames.add(image.item1);
+              }
             }
-          }
-          for (String imageName in question.photoNames) {
-            if (!oldImagesNames.contains(imageName)) {
+            for (String imageName in question.photoNames) {
+              if (!oldImagesNames.contains(imageName)) {
+                if (!updatedQuestions.contains(question.id)) {
+                  updatedQuestions.add(question.id);
+                }
+                Image image = await _storageRepository.getQuestionImage(
+                    question.id, imageName);
+                _questionImages[question.id]
+                    .add(Tuple2<String, Image>(imageName, image));
+              }
+            }
+          } else {
+            _questionImages[question.id] = List<Tuple2<String, Image>>();
+            for (String imageName in question.photoNames) {
               if (!updatedQuestions.contains(question.id)) {
                 updatedQuestions.add(question.id);
               }
@@ -291,33 +315,25 @@ class StorageService {
                   .add(Tuple2<String, Image>(imageName, image));
             }
           }
-        } else {
-          _questionImages[question.id] = List<Tuple2<String, Image>>();
-          for (String imageName in question.photoNames) {
-            if (!updatedQuestions.contains(question.id)) {
-              updatedQuestions.add(question.id);
-            }
-            Image image = await _storageRepository.getQuestionImage(
-                question.id, imageName);
-            _questionImages[question.id]
-                .add(Tuple2<String, Image>(imageName, image));
-          }
         }
       }
-    }
-    _questionsListImagesListener.forEach((element) {
-      element.onQuestionListImagesChange(updatedQuestions);
+      _questionsListImagesListener.forEach((element) {
+        element.onQuestionListImagesChange(updatedQuestions);
+      });
     });
   }
 
   Future<void> uploadQuestionImages(List<Image> images, List<File> files,
       List<String> fileNames, String questionId) async {
-    List<String> updatedQuestions = [questionId];
-    for (int i = 0; i < images.length; i++) {
-      await uploadQuestionImage(images[i], files[i], fileNames[i], questionId);
-    }
-    _questionsListImagesListener.forEach((element) {
-      element.onQuestionListImagesChange(updatedQuestions);
+    await _questionListImagesLock.synchronized(await () async {
+      List<String> updatedQuestions = [questionId];
+      for (int i = 0; i < images.length; i++) {
+        await uploadQuestionImage(
+            images[i], files[i], fileNames[i], questionId);
+      }
+      _questionsListImagesListener.forEach((element) {
+        element.onQuestionListImagesChange(updatedQuestions);
+      });
     });
   }
 
@@ -331,20 +347,22 @@ class StorageService {
   }
 
   Future<void> getUserProfileImage() async {
-    UserEntity user = _userService.currentUser;
-    if (user.profileImageName != null) {
-      if (_userImages.containsKey(user.uid)) {
-        if (user.profileImageName != userImages[user.uid].item1) {
+    await _userProfileImagesListLock.synchronized(await () async {
+      UserEntity user = _userService.currentUser;
+      if (user.profileImageName != null) {
+        if (_userImages.containsKey(user.uid)) {
+          if (user.profileImageName != userImages[user.uid].item1) {
+            await updateUserProfileImage(user);
+          }
+        } else {
           await updateUserProfileImage(user);
         }
-      } else {
-        await updateUserProfileImage(user);
+        _userProfileImage = _userImages[user.uid].item2;
+        _userProfileImageListeners.forEach((element) {
+          element.onUserProfileImageChange();
+        });
       }
-      _userProfileImage = _userImages[user.uid].item2;
-      _userProfileImageListeners.forEach((element) {
-        element.onUserProfileImageChange();
-      });
-    }
+    });
   }
 
   Future<void> getUserBackgroundImage() async {
@@ -366,23 +384,25 @@ class StorageService {
   }
 
   Future<void> updateSelectedCoachProfileImage(CoachEntity coach) async {
-    if (coach.profileImageName != null) {
-      if (_userImages.containsKey(coach.uid)) {
-        if (coach.profileImageName != userImages[coach.uid].item1) {
+    await _userProfileImagesListLock.synchronized(await () async {
+      if (coach.profileImageName != null) {
+        if (_userImages.containsKey(coach.uid)) {
+          if (coach.profileImageName != userImages[coach.uid].item1) {
+            await updateUserProfileImage(coach);
+            _selectedCoachProfileImage = _userImages[coach.uid];
+            _coachProfileImageListeners.forEach((element) {
+              element.onCoachProfileImageChange();
+            });
+          }
+        } else {
           await updateUserProfileImage(coach);
           _selectedCoachProfileImage = _userImages[coach.uid];
           _coachProfileImageListeners.forEach((element) {
             element.onCoachProfileImageChange();
           });
         }
-      } else {
-        await updateUserProfileImage(coach);
-        _selectedCoachProfileImage = _userImages[coach.uid];
-        _coachProfileImageListeners.forEach((element) {
-          element.onCoachProfileImageChange();
-        });
       }
-    }
+    });
   }
 
   Future<void> updateCoachBackgroundImage(CoachEntity coach) async {

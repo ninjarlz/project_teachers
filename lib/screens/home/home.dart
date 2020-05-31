@@ -14,6 +14,7 @@ import 'package:project_teachers/screens/profile/coach_profile.dart';
 import 'package:project_teachers/screens/profile/user_profile.dart';
 import 'package:project_teachers/screens/timeline/post_question.dart';
 import 'package:project_teachers/screens/timeline/timeline.dart';
+import 'package:project_teachers/screens/timeline/user_questions.dart';
 import 'package:project_teachers/services/connection/connection_service.dart';
 import 'package:project_teachers/services/filtering/question_filtering_service.dart';
 import 'package:project_teachers/services/managers/app_state_manager.dart';
@@ -92,6 +93,17 @@ class _HomeState extends State<Home>
                 style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
         navBarIndex = 1;
+        navBarType = NavBarType.TIMELINE;
+        break;
+
+      case AppState.USER_TIMELINE:
+        body = UserQuestions();
+        appBar = AppBar(
+            title: Text(Translations.of(context).text("my_posts"),
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: ThemeGlobalColor().secondaryColor);
+        floatingButton = UserQuestions.timelineFloatingActionButton(context);
+        navBarIndex = 2;
         navBarType = NavBarType.TIMELINE;
         break;
 
@@ -259,6 +271,10 @@ class _HomeState extends State<Home>
       case 1:
         Provider.of<AppStateManager>(context, listen: false)
             .changeAppState(AppState.FILTER_QUESTIONS);
+        break;
+      case 2:
+        Provider.of<AppStateManager>(context, listen: false)
+            .changeAppState(AppState.USER_TIMELINE);
         break;
       default:
         Provider.of<AppStateManager>(context, listen: false)

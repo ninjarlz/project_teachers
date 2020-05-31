@@ -11,7 +11,7 @@ import 'package:project_teachers/themes/index.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-class Timeline extends StatefulWidget {
+class UserQuestions extends StatefulWidget {
   static FloatingActionButton timelineFloatingActionButton(
       BuildContext context) {
     return FloatingActionButton(
@@ -25,14 +25,13 @@ class Timeline extends StatefulWidget {
   }
 
   @override
-  State<StatefulWidget> createState() => _TimelineState();
+  State<StatefulWidget> createState() => _UserQuestionsState();
 }
 
-class _TimelineState extends State<Timeline>
+class _UserQuestionsState extends State<UserQuestions>
     implements
-        QuestionListListener,
-        UserListProfileImagesListener,
-        QuestionsListImagesListener, UserListener {
+        UserQuestionListListener,
+        QuestionsListImagesListener, UserListener, UserProfileImageListener {
   bool _isLoading = false;
   TimelineService _timelineService;
   StorageService _storageService;
@@ -43,9 +42,9 @@ class _TimelineState extends State<Timeline>
     super.initState();
     _timelineService = TimelineService.instance;
     _storageService = StorageService.instance;
-    _timelineService.questionListListeners.add(this);
-    _storageService.userListProfileImageListeners.add(this);
+    _timelineService.userQuestionListListeners.add(this);
     _storageService.questionsListImagesListener.add(this);
+    _storageService.userProfileImageListeners.add(this);
     _scrollController.addListener(() {
       double maxScroll = _scrollController.position.maxScrollExtent;
       double currentScroll = _scrollController.position.pixels;
@@ -59,7 +58,7 @@ class _TimelineState extends State<Timeline>
     if (!_timelineService.hasMoreQuestions || _isLoading) {
       return;
     }
-    _timelineService.updateQuestionList();
+    _timelineService.updateUserQuestionList();
     setState(() {
       _isLoading = true;
     });
@@ -73,17 +72,17 @@ class _TimelineState extends State<Timeline>
       child: Column(
         children: [
           Expanded(
-            child: _timelineService.questions == null ||
-                    _timelineService.questions.length == 0
+            child: _timelineService.userQuestions == null ||
+                    _timelineService.userQuestions.length == 0
                 ? Center(
                     child: Text(
                         Translations.of(context).text("no_results") + "..."),
                   )
                 : ListView.builder(
-                    itemCount: _timelineService.questions.length,
+                    itemCount: _timelineService.userQuestions.length,
                     itemBuilder: (context, index) {
                       QuestionEntity question =
-                          _timelineService.questions[index];
+                          _timelineService.userQuestions[index];
                       return CardArticleWidget(
                         userId: question.authorId,
                         postId: question.id,
@@ -120,31 +119,13 @@ class _TimelineState extends State<Timeline>
   }
 
   @override
-  void onQuestionListChange() {
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  @override
   void dispose() {
     super.dispose();
-    _timelineService.questionListListeners.remove(this);
+    _timelineService.userQuestionListListeners.remove(this);
     _storageService.questionsListImagesListener.remove(this);
-    _storageService.userListProfileImageListeners.remove(this);
+    _storageService.userProfileImageListeners.remove(this);
   }
 
-  @override
-  void onUserListProfileImagesChange(List<String> updatedUsersIds) {
-    List<String> usersIds =
-        _timelineService.questions.map((e) => e.authorId).toList();
-    String id = usersIds.firstWhere(
-        (element) => updatedUsersIds.contains(element),
-        orElse: () => null);
-    if (id != null) {
-      setState(() {});
-    }
-  }
 
   @override
   void onQuestionListImagesChange(List<String> updatedQuestions) {
@@ -160,6 +141,18 @@ class _TimelineState extends State<Timeline>
 
   @override
   void onUserDataChange() {
+    setState(() {});
+  }
+
+  @override
+  void onUserQuestionListChange() {
+    setState(() {
+    _isLoading = false;
+    });
+  }
+
+  @override
+  void onUserProfileImageChange() {
     setState(() {});
   }
 }

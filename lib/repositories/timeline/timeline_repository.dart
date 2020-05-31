@@ -67,12 +67,21 @@ class TimelineRepository {
   }
 
   void subscribeQuestions(Query query, Function onQuestionListChange) {
-    cancelUserQuestionListSubscription();
+    cancelQuestionListSubscription();
     _questionListSub = query.snapshots().listen(onQuestionListChange);
     _questionListSub.onError((o) {
       print(DB_ERROR_MSG + o.message);
     });
   }
+
+  void subscribeUserQuestions(Query query, Function onQuestionListChange) {
+    cancelUserQuestionListSubscription();
+    _userQuestionListSub = query.snapshots().listen(onQuestionListChange);
+    _userQuestionListSub.onError((o) {
+      print(DB_ERROR_MSG + o.message);
+    });
+  }
+
 
   void subscribeQuestion(QuestionEntity question, int limit,
       Function onConversationMessagesChange, Function onConversationChange) {
