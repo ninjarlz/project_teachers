@@ -81,7 +81,7 @@ class _PostQuestionState extends BasePostState {
     List<String> fileNames = fileList
         .map((file) => Uuid().generateV4() + basename(file.path))
         .toList();
-    String questionId = timelineService.generateQuestionId();
+    String questionId = timelineService.generatePostId();
     await storageService.uploadQuestionImages(
         imageList, fileList, fileNames, questionId);
     await timelineService.sendQuestion(

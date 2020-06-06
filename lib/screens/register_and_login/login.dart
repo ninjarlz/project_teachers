@@ -82,7 +82,6 @@ class _LoginState extends State<Login> {
               setState(() {
                 _isLoading = false;
                 _formKey.currentState.reset();
-                ;
                 FocusScope.of(context).unfocus();
               });
             }).catchError((e) {
@@ -102,8 +101,8 @@ class _LoginState extends State<Login> {
                 .checkIfAddressIsValid(_email.text);
             if (isEmailValid) {
               userId = await _auth.signUp(_email.text, _password.text);
-              _validEmailAddressService.markAddressAsValidated(_email.text);
-              _auth.sendEmailVerification();
+              await _validEmailAddressService.markAddressAsValidated(_email.text);
+              await _auth.sendEmailVerification();
               _errorMessage = ACTIVATE_EMAIL_MSG;
               print('Signed up user: $userId');
             } else {
@@ -114,6 +113,7 @@ class _LoginState extends State<Login> {
             }
             setState(() {
               _isLoading = false;
+              _currentLoginState = LoginState.LOGIN_FORM;
               _formKey.currentState.reset();
               FocusScope.of(context).unfocus();
             });

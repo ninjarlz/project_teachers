@@ -32,11 +32,13 @@ class _TimelineState extends State<Timeline>
     implements
         QuestionListListener,
         UserListProfileImagesListener,
-        QuestionsListImagesListener, UserListener {
+        QuestionsListImagesListener,
+        UserListener {
   bool _isLoading = false;
   TimelineService _timelineService;
   StorageService _storageService;
   ScrollController _scrollController = ScrollController();
+  AppStateManager _appStateManager;
 
   @override
   void initState() {
@@ -54,7 +56,11 @@ class _TimelineState extends State<Timeline>
         _loadMoreQuestions();
       }
     });
+    Future.delayed(Duration.zero, () {
+      _appStateManager = Provider.of<AppStateManager>(context, listen: false);
+    });
   }
+
   Future<void> _loadMoreQuestions() async {
     if (!_timelineService.hasMoreQuestions || _isLoading) {
       return;
@@ -85,6 +91,11 @@ class _TimelineState extends State<Timeline>
                       QuestionEntity question =
                           _timelineService.questions[index];
                       return CardArticleWidget(
+                        goToPost: () {
+                          _timelineService.setSelectedQuestion(question);
+                          _appStateManager
+                              .changeAppState(AppState.QUESTION_ANSWERS);
+                        },
                         userId: question.authorId,
                         postId: question.id,
                         isAnswer: false,

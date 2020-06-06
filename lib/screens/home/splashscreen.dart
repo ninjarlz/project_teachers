@@ -82,11 +82,14 @@ class _SplashscreenState extends State<Splashscreen> {
                 onWillPop: () async => false,
                 child: Login(loginCallback: _loginCallback));
           case AuthStatus.LOGGED_IN:
-            return WillPopScope(
-                  onWillPop: () async => false,
-                  child: Home());
+            return Home();
           case AuthStatus.INITIAL_FORM:
-            return WillPopScope(onWillPop: () async => false, child: InitialForm());
+            return WillPopScope(onWillPop: () async {
+              _appStateManager.changeAppState(AppState.LOGIN);
+              _userService.logoutUser();
+              _authStatusManager.changeAuthState(AuthStatus.NOT_LOGGED_IN);
+              return false;
+            }, child: InitialForm());
           default:
             return _buildWaitingScreen();
         }

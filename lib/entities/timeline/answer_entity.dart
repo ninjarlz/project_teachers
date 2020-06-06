@@ -20,17 +20,22 @@ class AnswerEntity {
         json["timestamp"],
         json["content"],
         json["reactionsCounter"],
-        json["photoNames"]);
+        json["photoNames"] != null
+            ? List<String>.from(json["photoNames"])
+            : null);
   }
 
   factory AnswerEntity.fromSnapshot(DocumentSnapshot documentSnapshot) {
     return AnswerEntity(
-        documentSnapshot.data["authorId"],
-        ParticipantEntity.fromJson(documentSnapshot.data["authorData"]),
-        documentSnapshot.data["timestamp"],
-        documentSnapshot.data["content"],
-        documentSnapshot.data["reactionsCounter"],
-        documentSnapshot.data["photoNames"]);
+      documentSnapshot.data["authorId"],
+      ParticipantEntity.fromJson(documentSnapshot.data["authorData"]),
+      documentSnapshot.data["timestamp"],
+      documentSnapshot.data["content"],
+      documentSnapshot.data["reactionsCounter"],
+      ["photoNames"] != null
+          ? List<String>.from(documentSnapshot.data["photoNames"])
+          : null,
+    );
   }
 
   toJson() {

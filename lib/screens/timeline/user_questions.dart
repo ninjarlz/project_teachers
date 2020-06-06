@@ -36,6 +36,7 @@ class _UserQuestionsState extends State<UserQuestions>
   TimelineService _timelineService;
   StorageService _storageService;
   ScrollController _scrollController = ScrollController();
+  AppStateManager _appStateManager;
 
   @override
   void initState() {
@@ -52,6 +53,9 @@ class _UserQuestionsState extends State<UserQuestions>
       if (maxScroll - currentScroll <= delta) {
         _loadMoreQuestions();
       }
+    });
+    Future.delayed(Duration.zero, () {
+      _appStateManager = Provider.of<AppStateManager>(context, listen: false);
     });
   }
   Future<void> _loadMoreQuestions() async {
@@ -84,6 +88,11 @@ class _UserQuestionsState extends State<UserQuestions>
                       QuestionEntity question =
                           _timelineService.userQuestions[index];
                       return CardArticleWidget(
+                        goToPost: () {
+                          _timelineService.setSelectedQuestion(question);
+                          _appStateManager
+                              .changeAppState(AppState.QUESTION_ANSWERS);
+                        },
                         userId: question.authorId,
                         postId: question.id,
                         isAnswer: false,

@@ -22,6 +22,21 @@ extension UserTypeExtension on UserType {
         return null;
     }
   }
+
+  static List<String> get labels {
+    List<String> labels = List<String>();
+    UserType.values.forEach((value) {
+      labels.add(value.label);
+    });
+    return labels;
+  }
+
+  static List<UserType> getValuesFromLabels(List<String> labels) {
+    return labels.map((label) {
+      return getValue(label);
+    }).toList();
+  }
+
 }
 
 enum CoachType { PRO_ACTIVE, VIDEO, INTERPERSONAL_RELATIONS }

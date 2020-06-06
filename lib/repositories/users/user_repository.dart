@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:project_teachers/entities/users/coach_entity.dart';
 import 'package:project_teachers/entities/users/user_entity.dart';
 
 class UserRepository {
@@ -19,11 +18,12 @@ class UserRepository {
     return _instance;
   }
 
-  StreamSubscription<QuerySnapshot> _coachListSub;
-  StreamSubscription<DocumentSnapshot> _selectedCoachSub;
+  StreamSubscription<QuerySnapshot> _userListSub;
+  StreamSubscription<DocumentSnapshot> _selectedUserSub;
   StreamSubscription<DocumentSnapshot> _userSub;
-  DocumentReference _coachRef;
+  DocumentReference _selectedUserRef;
   CollectionReference _userListRef;
+  CollectionReference get userListRef => _userListRef;
   DocumentReference _userRef;
   Firestore _database;
 
@@ -34,37 +34,33 @@ class UserRepository {
     }
   }
 
-  void cancelCoachListSubscription() {
-    if (_coachListSub != null) {
-      _coachListSub.cancel();
-      _coachListSub = null;
+  void cancelUserListSubscription() {
+    if (_userListSub != null) {
+      _userListSub.cancel();
+      _userListSub = null;
     }
   }
 
-  void cancelSelectedCoachSubscription() {
-    if (_selectedCoachSub != null) {
-      _selectedCoachSub.cancel();
-      _selectedCoachSub = null;
+  void cancelSelectedUserSubscription() {
+    if (_selectedUserSub != null) {
+      _selectedUserSub.cancel();
+      _selectedUserSub = null;
     }
   }
 
-  Query coachesQuery() {
-    return _userListRef.where("userType", isEqualTo: "Coach");
-  }
-
-  void subscribeCoachList(Query query, Function onCoachListChange) {
-    cancelCoachListSubscription();
-    _coachListSub = query.snapshots().listen(onCoachListChange);
-    _coachListSub.onError((o) {
+  void subscribeUserList(Query query, Function onUserListChange) {
+    cancelUserListSubscription();
+    _userListSub = query.snapshots().listen(onUserListChange);
+    _userListSub.onError((o) {
       print(DB_ERROR_MSG + o.message);
     });
   }
 
-  void subscribeSelectedCoach(String coachId, Function onCoachDataChange) {
-    cancelSelectedCoachSubscription();
-    _coachRef = _userListRef.document(coachId);
-    _selectedCoachSub = _coachRef.snapshots().listen(onCoachDataChange);
-    _selectedCoachSub.onError((error) {
+  void subscribeSelectedUser(String uid, Function onSelectedUserDataChange) {
+    cancelSelectedUserSubscription();
+    _selectedUserRef = _userListRef.document(uid);
+    _selectedUserSub = _selectedUserRef.snapshots().listen(onSelectedUserDataChange);
+    _selectedUserSub.onError((error) {
       print(DB_ERROR_MSG + error.message);
     });
   }
@@ -116,36 +112,16 @@ class UserRepository {
         _userListRef.document(userEntity.uid), {"likedPosts": likedPosts});
   }
 
-  Future<CoachEntity> getCoach(String coachId) async {
-    DocumentSnapshot documentSnapshot =
-        await _userListRef.document(coachId).get();
-    if (!documentSnapshot.exists ||
-        documentSnapshot.data["userType"] != "Coach") {
-      return null;
-    }
-    return CoachEntity.fromJson(documentSnapshot.data);
-  }
-
   Future<bool> transactionCheckIfPostIsLiked(
       UserEntity userEntity, String postId, Transaction transaction) async {
     DocumentSnapshot documentSnapshot =
         await transaction.get(_userListRef.document(userEntity.uid));
-    transaction.update(_userListRef.document(userEntity.uid), {});
+    await transaction.update(_userListRef.document(userEntity.uid), {});
     if (documentSnapshot.data["likedPosts"] == null) {
       return false;
     }
     List<String> likedPosts =
         List<String>.from(documentSnapshot.data["likedPosts"]);
     return likedPosts.contains(postId);
-  }
-
-  Future<List<CoachEntity>> getCoaches(List<String> coachIds) async {
-    List<CoachEntity> coaches = List<CoachEntity>();
-    QuerySnapshot querySnapshot =
-        await _userListRef.where("uid", whereIn: coachIds).getDocuments();
-    querySnapshot.documents.forEach((element) {
-      coaches.add(CoachEntity.fromJson(element.data));
-    });
-    return coaches;
   }
 }

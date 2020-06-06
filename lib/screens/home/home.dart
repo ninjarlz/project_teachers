@@ -1,22 +1,24 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:project_teachers/entities/messaging/conversation_entity.dart';
+import 'package:project_teachers/screens/calendar/calendar.dart';
 import 'package:project_teachers/screens/chat/chat.dart';
-import 'package:project_teachers/screens/coach/coach.dart';
 import 'package:project_teachers/screens/connection_lost/connection_lost.dart';
 import 'package:project_teachers/screens/contacts/contacts.dart';
 import 'package:project_teachers/screens/edit_profile/edit_profile.dart';
 import 'package:project_teachers/screens/filter/question_filter_page.dart';
 import 'package:project_teachers/screens/filter/user_filter_page.dart';
 import 'package:project_teachers/screens/navigation_drawer/navigation_drawer.dart';
-import 'package:project_teachers/screens/profile/coach_profile.dart';
+import 'package:project_teachers/screens/profile/selected_user_profile.dart';
 import 'package:project_teachers/screens/profile/user_profile.dart';
+import 'package:project_teachers/screens/settings/settings.dart';
+import 'package:project_teachers/screens/timeline/post_answer.dart';
 import 'package:project_teachers/screens/timeline/post_question.dart';
+import 'package:project_teachers/screens/timeline/question_answers.dart';
 import 'package:project_teachers/screens/timeline/timeline.dart';
 import 'package:project_teachers/screens/timeline/user_questions.dart';
+import 'package:project_teachers/screens/user_list/user_list.dart';
 import 'package:project_teachers/services/connection/connection_service.dart';
-import 'package:project_teachers/services/filtering/question_filtering_service.dart';
 import 'package:project_teachers/services/managers/app_state_manager.dart';
 import 'package:project_teachers/services/messaging/messaging_service.dart';
 import 'package:project_teachers/services/storage/storage_service.dart';
@@ -36,8 +38,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home>
     implements
         ConversationPageListener,
-        CoachListener,
-        CoachProfileImageListener,
+        SelectedUserListener,
+        SelectedUserProfileImageListener,
         UserListProfileImagesListener {
   MessagingService _messagingService;
   StorageService _storageService;
@@ -55,9 +57,9 @@ class _HomeState extends State<Home>
     _connectionChangeStream =
         _connectionService.connectionChange.listen(connectionChanged);
     _messagingService.conversationPageListeners.add(this);
-    _storageService.coachProfileImageListeners.add(this);
+    _storageService.selectedUserProfileImageListeners.add(this);
     _storageService.userListProfileImageListeners.add(this);
-    _userService.coachListeners.add(this);
+    _userService.selectedUserListeners.add(this);
     Future.delayed(Duration.zero, () async {
       connectionChanged(await _connectionService.checkConnection());
     });
@@ -76,7 +78,11 @@ class _HomeState extends State<Home>
 
     switch (appState) {
       case AppState.TIMELINE:
-        body = Timeline();
+        body = WillPopScope(
+            onWillPop: () async {
+              return false;
+            },
+            child: Timeline());
         appBar = AppBar(
             title: Text(Translations.of(context).text("timeline"),
                 style: TextStyle(color: Colors.white)),
@@ -87,7 +93,13 @@ class _HomeState extends State<Home>
         break;
 
       case AppState.FILTER_QUESTIONS:
-        body = QuestionFilterPage();
+        body = WillPopScope(
+            onWillPop: () async {
+              Provider.of<AppStateManager>(context, listen: false)
+                  .changeAppState(AppState.TIMELINE);
+              return false;
+            },
+            child: QuestionFilterPage());
         appBar = AppBar(
             title: Text(Translations.of(context).text("filter_questions"),
                 style: TextStyle(color: Colors.white)),
@@ -97,7 +109,13 @@ class _HomeState extends State<Home>
         break;
 
       case AppState.USER_TIMELINE:
-        body = UserQuestions();
+        body = WillPopScope(
+            onWillPop: () async {
+              Provider.of<AppStateManager>(context, listen: false)
+                  .changeAppState(AppState.TIMELINE);
+              return false;
+            },
+            child: UserQuestions());
         appBar = AppBar(
             title: Text(Translations.of(context).text("my_posts"),
                 style: TextStyle(color: Colors.white)),
@@ -108,7 +126,13 @@ class _HomeState extends State<Home>
         break;
 
       case AppState.POST_QUESTION:
-        body = PostQuestion();
+        body = WillPopScope(
+            onWillPop: () async {
+              Provider.of<AppStateManager>(context, listen: false)
+                  .previousState();
+              return false;
+            },
+            child: PostQuestion());
         appBar = AppBar(
             title: Text(Translations.of(context).text("post_question"),
                 style: TextStyle(color: Colors.white)),
@@ -118,8 +142,47 @@ class _HomeState extends State<Home>
         navBarIndex = -1;
         break;
 
+      case AppState.QUESTION_ANSWERS:
+        body = WillPopScope(
+            onWillPop: () async {
+              Provider.of<AppStateManager>(context, listen: false)
+                  .previousState();
+              return false;
+            },
+            child: QuestionAnswers());
+        appBar = AppBar(
+            title: Text(Translations.of(context).text("questions_answers"),
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: ThemeGlobalColor().secondaryColor);
+        floatingButton =
+            QuestionAnswers.questionAnswersFloatingActionButton(context);
+        navBarIndex = -1;
+        break;
+
+      case AppState.POST_ANSWER:
+        body = WillPopScope(
+            onWillPop: () async {
+              Provider.of<AppStateManager>(context, listen: false)
+                  .previousState();
+              return false;
+            },
+            child: PostAnswer());
+        appBar = AppBar(
+            title: Text(Translations.of(context).text("post_answer"),
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: ThemeGlobalColor().secondaryColor);
+        floatingButton = PostAnswer.postAnswerFloatingActionButton(context);
+        floatingActionButtonLocation = FloatingActionButtonLocation.endTop;
+        navBarIndex = -1;
+        break;
+
       case AppState.PROFILE_PAGE:
-        body = UserProfile();
+        body = WillPopScope(
+            onWillPop: () async {
+              return false;
+            },
+            child: UserProfile());
+        ;
         appBar = AppBar(
             title: Text(Translations.of(context).text("profile"),
                 style: TextStyle(color: Colors.white)),
@@ -129,30 +192,47 @@ class _HomeState extends State<Home>
         navBarIndex = -1;
         break;
 
-      case AppState.COACH:
-        body = Coach();
+      case AppState.USER_LIST:
+        body = WillPopScope(
+            onWillPop: () async {
+              return false;
+            },
+            child: UserList());
         appBar = AppBar(
-            title: Text(Translations.of(context).text("coach"),
+            title: Text(Translations.of(context).text("user_list"),
                 style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
         navBarIndex = 0;
         navBarType = NavBarType.USERS;
         break;
 
-      case AppState.COACH_PROFILE_PAGE:
-        body = CoachProfile();
+      case AppState.SELECTED_USER_PROFILE_PAGE:
+        body = WillPopScope(
+            onWillPop: () async {
+              Provider.of<AppStateManager>(context, listen: false)
+                  .previousState();
+              return false;
+            },
+            child: SelectedUserProfile());
         appBar = AppBar(
-            title: Text(Translations.of(context).text("coach"),
+            title: Text(Translations.of(context).text("user"),
                 style: TextStyle(color: Colors.white)),
             backgroundColor: Colors.transparent);
         floatingButton =
-            CoachProfile.buildCoachProfileFloatingActionButtons(context);
+            SelectedUserProfile.buildSelectedUserProfileFloatingActionButtons(
+                context);
         extendBodyBehindAppBar = true;
         navBarIndex = -1;
         break;
 
       case AppState.EDIT_PROFILE:
-        body = EditProfile();
+        body = WillPopScope(
+            onWillPop: () async {
+              Provider.of<AppStateManager>(context, listen: false)
+                  .previousState();
+              return false;
+            },
+            child: EditProfile());
         appBar = AppBar(
             title: Text(Translations.of(context).text("edit_profile"),
                 style: TextStyle(color: Colors.white)),
@@ -162,10 +242,16 @@ class _HomeState extends State<Home>
         floatingActionButtonLocation = FloatingActionButtonLocation.endTop;
         break;
 
-      case AppState.FILTER_COACH:
-        body = UserFilterPage();
+      case AppState.FILTER_USERS:
+        body = WillPopScope(
+            onWillPop: () async {
+              Provider.of<AppStateManager>(context, listen: false)
+                  .changeAppState(AppState.USER_LIST);
+              return false;
+            },
+            child: UserFilterPage());
         appBar = AppBar(
-            title: Text(Translations.of(context).text("filter_coaches"),
+            title: Text(Translations.of(context).text("filter_users"),
                 style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
         navBarIndex = 1;
@@ -173,7 +259,13 @@ class _HomeState extends State<Home>
         break;
 
       case AppState.CONTACTS:
-        body = Contacts();
+        body = WillPopScope(
+            onWillPop: () async {
+              Provider.of<AppStateManager>(context, listen: false)
+                  .changeAppState(AppState.USER_LIST);
+              return false;
+            },
+            child: Contacts());
         appBar = AppBar(
             title: Text(Translations.of(context).text("my_contacts"),
                 style: TextStyle(color: Colors.white)),
@@ -189,7 +281,14 @@ class _HomeState extends State<Home>
             ? conversation.otherParticipantId
             : _userService.selectedCoach.uid;
         Map<String, Tuple2<String, Image>> images = _storageService.userImages;
-        body = Chat();
+        body = body = WillPopScope(
+            onWillPop: () async {
+              Provider.of<AppStateManager>(context, listen: false)
+                  .previousState();
+              return false;
+            },
+            child: Chat());
+        ;
         appBar = AppBar(
             title: Row(children: <Widget>[
               Material(
@@ -225,6 +324,32 @@ class _HomeState extends State<Home>
         navBarIndex = -1;
         break;
 
+      case AppState.SETTINGS:
+        body = WillPopScope(
+            onWillPop: () async {
+              return false;
+            },
+            child: Settings());
+        appBar = AppBar(
+            title: Text(Translations.of(context).text("settings"),
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: ThemeGlobalColor().secondaryColor);
+        navBarIndex = -1;
+        break;
+
+      case AppState.CALENDAR:
+        body = WillPopScope(
+            onWillPop: () async {
+              return false;
+            },
+            child: Calendar());
+        appBar = AppBar(
+            title: Text(Translations.of(context).text("calendar"),
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: ThemeGlobalColor().secondaryColor);
+        navBarIndex = -1;
+        break;
+
       default:
         body = _buildWaitingScreen();
         navBarIndex = 0;
@@ -253,7 +378,7 @@ class _HomeState extends State<Home>
     switch (index) {
       case 1:
         Provider.of<AppStateManager>(context, listen: false)
-            .changeAppState(AppState.FILTER_COACH);
+            .changeAppState(AppState.FILTER_USERS);
         break;
       case 2:
         Provider.of<AppStateManager>(context, listen: false)
@@ -261,7 +386,7 @@ class _HomeState extends State<Home>
         break;
       default:
         Provider.of<AppStateManager>(context, listen: false)
-            .changeAppState(AppState.COACH);
+            .changeAppState(AppState.USER_LIST);
         break;
     }
   }
@@ -339,9 +464,9 @@ class _HomeState extends State<Home>
   void dispose() {
     super.dispose();
     _messagingService.conversationPageListeners.remove(this);
-    _userService.coachListeners.remove(this);
+    _userService.selectedUserListeners.remove(this);
     _storageService.userListProfileImageListeners.remove(this);
-    _storageService.coachProfileImageListeners.remove(this);
+    _storageService.selectedUserProfileImageListeners.remove(this);
     _connectionChangeStream.cancel();
   }
 
@@ -350,14 +475,14 @@ class _HomeState extends State<Home>
     AppState appState =
         Provider.of<AppStateManager>(context, listen: false).appState;
     if (appState == AppState.CHAT ||
-        appState == AppState.COACH ||
-        appState == AppState.FILTER_COACH) {
+        appState == AppState.USER_LIST ||
+        appState == AppState.FILTER_USERS) {
       setState(() {});
     }
   }
 
   @override
-  void onCoachDataChange() {
+  void onUserDataChange() {
     if (Provider.of<AppStateManager>(context, listen: false).appState ==
         AppState.CHAT) {
       setState(() {});
@@ -365,7 +490,7 @@ class _HomeState extends State<Home>
   }
 
   @override
-  void onCoachProfileImageChange() {
+  void onSelectedUserProfileImageChange() {
     if (Provider.of<AppStateManager>(context, listen: false).appState ==
             AppState.CHAT &&
         _messagingService.selectedConversation == null) {

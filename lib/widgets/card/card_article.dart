@@ -14,6 +14,7 @@ class CardArticleWidget extends StatefulWidget {
   final String username;
   final String content;
   final String date;
+  final Function goToPost;
   final String subjectsTranslation;
   final List<String> tags;
   final List<String> images;
@@ -27,6 +28,7 @@ class CardArticleWidget extends StatefulWidget {
       @required this.isAnswer,
       @required this.content,
       @required this.date,
+      this.goToPost,
       this.subjectsTranslation,
       this.tags,
       this.images,
@@ -53,20 +55,21 @@ class _CardArticleState extends State<CardArticleWidget> {
   }
 
   Future<void> _updateLike() async {
-
     if (_userService.currentUser.likedPosts != null &&
         !_userService.currentUser.likedPosts.contains(widget.postId)) {
       if (!widget.isAnswer) {
         await _timelineService.addQuestionReaction(widget.postId);
-      } else {}
+      } else {
+        await _timelineService.addAnswerReaction(widget.postId);
+      }
     } else {
       if (!widget.isAnswer) {
         await _timelineService.removeQuestionReaction(widget.postId);
-      } else {}
+      } else {
+        await _timelineService.removeAnswerReaction(widget.postId);
+      }
     }
   }
-
-  void _goToArticle() {}
 
   Widget _buildTagsRow(int rowIndex) {
     List<Widget> _rowElements = List<Widget>();
@@ -120,7 +123,21 @@ class _CardArticleState extends State<CardArticleWidget> {
               )),
           SizedBox(height: 15),
           widget.isAnswer
-              ? Container()
+              ? (widget.images != null
+                  ? _storageService.answerImages.containsKey(widget.postId)
+                      ? ListView.builder(
+                          itemBuilder: (context, index) {
+                            return Padding(
+                                padding: EdgeInsets.symmetric(vertical: 10),
+                                child: _storageService
+                                    .answerImages[widget.postId][index].item2);
+                          },
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: _storageService
+                              .answerImages[widget.postId].length,
+                          shrinkWrap: true)
+                      : _buildWaitingScreen()
+                  : Container())
               : (widget.images != null
                   ? _storageService.questionImages.containsKey(widget.postId)
                       ? ListView.builder(
@@ -170,7 +187,7 @@ class _CardArticleState extends State<CardArticleWidget> {
           ),
           widget.answersNumber != null
               ? MaterialButton(
-                  onPressed: () => _goToArticle(),
+                  onPressed: widget.goToPost,
                   minWidth: 0,
                   child: Row(
                     children: <Widget>[
@@ -186,7 +203,7 @@ class _CardArticleState extends State<CardArticleWidget> {
                     ],
                   ),
                 )
-              : null,
+              : Container(),
         ],
       ),
     );
@@ -209,8 +226,10 @@ class _CardArticleState extends State<CardArticleWidget> {
                 articleDate: widget.date,
               ),
               _buildContent(context),
-              widget.subjectsTranslation != null ? _buildSubjectRow() : null,
-              widget.tags != null ? _buildTags() : null,
+              widget.subjectsTranslation != null
+                  ? _buildSubjectRow()
+                  : Container(),
+              widget.tags != null ? _buildTags() : Container(),
               _buildButtons(context),
             ],
           ),

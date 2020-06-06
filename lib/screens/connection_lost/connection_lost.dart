@@ -51,8 +51,8 @@ class _ConnectionLostState extends State<ConnectionLost> {
   }
 
   Future<void> checkConnection() async {
-//    bool hasConnection = await _connectionService.checkConnection();
-//    connectionChanged(hasConnection);
+    bool hasConnection = await _connectionService.checkConnection();
+    connectionChanged(hasConnection);
   }
 
   @override

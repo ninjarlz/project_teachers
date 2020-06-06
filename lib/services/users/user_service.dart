@@ -6,7 +6,7 @@ import 'package:project_teachers/entities/users/user_entity.dart';
 import 'package:project_teachers/entities/users/user_enums.dart';
 import 'package:project_teachers/repositories/users/user_repository.dart';
 import 'package:project_teachers/services/authentication/auth.dart';
-import 'package:project_teachers/services/filtering/coach_filtering_serivce.dart';
+import 'package:project_teachers/services/filtering/user_filtering_serivce.dart';
 import 'package:project_teachers/services/filtering/question_filtering_service.dart';
 import 'package:project_teachers/services/messaging/messaging_service.dart';
 import 'package:project_teachers/services/storage/storage_service.dart';
@@ -24,7 +24,7 @@ class UserService {
     if (_instance == null) {
       _instance = UserService._privateConstructor();
       _instance._userRepository = UserRepository.instance;
-      _instance._coachFilteringService = CoachFilteringService.instance;
+      _instance._userFilteringService = UserFilteringService.instance;
       _instance._questionFilteringService = QuestionFilteringService.instance;
       _instance._messagingService = MessagingService.instance;
       _instance._timelineService = TimelineService.instance;
@@ -35,27 +35,37 @@ class UserService {
     return _instance;
   }
 
-  List<CoachListListener> _coachListListeners = List<CoachListListener>();
+  List<UserListListener> _userListListeners = List<UserListListener>();
 
-  List<CoachListListener> get coachListListeners => _coachListListeners;
+  List<UserListListener> get userListListeners => _userListListeners;
 
-  List<CoachListener> _coachListeners = List<CoachListener>();
+  List<SelectedUserListener> _selectedUserListeners =
+      List<SelectedUserListener>();
 
-  List<CoachListener> get coachListeners => _coachListeners;
+  List<SelectedUserListener> get selectedUserListeners =>
+      _selectedUserListeners;
+
+  UserEntity _selectedUser;
+
+  UserEntity get selectedUser => _selectedUser;
 
   CoachEntity _selectedCoach;
 
   CoachEntity get selectedCoach => _selectedCoach;
 
-  bool _hasMoreCoaches = true;
+  ExpertEntity _selectedExpert;
 
-  bool get hasMoreCoaches => _hasMoreCoaches;
-  int _coachesLimit = 20;
-  int _coachesOffset = 0;
+  ExpertEntity get selectedExpert => _selectedExpert;
 
-  List<CoachEntity> _coachList;
+  bool _hasMoreUsers = true;
 
-  List<CoachEntity> get coachList => _coachList;
+  bool get hasMoreUsers => _hasMoreUsers;
+  int _usersLimit = 20;
+  int _usersOffset = 0;
+
+  List<UserEntity> _userList;
+
+  List<UserEntity> get userList => _userList;
 
   List<UserListener> _userListeners = List<UserListener>();
 
@@ -74,7 +84,7 @@ class UserService {
   CoachEntity get currentCoach => _currentCoach;
 
   UserRepository _userRepository;
-  CoachFilteringService _coachFilteringService;
+  UserFilteringService _userFilteringService;
   QuestionFilteringService _questionFilteringService;
   MessagingService _messagingService;
   TimelineService _timelineService;
@@ -83,7 +93,7 @@ class UserService {
   TransactionManager _transactionManager;
 
   Future<void> loginUser() async {
-    updateCoachList();
+    updateUserList();
     _storageService.getUserProfileImage();
     _storageService.getUserBackgroundImage();
     _messagingService.loginUser();
@@ -96,81 +106,113 @@ class UserService {
     _currentExpert = null;
     _userRepository.cancelUserSubscription();
     _userListeners.clear();
-    _coachListListeners.clear();
-    _coachListeners.clear();
-    _coachFilteringService.resetFilters();
+    _userListListeners.clear();
+    _selectedUserListeners.clear();
+    _userFilteringService.resetFilters();
     _questionFilteringService.resetFilters();
-    resetCoachList();
+    resetUserList();
     _storageService.logoutUser();
     _messagingService.logoutUser();
     _timelineService.logoutUser();
   }
 
-  void _onCoachListChange(QuerySnapshot event) {
-    _coachList = List<CoachEntity>();
-    if (event.documents.length < _coachesOffset) {
-      _hasMoreCoaches = false;
+  void _onUserListChange(QuerySnapshot event) {
+    _userList = List<UserEntity>();
+    if (event.documents.length < _usersOffset) {
+      _hasMoreUsers = false;
     } else {
-      _hasMoreCoaches = true;
+      _hasMoreUsers = true;
     }
     event.documents.forEach((element) {
-      CoachEntity coach = CoachEntity.fromJson(element.data);
-      if (coach.uid != _auth.currentUser.uid) {
-        _coachList.add(coach);
+      UserType userType = UserTypeExtension.getValue(element.data["userType"]);
+      switch (userType) {
+        case UserType.COACH:
+          CoachEntity coach = CoachEntity.fromJson(element.data);
+          if (coach.uid != _auth.currentUser.uid) {
+            _userList.add(coach);
+          }
+          break;
+        default:
+          ExpertEntity expert = ExpertEntity.fromJson(element.data);
+          if (expert.uid != _auth.currentUser.uid) {
+            _userList.add(expert);
+          }
+          break;
       }
     });
-    _storageService.updateUserListProfileImages(_coachList);
-    for (CoachListListener coachListListener in _coachListListeners) {
-      coachListListener.onCoachListChange();
+    _storageService.updateUserListProfileImages(_userList);
+    for (UserListListener userListListener in _userListListeners) {
+      userListListener.onUserListChange();
     }
   }
 
-  Future<void> updateCoachList() async {
-    _coachesOffset += _coachesLimit;
-    Query query = _userRepository.coachesQuery();
-    query = _coachFilteringService.prepareQuery(query).limit(_coachesOffset);
-    _userRepository.subscribeCoachList(query, _onCoachListChange);
+  Future<void> updateUserList() async {
+    _usersOffset += _usersLimit;
+    Query query = _userRepository.userListRef..limit(_usersOffset);
+    query = _userFilteringService.prepareQuery(query);
+    _userRepository.subscribeUserList(query, _onUserListChange);
   }
 
-  Future<void> resetCoachList() async {
-    _coachesOffset = 0;
-    if (_coachList != null) {
-      _coachList.clear();
+  Future<void> resetUserList() async {
+    _usersOffset = 0;
+    if (_userList != null) {
+      _userList.clear();
     }
-    _hasMoreCoaches = true;
-    _userRepository.cancelCoachListSubscription();
+    _hasMoreUsers = true;
+    _userRepository.cancelUserListSubscription();
   }
 
-  void _onCoachDataChange(DocumentSnapshot event, int cnt) {
+  void _onSelectedUserDataChange(DocumentSnapshot event, int cnt) {
     if (!event.exists) {
       _selectedCoach = null;
+      _selectedUser = null;
+      _selectedExpert = null;
       return;
     }
     if (cnt == 1) {
-      _storageService.updateCoachBackgroundImage(_selectedCoach);
+      _storageService.updateSelectedUserBackgroundImage(_selectedCoach);
       return;
     }
-    _selectedCoach = CoachEntity.fromJson(event.data);
-    _storageService.updateSelectedCoachProfileImage(_selectedCoach);
-    _storageService.updateCoachBackgroundImage(_selectedCoach);
-
-    _coachListeners.forEach((coachListener) {
-      coachListener.onCoachDataChange();
+    UserType userType = UserTypeExtension.getValue(event.data["userType"]);
+    switch (userType) {
+      case UserType.COACH:
+        _selectedUser =
+            _selectedExpert = _selectedCoach = CoachEntity.fromJson(event.data);
+        break;
+      default:
+        _selectedUser = _selectedExpert = ExpertEntity.fromJson(event.data);
+        _selectedCoach = null;
+        break;
+    }
+    _storageService.updateSelectedUserProfileImage(_selectedUser);
+    _storageService.updateSelectedUserBackgroundImage(_selectedUser);
+    _selectedUserListeners.forEach((selectedUserListener) {
+      selectedUserListener.onUserDataChange();
     });
   }
 
-  void setSelectedCoach(CoachEntity coach, Tuple2<String, Image> profileImage) {
-    if (coach == null) {
+  void setSelectedUser(UserEntity user, Tuple2<String, Image> profileImage) {
+    if (user == null) {
+      _selectedUser = null;
+      _selectedExpert = null;
       _selectedCoach = null;
       return;
     }
-    _selectedCoach = coach;
-    _storageService.selectedCoachProfileImage = profileImage;
-    Function onCoachDataChangeWithCounter =
+    switch (user.userType) {
+      case UserType.COACH:
+        _selectedUser = _selectedExpert = _selectedCoach = user;
+        break;
+      default:
+        _selectedUser = _selectedExpert = user;
+        _selectedCoach = null;
+        break;
+    }
+    _storageService.selectedUserProfileImage = profileImage;
+    Function onSelectedUserDataChangeWithCounter =
         FunctionWrappers.createDocumentSnapshotFunctionWithCounter(
-            _onCoachDataChange, 0);
-    _userRepository.subscribeSelectedCoach(
-        coach.uid, onCoachDataChangeWithCounter);
+            _onSelectedUserDataChange, 0);
+    _userRepository.subscribeSelectedUser(
+        user.uid, onSelectedUserDataChangeWithCounter);
   }
 
   Future<void> setInitializedCurrentExpert(
@@ -244,12 +286,12 @@ class UserService {
     UserType userType = UserTypeExtension.getValue(event.data["userType"]);
     switch (userType) {
       case UserType.COACH:
-        _currentCoach = CoachEntity.fromJson(event.data);
-        _currentUser = _currentExpert = _currentCoach;
+        _currentUser =
+            _currentExpert = _currentCoach = CoachEntity.fromJson(event.data);
         break;
       case UserType.EXPERT:
-        _currentExpert = ExpertEntity.fromJson(event.data);
-        _currentUser = _currentExpert;
+        _currentUser = _currentExpert = ExpertEntity.fromJson(event.data);
+        _currentCoach = null;
         break;
     }
     if (cnt == 1) {
@@ -381,16 +423,8 @@ class UserService {
     await _userRepository.updateUser(userEntity);
   }
 
-  Future<CoachEntity> getCoach(String coachId) async {
-    return _userRepository.getCoach(coachId);
-  }
-
-  Future<List<CoachEntity>> getCoaches(List<String> coachIds) async {
-    return await _userRepository.getCoaches(coachIds);
-  }
-
-  void cancelSelectedCoachSubscription() {
-    _userRepository.cancelSelectedCoachSubscription();
+  void cancelSelectedUserSubscription() {
+    _userRepository.cancelSelectedUserSubscription();
   }
 }
 
@@ -398,10 +432,10 @@ abstract class UserListener {
   void onUserDataChange();
 }
 
-abstract class CoachListListener {
-  void onCoachListChange();
+abstract class UserListListener {
+  void onUserListChange();
 }
 
-abstract class CoachListener {
-  void onCoachDataChange();
+abstract class SelectedUserListener {
+  void onUserDataChange();
 }

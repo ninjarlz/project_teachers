@@ -140,16 +140,9 @@ class _QuestionFilterPageState extends State<QuestionFilterPage> {
                     text: Translations.of(context).text("apply"),
                     submit: applyFilters),
               ),
-              ButtonSecondaryWidget(
-                  text: Translations.of(context).text("global_back"),
-                  submit: onBack),
             ],
           ),
         )));
-  }
-
-  void onBack() {
-    _appStateManager.changeAppState(AppState.TIMELINE);
   }
 
   void _onSortByValueChanged(String value) {

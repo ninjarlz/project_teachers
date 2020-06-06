@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:project_teachers/entities/users/coach_entity.dart';
-import 'package:project_teachers/services/filtering/coach_filtering_serivce.dart';
+import 'package:project_teachers/entities/users/user_entity.dart';
+import 'package:project_teachers/services/filtering/user_filtering_serivce.dart';
 import 'package:project_teachers/services/managers/app_state_manager.dart';
 import 'package:project_teachers/services/storage/storage_service.dart';
 import 'package:project_teachers/services/users/user_service.dart';
@@ -9,17 +9,16 @@ import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/widgets/index.dart';
 import 'package:provider/provider.dart';
 
-class Coach extends StatefulWidget {
-  static const String TITLE = "Coach";
+class UserList extends StatefulWidget {
 
   @override
-  State<StatefulWidget> createState() => _CoachState();
+  State<StatefulWidget> createState() => _UserListState();
 }
 
-class _CoachState extends State<Coach>
-    implements CoachListListener, UserListProfileImagesListener {
+class _UserListState extends State<UserList>
+    implements UserListListener, UserListProfileImagesListener {
   UserService _userService;
-  CoachFilteringService _filteringService;
+  UserFilteringService _filteringService;
   StorageService _storageService;
   ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
@@ -31,18 +30,18 @@ class _CoachState extends State<Coach>
     super.initState();
     _userService = UserService.instance;
     _storageService = StorageService.instance;
-    _filteringService = CoachFilteringService.instance;
+    _filteringService = UserFilteringService.instance;
     if (_filteringService.searchFilter != null) {
       _searchCtrl.text = _filteringService.searchFilter;
     }
-    _userService.coachListListeners.add(this);
+    _userService.userListListeners.add(this);
     _storageService.userListProfileImageListeners.add(this);
     _scrollController.addListener(() {
       double maxScroll = _scrollController.position.maxScrollExtent;
       double currentScroll = _scrollController.position.pixels;
       double delta = MediaQuery.of(context).size.height * 0.20;
       if (maxScroll - currentScroll <= delta) {
-        _loadMoreCoaches();
+        _loadMoreUsers();
       }
     });
     Future.delayed(Duration.zero, () {
@@ -55,17 +54,17 @@ class _CoachState extends State<Coach>
     if (_searchCtrl.text != "" && _searchCtrl.text != null) {
       _filteringService.searchFilter = _searchCtrl.text.toLowerCase();
     }
-    _userService.resetCoachList();
-    _userService.updateCoachList();
+    _userService.resetUserList();
+    _userService.updateUserList();
   }
 
   Widget _buildRow(int index) {
-    CoachEntity coach = _userService.coachList[index];
-    String fullName = "${coach.name} ${coach.surname}";
+    UserEntity user = _userService.userList[index];
+    String fullName = "${user.name} ${user.surname}";
     return ListTile(
         leading: Material(
-          child: _storageService.userImages.containsKey(coach.uid)
-              ? _storageService.userImages[coach.uid].item2
+          child: _storageService.userImages.containsKey(user.uid)
+              ? _storageService.userImages[user.uid].item2
               : Image.asset(
                   "assets/img/default_profile_2.png",
                   fit: BoxFit.cover,
@@ -78,16 +77,16 @@ class _CoachState extends State<Coach>
         contentPadding: EdgeInsets.all(5),
         title: Text(fullName),
         subtitle: Text(
-          coach.profession,
+          user.profession,
           style: ThemeGlobalText().smallText,
         ),
         onTap: () {
-          _userService.setSelectedCoach(
-              coach,
-              _storageService.userImages.containsKey(coach.uid)
-                  ? _storageService.userImages[coach.uid]
+          _userService.setSelectedUser(
+              user,
+              _storageService.userImages.containsKey(user.uid)
+                  ? _storageService.userImages[user.uid]
                   : null);
-          _appStateManager.changeAppState(AppState.COACH_PROFILE_PAGE);
+          _appStateManager.changeAppState(AppState.SELECTED_USER_PROFILE_PAGE);
         });
   }
 
@@ -103,15 +102,15 @@ class _CoachState extends State<Coach>
             submitChange: _searchFilter,
           ),
           Expanded(
-            child: _userService.coachList == null ||
-                    _userService.coachList.length == 0
+            child: _userService.userList == null ||
+                    _userService.userList.length == 0
                 ? Center(
                     child: Text(
                         Translations.of(context).text("no_results") + "..."),
                   )
                 : ListView.builder(
                     controller: _scrollController,
-                    itemCount: _userService.coachList.length,
+                    itemCount: _userService.userList.length,
                     itemBuilder: (context, index) {
                       return _buildRow(index);
                     },
@@ -131,11 +130,11 @@ class _CoachState extends State<Coach>
     );
   }
 
-  Future<void> _loadMoreCoaches() async {
-    if (!_userService.hasMoreCoaches || _isLoading) {
+  Future<void> _loadMoreUsers() async {
+    if (!_userService.hasMoreUsers || _isLoading) {
       return;
     }
-    _userService.updateCoachList();
+    _userService.updateUserList();
     setState(() {
       _isLoading = true;
     });
@@ -144,12 +143,12 @@ class _CoachState extends State<Coach>
   @override
   void dispose() {
     super.dispose();
-    _userService.coachListListeners.remove(this);
+    _userService.userListListeners.remove(this);
     _storageService.userListProfileImageListeners.remove(this);
   }
 
   @override
-  void onCoachListChange() {
+  void onUserListChange() {
     setState(() {
       _isLoading = false;
     });
@@ -157,8 +156,8 @@ class _CoachState extends State<Coach>
 
   @override
   void onUserListProfileImagesChange(List<String> updatedUsersIds) {
-    List<String> coachIds = _userService.coachList.map((e) => e.uid).toList();
-    String id = coachIds.firstWhere(
+    List<String> userIds = _userService.userList.map((e) => e.uid).toList();
+    String id = userIds.firstWhere(
         (element) => updatedUsersIds.contains(element),
         orElse: () => null);
     if (id != null) {

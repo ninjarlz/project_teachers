@@ -23,9 +23,11 @@ class TimelineRepository {
   StreamSubscription<QuerySnapshot> _userQuestionListSub;
   StreamSubscription<QuerySnapshot> _questionAnswersSub;
   StreamSubscription<DocumentSnapshot> _questionSub;
+
   CollectionReference _questionsRef;
 
   CollectionReference get questionsRef => _questionsRef;
+
   Firestore _database;
 
   void cancelQuestionListSubscription() {
@@ -82,7 +84,6 @@ class TimelineRepository {
     });
   }
 
-
   void subscribeQuestion(QuestionEntity question, int limit,
       Function onConversationMessagesChange, Function onConversationChange) {
     cancelQuestionSubscription();
@@ -90,7 +91,7 @@ class TimelineRepository {
         .document(question.id)
         .collection("Answers")
         .limit(limit)
-        .orderBy("timestamp", descending: true)
+        .orderBy("timestamp")
         .snapshots()
         .listen(onConversationMessagesChange);
     _questionAnswersSub.onError((o) {
@@ -117,15 +118,18 @@ class TimelineRepository {
     await _questionsRef.document(question.id).delete();
   }
 
-  String generateQuestionId() {
+  String generatePostId() {
     return _questionsRef.document().documentID;
   }
 
   Future<void> sendQuestionAnswer(
-      QuestionEntity question, AnswerEntity answer) async {
+      QuestionEntity question, String answerId, AnswerEntity answer) async {
     await _database.runTransaction(await (Transaction transaction) async {
       transaction.set(
-          _questionsRef.document(question.id).collection("Answers").document(),
+          _questionsRef
+              .document(question.id)
+              .collection("Answers")
+              .document(answerId),
           answer.toJson());
       transaction.update(_questionsRef.document(question.id),
           {"answersCounter": FieldValue.increment(1)});
@@ -151,20 +155,30 @@ class TimelineRepository {
         {"reactionsCounter": FieldValue.increment(-1)});
   }
 
-  Future<void> transactionAddAnswerReaction(QuestionEntity question,
-      AnswerEntity answer, Transaction transaction) async {
+  Future<void> transactionAddAnswerReaction(
+      QuestionEntity question, String answerId, Transaction transaction) async {
     await transaction.update(
         _questionsRef
             .document(question.id)
             .collection("Answers")
-            .document(answer.id),
+            .document(answerId),
         {"reactionsCounter": FieldValue.increment(1)});
+  }
+
+  Future<void> transactionRemoveAnswerReaction(
+      QuestionEntity question, String answerId, Transaction transaction) async {
+    await transaction.update(
+        _questionsRef
+            .document(question.id)
+            .collection("Answers")
+            .document(answerId),
+        {"reactionsCounter": FieldValue.increment(-1)});
   }
 
   Future<void> transactionUpdateProfileImageData(String userId,
       String userProfileImageName, Transaction transaction) async {
     QuerySnapshot querySnapshot =
-    await _questionsRef.where("authorId", isEqualTo: userId).getDocuments();
+        await _questionsRef.where("authorId", isEqualTo: userId).getDocuments();
     for (DocumentSnapshot documentSnapshot in querySnapshot.documents) {
       await transaction.update(documentSnapshot.reference,
           {"authorData.profileImageName": userProfileImageName});

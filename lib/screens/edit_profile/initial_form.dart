@@ -90,7 +90,7 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
     }
     await validEmailAddressService.markAddressAsInitialized(email);
     authStatusManager.changeAuthState(AuthStatus.LOGGED_IN);
-    appStateManager.changeAppState(AppState.COACH);
+    appStateManager.changeAppState(AppState.USER_LIST);
   }
 
   @protected

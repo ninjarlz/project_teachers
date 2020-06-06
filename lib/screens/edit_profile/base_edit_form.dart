@@ -147,7 +147,8 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
               Container(
                   height: imagePath != null ? 150 : 0,
                   margin: EdgeInsets.all(10),
-                  child: imagePath != null ? Image.asset(imagePath) : null),
+                  child:
+                      imagePath != null ? Image.asset(imagePath) : Container()),
               InputWithIconWidget(
                   ctrl: name,
                   hint: Translations.of(context).text("register_firstname"),
@@ -267,7 +268,8 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
               Container(
                   height: imagePath != null ? 150 : 0,
                   margin: EdgeInsets.all(10),
-                  child: imagePath != null ? Image.asset(imagePath) : null),
+                  child:
+                      imagePath != null ? Image.asset(imagePath) : Container()),
               InputWithIconWidget(
                   ctrl: name,
                   hint: Translations.of(context).text("register_firstname"),

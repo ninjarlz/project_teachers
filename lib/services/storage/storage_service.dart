@@ -6,8 +6,8 @@ import 'package:path/path.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:project_teachers/entities/messaging/conversation_entity.dart';
+import 'package:project_teachers/entities/timeline/answer_entity.dart';
 import 'package:project_teachers/entities/timeline/question_entity.dart';
-import 'package:project_teachers/entities/users/coach_entity.dart';
 import 'package:project_teachers/entities/users/user_entity.dart';
 import 'package:project_teachers/repositories/storage/storage_repository.dart';
 import 'package:project_teachers/services/messaging/messaging_service.dart';
@@ -56,28 +56,37 @@ class StorageService {
   List<UserBackgroundImageListener> get userBackgroundImageListeners =>
       _userBackgroundImageListeners;
 
-  Tuple2<String, Image> _selectedCoachProfileImage;
+  Tuple2<String, Image> _selectedUserProfileImage;
 
-  Tuple2<String, Image> get selectedCoachProfileImage =>
-      _selectedCoachProfileImage;
+  Tuple2<String, Image> get selectedUserProfileImage =>
+      _selectedUserProfileImage;
 
-  void set selectedCoachProfileImage(Tuple2<String, Image> coachProfileImage) {
-    _selectedCoachProfileImage = coachProfileImage;
-    if (coachProfileImage != null) {
-      _coachProfileImageListeners.forEach((element) {
-        element.onCoachProfileImageChange();
+  void set selectedUserProfileImage(Tuple2<String, Image> userProfileImage) {
+    _selectedUserProfileImage = userProfileImage;
+    if (userProfileImage != null) {
+      _selectedUserProfileImageListeners.forEach((element) {
+        element.onSelectedUserProfileImageChange();
       });
     }
   }
 
-  Tuple2<String, Image> _selectedCoachBackgroundImage;
+  Tuple2<String, Image> _selectedUserBackgroundImage;
 
-  Tuple2<String, Image> get selectedCoachBackgroundImage =>
-      _selectedCoachBackgroundImage;
+  Tuple2<String, Image> get selectedUserBackgroundImage =>
+      _selectedUserBackgroundImage;
 
   Map<String, Tuple2<String, Image>> _userImages = Map<String,
-      Tuple2<String, Image>>(); // <coachId, Tuple2<profileImageName, Image>>
+      Tuple2<String, Image>>(); // <userId, Tuple2<profileImageName, Image>>
   Map<String, Tuple2<String, Image>> get userImages => _userImages;
+
+  Map<String, List<Tuple2<String, Image>>> _answerImages = Map<
+      String,
+      List<
+          Tuple2<String,
+              Image>>>(); // <questionId, List<Tuple2<photoName, Image>>>
+
+  Map<String, List<Tuple2<String, Image>>> get answerImages =>
+      _answerImages;
 
   Map<String, List<Tuple2<String, Image>>> _questionImages = Map<
       String,
@@ -88,17 +97,17 @@ class StorageService {
   Map<String, List<Tuple2<String, Image>>> get questionImages =>
       _questionImages;
 
-  List<CoachProfileImageListener> _coachProfileImageListeners =
-      List<CoachProfileImageListener>();
+  List<SelectedUserProfileImageListener> _selectedUserProfileImageListeners =
+      List<SelectedUserProfileImageListener>();
 
-  List<CoachProfileImageListener> get coachProfileImageListeners =>
-      _coachProfileImageListeners;
+  List<SelectedUserProfileImageListener> get selectedUserProfileImageListeners =>
+      _selectedUserProfileImageListeners;
 
-  List<CoachBackgroundImageListener> _coachBackgroundImageListeners =
-      List<CoachBackgroundImageListener>();
+  List<SelectedUserBackgroundImageListener> _selectedUserBackgroundImageListeners =
+      List<SelectedUserBackgroundImageListener>();
 
-  List<CoachBackgroundImageListener> get coachBackgroundImageListeners =>
-      _coachBackgroundImageListeners;
+  List<SelectedUserBackgroundImageListener> get selectedUserBackgroundImageListeners =>
+      _selectedUserBackgroundImageListeners;
 
   List<UserListProfileImagesListener> _userListProfileImageListeners =
       List<UserListProfileImagesListener>();
@@ -109,10 +118,17 @@ class StorageService {
   List<QuestionsListImagesListener> get questionsListImagesListener =>
       _questionsListImagesListener;
 
+  List<AnswersListImagesListener> _answersListImagesListener =
+  List<AnswersListImagesListener>();
+
+  List<AnswersListImagesListener> get answersListImagesListener =>
+      _answersListImagesListener;
+
   List<UserListProfileImagesListener> get userListProfileImageListeners =>
       _userListProfileImageListeners;
 
   Lock _questionListImagesLock = Lock();
+  Lock _answerListImagesLock = Lock();
   Lock _userProfileImagesListLock = Lock();
 
   StorageRepository _storageRepository;
@@ -232,6 +248,30 @@ class StorageService {
     });
   }
 
+  Future<void> updateUserListProfileImagesWithAnswers(
+      List<AnswerEntity> answers) async {
+    await _userProfileImagesListLock.synchronized(await () async {
+      List<String> updatedUsersIds = List<String>();
+      for (AnswerEntity answer in answers) {
+        if (answer.authorData.profileImageName != null) {
+          if (_userImages.containsKey(answer.authorId)) {
+            if (answer.authorData.profileImageName !=
+                userImages[answer.authorId].item1) {
+              await updateUserProfileImageWithAnswer(answer);
+              updatedUsersIds.add(answer.authorId);
+            }
+          } else {
+            await updateUserProfileImageWithAnswer(answer);
+            updatedUsersIds.add(answer.authorId);
+          }
+        }
+      }
+      _userListProfileImageListeners.forEach((element) {
+        element.onUserListProfileImagesChange(updatedUsersIds);
+      });
+    });
+  }
+
   Future<void> updateUserProfileImageWithConversation(
       ConversationEntity conversation) async {
     Image image = await _storageRepository.getProfileImageFromData(
@@ -247,6 +287,14 @@ class StorageService {
         question.authorId, question.authorData.profileImageName);
     _userImages[question.authorId] =
         Tuple2(question.authorData.profileImageName, image);
+  }
+
+  Future<void> updateUserProfileImageWithAnswer(
+      AnswerEntity answer) async {
+    Image image = await _storageRepository.getProfileImageFromData(
+        answer.authorId, answer.authorData.profileImageName);
+    _userImages[answer.authorId] =
+        Tuple2(answer.authorData.profileImageName, image);
   }
 
   Future<void> updateUserProfileImage(UserEntity user) async {
@@ -346,6 +394,75 @@ class StorageService {
     await _storageRepository.uploadQuestionImage(file, fileName, questionId);
   }
 
+
+  Future<void> uploadAnswerImages(List<Image> images, List<File> files,
+      List<String> fileNames, String answerId) async {
+    await _answerListImagesLock.synchronized(await () async {
+      List<String> updatedAnswers = [answerId];
+      for (int i = 0; i < images.length; i++) {
+        await uploadAnswerImage(
+            images[i], files[i], fileNames[i], answerId);
+      }
+      _answersListImagesListener.forEach((element) {
+        element.onAnswerListImagesChange(updatedAnswers);
+      });
+    });
+  }
+
+  Future<void> uploadAnswerImage(
+      Image image, File file, String fileName, String answerId) async {
+    if (!_answerImages.containsKey(answerId)) {
+      _answerImages[answerId] = List<Tuple2<String, Image>>();
+    }
+    _answerImages[answerId].add(Tuple2<String, Image>(fileName, image));
+    await _storageRepository.uploadAnswerImage(file, fileName, answerId);
+  }
+
+  Future<void> updateAnswerListImages(List<AnswerEntity> answers) async {
+    await _answerListImagesLock.synchronized(await () async {
+      List<String> updatedAnswers = List<String>();
+      for (AnswerEntity answer in answers) {
+        if (answer.photoNames != null) {
+          if (_answerImages.containsKey(answer.id)) {
+            List<String> oldImagesNames = List<String>();
+            for (Tuple2<String, Image> image in _answerImages[answer.id]) {
+              if (!answer.photoNames.contains(image.item1)) {
+                _answerImages[answer.id].remove(image);
+              } else {
+                oldImagesNames.add(image.item1);
+              }
+            }
+            for (String imageName in answer.photoNames) {
+              if (!oldImagesNames.contains(imageName)) {
+                if (!updatedAnswers.contains(answer.id)) {
+                  updatedAnswers.add(answer.id);
+                }
+                Image image = await _storageRepository.getAnswerImage(
+                    answer.id, imageName);
+                _answerImages[answer.id]
+                    .add(Tuple2<String, Image>(imageName, image));
+              }
+            }
+          } else {
+            _answerImages[answer.id] = List<Tuple2<String, Image>>();
+            for (String imageName in answer.photoNames) {
+              if (!updatedAnswers.contains(answer.id)) {
+                updatedAnswers.add(answer.id);
+              }
+              Image image = await _storageRepository.getAnswerImage(
+                  answer.id, imageName);
+              _answerImages[answer.id]
+                  .add(Tuple2<String, Image>(imageName, image));
+            }
+          }
+        }
+      }
+      _answersListImagesListener.forEach((element) {
+        element.onAnswerListImagesChange(updatedAnswers);
+      });
+    });
+  }
+
   Future<void> getUserProfileImage() async {
     await _userProfileImagesListLock.synchronized(await () async {
       UserEntity user = _userService.currentUser;
@@ -383,50 +500,50 @@ class StorageService {
     _userBackgroundImageListeners.clear();
   }
 
-  Future<void> updateSelectedCoachProfileImage(CoachEntity coach) async {
+  Future<void> updateSelectedUserProfileImage(UserEntity user) async {
     await _userProfileImagesListLock.synchronized(await () async {
-      if (coach.profileImageName != null) {
-        if (_userImages.containsKey(coach.uid)) {
-          if (coach.profileImageName != userImages[coach.uid].item1) {
-            await updateUserProfileImage(coach);
-            _selectedCoachProfileImage = _userImages[coach.uid];
-            _coachProfileImageListeners.forEach((element) {
-              element.onCoachProfileImageChange();
+      if (user.profileImageName != null) {
+        if (_userImages.containsKey(user.uid)) {
+          if (user.profileImageName != userImages[user.uid].item1) {
+            await updateUserProfileImage(user);
+            _selectedUserProfileImage = _userImages[user.uid];
+            _selectedUserProfileImageListeners.forEach((element) {
+              element.onSelectedUserProfileImageChange();
             });
           }
         } else {
-          await updateUserProfileImage(coach);
-          _selectedCoachProfileImage = _userImages[coach.uid];
-          _coachProfileImageListeners.forEach((element) {
-            element.onCoachProfileImageChange();
+          await updateUserProfileImage(user);
+          _selectedUserProfileImage = _userImages[user.uid];
+          _selectedUserProfileImageListeners.forEach((element) {
+            element.onSelectedUserProfileImageChange();
           });
         }
       }
     });
   }
 
-  Future<void> updateCoachBackgroundImage(CoachEntity coach) async {
-    if (coach.backgroundImageName != null) {
-      if (_selectedCoachBackgroundImage == null ||
-          (_selectedCoachBackgroundImage != null &&
-              _selectedCoachBackgroundImage.item1 !=
-                  coach.backgroundImageName)) {
+  Future<void> updateSelectedUserBackgroundImage(UserEntity user) async {
+    if (user.backgroundImageName != null) {
+      if (_selectedUserBackgroundImage == null ||
+          (_selectedUserBackgroundImage != null &&
+              _selectedUserBackgroundImage.item1 !=
+                  user.backgroundImageName)) {
         Image image =
-            await _storageRepository.getBackgroundImageFromUser(coach);
-        _selectedCoachBackgroundImage =
-            Tuple2(coach.backgroundImageName, image);
-        _coachBackgroundImageListeners.forEach((element) {
-          element.onCoachBackgroundImageChange();
+            await _storageRepository.getBackgroundImageFromUser(user);
+        _selectedUserBackgroundImage =
+            Tuple2(user.backgroundImageName, image);
+        _selectedUserBackgroundImageListeners.forEach((element) {
+          element.onSelectedUserBackgroundImageChange();
         });
       }
     }
   }
 
-  void disposeCoachImages() {
-    _coachBackgroundImageListeners.clear();
-    _coachProfileImageListeners.clear();
-    _selectedCoachProfileImage = null;
-    _selectedCoachBackgroundImage = null;
+  void disposeSelectedUserImages() {
+    _selectedUserBackgroundImageListeners.clear();
+    _selectedUserProfileImageListeners.clear();
+    _selectedUserProfileImage = null;
+    _selectedUserBackgroundImage = null;
   }
 }
 
@@ -438,12 +555,12 @@ abstract class UserBackgroundImageListener {
   void onUserBackgroundImageChange();
 }
 
-abstract class CoachProfileImageListener {
-  void onCoachProfileImageChange();
+abstract class SelectedUserProfileImageListener {
+  void onSelectedUserProfileImageChange();
 }
 
-abstract class CoachBackgroundImageListener {
-  void onCoachBackgroundImageChange();
+abstract class SelectedUserBackgroundImageListener {
+  void onSelectedUserBackgroundImageChange();
 }
 
 abstract class UserListProfileImagesListener {
@@ -452,4 +569,8 @@ abstract class UserListProfileImagesListener {
 
 abstract class QuestionsListImagesListener {
   void onQuestionListImagesChange(List<String> updatedQuestions);
+}
+
+abstract class AnswersListImagesListener {
+  void onAnswerListImagesChange(List<String> updatedAnswers);
 }

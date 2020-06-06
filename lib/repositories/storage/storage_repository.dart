@@ -92,7 +92,6 @@ class StorageRepository {
         .child(imageName)
         .getDownloadURL();
     return await Image.network(url);
-    //return await Image(image: CachedNetworkImageProvider(url));
   }
 
   Future<Image> getAnswerImage(String answerId, String imageName) async {

@@ -4,6 +4,7 @@ import 'package:project_teachers/entities/users/user_entity.dart';
 import 'package:project_teachers/services/authentication/auth.dart';
 import 'package:project_teachers/services/managers/app_state_manager.dart';
 import 'package:project_teachers/services/managers/auth_status_manager.dart';
+import 'package:project_teachers/services/messaging/messaging_service.dart';
 import 'package:project_teachers/services/storage/storage_service.dart';
 import 'package:project_teachers/services/users/user_service.dart';
 import 'package:project_teachers/themes/global.dart';
@@ -17,7 +18,10 @@ class NavigationDrawer extends StatefulWidget {
 }
 
 class _NavigationDrawerState extends State<NavigationDrawer>
-    implements UserListener, UserProfileImageListener {
+    implements
+        UserListener,
+        UserProfileImageListener,
+        ConversationPageListener {
   String _userName = "";
   String _userEmail = "";
   UserService _userService;
@@ -26,6 +30,7 @@ class _NavigationDrawerState extends State<NavigationDrawer>
   AuthStatusManager _authStatusManager;
   StorageService _storageService;
   Widget _profileImage;
+  MessagingService _messagingService;
 
   @override
   void initState() {
@@ -33,8 +38,10 @@ class _NavigationDrawerState extends State<NavigationDrawer>
     _userService = UserService.instance;
     _auth = Auth.instance;
     _storageService = StorageService.instance;
+    _messagingService = MessagingService.instance;
     _userService.userListeners.add(this);
     _storageService.userProfileImageListeners.add(this);
+    _messagingService.conversationPageListeners.add(this);
     onUserDataChange();
     _profileImage = CircleAvatar(
       backgroundColor: Colors.white,
@@ -43,7 +50,7 @@ class _NavigationDrawerState extends State<NavigationDrawer>
               _userName[0].toUpperCase(),
               style: TextStyle(fontSize: 40.0),
             )
-          : null,
+          : Container(),
     );
     onUserProfileImageChange();
     Future.delayed(Duration.zero, () {
@@ -78,8 +85,21 @@ class _NavigationDrawerState extends State<NavigationDrawer>
             },
           ),
           ListTile(
+            leading: Icon(Icons.search),
+            title: Text(Translations.of(context).text("other_users")),
+            trailing: _messagingService.hasUnreadMessages
+                ? Icon(Icons.new_releases, color: Colors.red)
+                : null,
+            onTap: () {
+              Navigator.of(context).pop();
+              if (_appStateManager.appState != AppState.USER_LIST) {
+                _appStateManager.changeAppState(AppState.USER_LIST);
+              }
+            },
+          ),
+          ListTile(
             leading: Icon(Icons.person),
-            title: Text(Translations.of(context).text("profile")),
+            title: Text(Translations.of(context).text("my_profile")),
             onTap: () {
               Navigator.of(context).pop();
               if (_appStateManager.appState != AppState.PROFILE_PAGE) {
@@ -88,34 +108,23 @@ class _NavigationDrawerState extends State<NavigationDrawer>
             },
           ),
           ListTile(
-            leading: Icon(Icons.school),
-            title: Text(Translations.of(context).text("coach")),
-            onTap: () {
-              Navigator.of(context).pop();
-              if (_appStateManager.appState != AppState.COACH) {
-                _appStateManager.changeAppState(AppState.COACH);
-              }
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.access_alarms),
-            title: Text(Translations.of(context).text("events")),
-            onTap: () {
-              Navigator.of(context).pop();
-            },
-          ),
-          ListTile(
             leading: Icon(Icons.event_available),
             title: Text(Translations.of(context).text("calendar")),
             onTap: () {
               Navigator.of(context).pop();
+              if (_appStateManager.appState != AppState.CALENDAR) {
+                _appStateManager.changeAppState(AppState.CALENDAR);
+              }
             },
           ),
           ListTile(
-            leading: Icon(Icons.people),
-            title: Text(Translations.of(context).text("other_experts")),
+            leading: Icon(Icons.settings),
+            title: Text(Translations.of(context).text("settings")),
             onTap: () {
               Navigator.of(context).pop();
+              if (_appStateManager.appState != AppState.SETTINGS) {
+                _appStateManager.changeAppState(AppState.SETTINGS);
+              }
             },
           ),
           ListTile(
@@ -133,9 +142,7 @@ class _NavigationDrawerState extends State<NavigationDrawer>
             padding: EdgeInsets.only(top: 25),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                TranslationManagerWidget()
-              ],
+              children: <Widget>[TranslationManagerWidget()],
             ),
           ),
         ],
@@ -162,6 +169,7 @@ class _NavigationDrawerState extends State<NavigationDrawer>
     super.dispose();
     _userService.userListeners.remove(this);
     _storageService.userProfileImageListeners.remove(this);
+    _messagingService.conversationPageListeners.remove(this);
   }
 
   @override
@@ -171,5 +179,10 @@ class _NavigationDrawerState extends State<NavigationDrawer>
         _profileImage = ClipOval(child: _storageService.userProfileImage);
       }
     });
+  }
+
+  @override
+  void onConversationListChange() {
+    setState(() {});
   }
 }

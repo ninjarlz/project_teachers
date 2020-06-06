@@ -86,6 +86,10 @@ class TimelineService {
   TagService _tagService;
   TransactionManager _transactionManager;
 
+  void setSelectedQuestion(QuestionEntity question) {
+    _selectedQuestion = question;
+  }
+
   void loginUser() {
     updateQuestionList();
     updateUserQuestionList();
@@ -178,12 +182,15 @@ class TimelineService {
         .getUserQuestionsQuery(_userService.currentUser.uid)
         .orderBy("timestamp", descending: true)
         .limit(_userQuestionsOffset);
-    _timelineRepository.subscribeUserQuestions(query, _onUserQuestionListChange);
+    _timelineRepository.subscribeUserQuestions(
+        query, _onUserQuestionListChange);
   }
 
-  Future<void> sendQuestionAnswer(String text, List<String> photoNames) async {
+  Future<void> sendQuestionAnswer(
+      String answerId, String text, List<String> photoNames) async {
     await _timelineRepository.sendQuestionAnswer(
         _selectedQuestion,
+        answerId,
         AnswerEntity(
             _userService.currentUser.uid,
             ParticipantEntity(
@@ -196,14 +203,49 @@ class TimelineService {
             photoNames));
   }
 
-  String generateQuestionId() {
-    return _timelineRepository.generateQuestionId();
+  void _onQuestionAnswersChange(QuerySnapshot event) {
+    _selectedQuestionAnswers = List<AnswerEntity>();
+    if (event.documents.length < _answersOffset) {
+      _hasMoreAnswers = false;
+    } else {
+      _hasMoreAnswers = true;
+    }
+    event.documents.forEach((element) {
+      AnswerEntity answer = AnswerEntity.fromJson(element.data);
+      answer.id = element.documentID;
+      _selectedQuestionAnswers.add(answer);
+    });
+    _storageService
+        .updateUserListProfileImagesWithAnswers(_selectedQuestionAnswers);
+    _storageService.updateAnswerListImages(_selectedQuestionAnswers);
+    _questionListeners.forEach((element) {
+      element.onQuestionChange();
+    });
+  }
+
+  void _onQuestionChange(DocumentSnapshot event) {
+    _selectedQuestion = QuestionEntity.fromJson(event.data);
+    _selectedQuestion.id = event.documentID;
+    _questionListeners.forEach((element) {
+      element.onQuestionChange();
+    });
+  }
+
+  Future<void> updateAnswersList() async {
+    _answersOffset += _answersLimit;
+    _timelineRepository.subscribeQuestion(_selectedQuestion, _answersOffset,
+        _onQuestionAnswersChange, _onQuestionChange);
+  }
+
+  String generatePostId() {
+    return _timelineRepository.generatePostId();
   }
 
   Future<void> sendQuestion(String questionId, String content,
       SchoolSubject subject, List<String> tags, List<String> photoNames) async {
     await _transactionManager
         .runTransaction(await (Transaction transaction) async {
+      await _tagService.transactionPostTags(tags, transaction);
       await _timelineRepository.transactionSendQuestion(
           questionId,
           QuestionEntity(
@@ -220,7 +262,6 @@ class TimelineService {
               subject,
               tags),
           transaction);
-      await _tagService.transactionPostTags(tags, transaction);
     });
   }
 
@@ -260,10 +301,29 @@ class TimelineService {
     });
   }
 
-  Future<void> addAnswerReaction(
-      QuestionEntity question, AnswerEntity answer) async {
-//    await _timelineRepository.transactionAddAnswerReaction(
-//        question, answer, transaction);
+  Future<void> addAnswerReaction(String answerId) async {
+    await _transactionManager
+        .runTransaction(await (Transaction transaction) async {
+      bool isLiked = await _userService.transactionCheckIfPostIsLiked(
+          answerId, transaction);
+      if (!isLiked) {
+        await _userService.transactionAddLikedPost(answerId, transaction);
+        await _timelineRepository.transactionAddAnswerReaction(
+            _selectedQuestion, answerId, transaction);
+      }
+    });
+  }
+
+  Future<void> removeAnswerReaction(String answerId) async {
+    _transactionManager.runTransaction(await (Transaction transaction) async {
+      bool isLiked = await _userService.transactionCheckIfPostIsLiked(
+          answerId, transaction);
+      if (isLiked) {
+        await _userService.transactionRemoveLikedPost(answerId, transaction);
+        await _timelineRepository.transactionRemoveAnswerReaction(
+            _selectedQuestion, answerId, transaction);
+      }
+    });
   }
 }
 

@@ -30,7 +30,7 @@ class _ChatState extends State<Chat>
     implements
         UserListProfileImagesListener,
         ConversationListener,
-        CoachListener {
+        SelectedUserListener {
   MessagingService _messagingService;
   UserService _userService;
   StorageService _storageService;
@@ -50,7 +50,7 @@ class _ChatState extends State<Chat>
       _messagingService.conversationListeners.add(this);
       _messagingService.updateMessagesList();
     } else {
-      _userService.coachListeners.add(this);
+      _userService.selectedUserListeners.add(this);
     }
     _scrollController.addListener(_onScroll);
     Future.delayed(Duration.zero, () {
@@ -159,7 +159,7 @@ class _ChatState extends State<Chat>
     if (_textEditingController.text.trim() != "") {
       if (_messagingService.selectedConversation == null) {
         _messagingService.conversationListeners.add(this);
-        _userService.coachListeners.remove(this);
+        _userService.selectedUserListeners.remove(this);
       }
       _messagingService.sendMessage(_textEditingController.text.trim());
       _textEditingController.text = "";
@@ -309,11 +309,11 @@ class _ChatState extends State<Chat>
     super.dispose();
     _messagingService.conversationListeners.remove(this);
     _storageService.userListProfileImageListeners.remove(this);
-    _userService.coachListeners.remove(this);
+    _userService.selectedUserListeners.remove(this);
     _messagingService.resetMessagesList();
-    if (_appStateManager.appState != AppState.COACH_PROFILE_PAGE) {
-      _storageService.disposeCoachImages();
-      _userService.cancelSelectedCoachSubscription();
+    if (_appStateManager.appState != AppState.SELECTED_USER_PROFILE_PAGE) {
+      _storageService.disposeSelectedUserImages();
+      _userService.cancelSelectedUserSubscription();
     }
   }
 
@@ -338,7 +338,7 @@ class _ChatState extends State<Chat>
   }
 
   @override
-  void onCoachDataChange() {
+  void onUserDataChange() {
     setState(() {});
   }
 }
