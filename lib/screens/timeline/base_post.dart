@@ -25,7 +25,7 @@ abstract class BasePostState<T extends StatefulWidget> extends State<T>
   @protected
   List<Image> imageList = List<Image>();
   @protected
-  List<File> fileList = List<File>();
+  List<dynamic> fileList = List<dynamic>();
   @protected
   BaseAuth auth;
   @protected
@@ -96,11 +96,14 @@ abstract class BasePostState<T extends StatefulWidget> extends State<T>
 
   @protected
   Widget buildArticle() {
-    return ArticleUserWidget(
-      userId: userService.currentUser.uid,
-      userName:
-          userService.currentUser.name + " " + userService.currentUser.surname,
-    );
+    return Padding(
+        padding: EdgeInsets.symmetric(vertical: 5),
+        child: ArticleUserWidget(
+          userId: userService.currentUser.uid,
+          userName: userService.currentUser.name +
+              " " +
+              userService.currentUser.surname,
+        ));
   }
 
   @protected
@@ -155,7 +158,8 @@ abstract class BasePostState<T extends StatefulWidget> extends State<T>
       return;
     }
     File image = await ImagePicker.pickImage(
-        source: ImageSource.gallery, maxWidth: 1600,
+        source: ImageSource.gallery,
+        maxWidth: 1600,
         maxHeight: 900,
         imageQuality: 80);
     if (image != null) {

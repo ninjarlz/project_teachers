@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:project_teachers/entities/users/user_enums.dart';
 import 'package:project_teachers/services/managers/app_state_manager.dart';
 import 'package:project_teachers/services/managers/auth_status_manager.dart';
+import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/utils/translations/translation_mapper.dart';
 import 'package:project_teachers/widgets/animation/animation_circular_progress.dart';
@@ -121,14 +122,15 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
 
           default:
             return Scaffold(
+                backgroundColor: ThemeGlobalColor().backgroundColor,
                 body: SafeArea(
-              child: Stack(
-                children: <Widget>[
-                  showExpertForm(),
-                  AnimationCircularProgressWidget(status: isLoading)
-                ],
-              ),
-            ));
+                  child: Stack(
+                    children: <Widget>[
+                      showExpertForm(),
+                      AnimationCircularProgressWidget(status: isLoading)
+                    ],
+                  ),
+                ));
         }
         break;
       default:

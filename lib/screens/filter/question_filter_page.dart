@@ -10,7 +10,6 @@ import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/utils/translations/translation_mapper.dart';
 import 'package:project_teachers/widgets/button/button_primary.dart';
-import 'package:project_teachers/widgets/button/button_secondary.dart';
 import 'package:project_teachers/widgets/input/type_ahead_input_with_icon.dart';
 import 'package:provider/provider.dart';
 
@@ -42,31 +41,31 @@ class _QuestionFilterPageState extends State<QuestionFilterPage> {
       _tagCtrl.text = _filteringService.selectedTag;
     }
     Future.delayed(Duration.zero, () {
-          _appStateManager = Provider.of<AppStateManager>(context, listen: false);
-          setState(() {
-            _sortByRadioLabels.add(Translations.of(context).text("date"));
-            _sortByRadioLabels
-                .add(Translations.of(context).text("number_of_reactions"));
-            _sortByRadioLabels
-                .add(Translations.of(context).text("number_of_answers"));
-            if (_filteringService.orderingField ==
-                _filteringService.orderingValues[0]) {
-              _pickedSortByLabel = _sortByRadioLabels[0];
-            } else if (_filteringService.orderingField ==
-                _filteringService.orderingValues[1]) {
-              _pickedSortByLabel = _sortByRadioLabels[1];
-            } else {
-              _pickedSortByLabel = _sortByRadioLabels[2];
-            }
-            _subjectsTranslations = TranslationMapper.translateList(
-                SchoolSubjectExtension.labels, this.context);
-            _subjectsTranslations.insert(0, Translations.of(context).text("all"));
-            if (_filteringService.selectedSubject == null) {
-              _pickedSubjectTranslation = _subjectsTranslations[0];
-            } else {
-              _pickedSubjectTranslation = Translations.of(context)
-                  .text(_filteringService.selectedSubject.label);
-            }
+      _appStateManager = Provider.of<AppStateManager>(context, listen: false);
+      setState(() {
+        _sortByRadioLabels.add(Translations.of(context).text("date"));
+        _sortByRadioLabels
+            .add(Translations.of(context).text("number_of_reactions"));
+        _sortByRadioLabels
+            .add(Translations.of(context).text("number_of_answers"));
+        if (_filteringService.orderingField ==
+            _filteringService.orderingValues[0]) {
+          _pickedSortByLabel = _sortByRadioLabels[0];
+        } else if (_filteringService.orderingField ==
+            _filteringService.orderingValues[1]) {
+          _pickedSortByLabel = _sortByRadioLabels[1];
+        } else {
+          _pickedSortByLabel = _sortByRadioLabels[2];
+        }
+        _subjectsTranslations = TranslationMapper.translateList(
+            SchoolSubjectExtension.labels, this.context);
+        _subjectsTranslations.insert(0, Translations.of(context).text("all"));
+        if (_filteringService.selectedSubject == null) {
+          _pickedSubjectTranslation = _subjectsTranslations[0];
+        } else {
+          _pickedSubjectTranslation = Translations.of(context)
+              .text(_filteringService.selectedSubject.label);
+        }
       });
     });
   }
@@ -117,23 +116,35 @@ class _QuestionFilterPageState extends State<QuestionFilterPage> {
               ),
               Padding(
                   padding: EdgeInsets.all(15),
-                  child: TypeAheadInputWithIconWidget(
-                      ctrl: _tagCtrl,
-                      hint: Translations.of(this.context).text("tag"),
-                      icon: Icons.label,
-                      type: TextInputType.text,
-                      suggestionsCallback: (String value) async {
-                        if (value == null || value == "") {
-                          return List<String>();
-                        }
-                        return await _tagService
-                            .getTagsSuggestionsStrings(value);
+                  child: Row(children: [
+                    Expanded(
+                      child: TypeAheadInputWithIconWidget(
+                          ctrl: _tagCtrl,
+                          hint: Translations.of(this.context).text("tag"),
+                          icon: Icons.label,
+                          type: TextInputType.text,
+                          suggestionsCallback: (String value) async {
+                            if (value == null || value == "") {
+                              return List<String>();
+                            }
+                            return await _tagService
+                                .getTagsSuggestionsStrings(value);
+                          },
+                          onSuggestionSelected: (String value) {
+                            int whiteSpaceIndex = value.indexOf(" ");
+                            String tag = value.substring(0, whiteSpaceIndex);
+                            _tagCtrl.text = tag;
+                          }),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.clear, color: Colors.red),
+                      onPressed: () {
+                        setState(() {
+                          _tagCtrl.clear();
+                        });
                       },
-                      onSuggestionSelected: (String value) {
-                        int whiteSpaceIndex = value.indexOf(" ");
-                        String tag = value.substring(0, whiteSpaceIndex);
-                        _tagCtrl.text = tag;
-                      })),
+                    )
+                  ], mainAxisAlignment: MainAxisAlignment.spaceAround)),
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 15),
                 child: ButtonPrimaryWidget(

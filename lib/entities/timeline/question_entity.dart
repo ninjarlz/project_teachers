@@ -13,6 +13,7 @@ class QuestionEntity {
   List<String> photoNames;
   SchoolSubject schoolSubject;
   List<String> tags;
+  bool lastAnswerSeenByAuthor;
 
   QuestionEntity(
       this.authorId,
@@ -23,7 +24,8 @@ class QuestionEntity {
       this.answersCounter,
       this.photoNames,
       this.schoolSubject,
-      this.tags);
+      this.tags,
+      this.lastAnswerSeenByAuthor);
 
   factory QuestionEntity.fromJson(Map<String, dynamic> json) {
     return QuestionEntity(
@@ -37,7 +39,8 @@ class QuestionEntity {
             ? List<String>.from(json["photoNames"])
             : null,
         SchoolSubjectExtension.getValue(json["schoolSubject"]),
-        List<String>.from(json["tags"]));
+        List<String>.from(json["tags"]),
+        json["lastAnswerSeenByAuthor"]);
   }
 
   factory QuestionEntity.fromSnapshot(DocumentSnapshot documentSnapshot) {
@@ -52,7 +55,8 @@ class QuestionEntity {
             ? List<String>.from(documentSnapshot.data["photoNames"])
             : null,
         SchoolSubjectExtension.getValue(documentSnapshot.data["schoolSubject"]),
-        List<String>.from(documentSnapshot.data["tags"]));
+        List<String>.from(documentSnapshot.data["tags"]),
+        documentSnapshot.data["lastAnswerSeenByAuthor"]);
   }
 
   toJson() {
@@ -65,9 +69,8 @@ class QuestionEntity {
       "answersCounter": answersCounter,
       "photoNames": photoNames,
       "schoolSubject": schoolSubject.label,
-      "tags": tags
+      "tags": tags,
+      "lastAnswerSeenByAuthor": lastAnswerSeenByAuthor
     };
   }
-
-
 }

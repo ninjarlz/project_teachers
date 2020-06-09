@@ -1,22 +1,16 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:grouped_buttons/grouped_buttons.dart';
-import 'package:project_teachers/entities/users/user_enums.dart';
 import 'package:project_teachers/screens/timeline/base_post.dart';
 import 'package:project_teachers/services/managers/app_state_manager.dart';
-import 'package:project_teachers/services/timeline/tag_service.dart';
 import 'package:project_teachers/themes/global.dart';
-import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/utils/helpers/uuid.dart';
-import 'package:project_teachers/utils/translations/translation_mapper.dart';
 import 'package:project_teachers/widgets/animation/animation_circular_progress.dart';
-import 'package:project_teachers/widgets/input/type_ahead_input_with_icon.dart';
 import 'package:provider/provider.dart';
 import 'package:path/path.dart';
+import 'package:tuple/tuple.dart';
 
-class PostAnswer extends StatefulWidget {
-  static FloatingActionButton postAnswerFloatingActionButton(
+class EditAnswer extends StatefulWidget {
+  static FloatingActionButton editAnswerFloatingActionButton(
       BuildContext context) {
     return FloatingActionButton(
         onPressed:
@@ -26,10 +20,23 @@ class PostAnswer extends StatefulWidget {
   }
 
   @override
-  State<StatefulWidget> createState() => _PostAnswerState();
+  State<StatefulWidget> createState() => _EditAnswerState();
 }
 
-class _PostAnswerState extends BasePostState {
+class _EditAnswerState extends BasePostState {
+  @override
+  void initState() {
+    super.initState();
+    if (storageService.answerImages
+        .containsKey(timelineService.editedAnswer.id)) {
+      for (Tuple2<String, Image> tuple
+          in storageService.answerImages[timelineService.editedAnswer.id]) {
+        imageList.add(tuple.item2);
+        fileList.add(tuple.item1);
+      }
+    }
+    content.text = timelineService.editedAnswer.content;
+  }
 
   @override
   bool validateAndSave() {
@@ -55,16 +62,31 @@ class _PostAnswerState extends BasePostState {
 
   @override
   Future<void> onSubmit() async {
-    List<String> fileNames = fileList
-        .map((file) => Uuid().generateV4() + basename(file.path))
-        .toList();
-    String answerId = timelineService.generatePostId();
+    List<String> oldFileNames = List<String>();
+    for (dynamic value in fileList) {
+      if (value is String) {
+        oldFileNames.add(value);
+      }
+    }
+    List<String> fileNamesToDelete = List<String>();
+    for (String fileName in timelineService.editedAnswer.photoNames) {
+      if (!oldFileNames.contains(fileName)) {
+        fileNamesToDelete.add(fileName);
+      }
+    }
+    await storageService.deleteAnswerImages(
+        fileNamesToDelete, timelineService.editedAnswer.id);
+    List<String> fileNames = List<String>.from(fileList.map((value) {
+      if (value is File) {
+        return Uuid().generateV4() + basename(value.path);
+      } else {
+        return value;
+      }
+    }));
     await storageService.uploadAnswerImages(
-        imageList, List<File>.from(fileList), fileNames, answerId);
-    await timelineService.sendQuestionAnswer(
-        answerId,
-        content.text,
-        fileNames);
+        imageList, fileList, fileNames, timelineService.editedAnswer.id);
+    await timelineService.updateAnswer(timelineService.selectedQuestion.id,
+        timelineService.editedAnswer.id, content.text, fileNames);
     appStateManager.previousState();
   }
 
@@ -85,5 +107,11 @@ class _PostAnswerState extends BasePostState {
             ],
           ),
         ));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    timelineService.editedAnswer = null;
   }
 }

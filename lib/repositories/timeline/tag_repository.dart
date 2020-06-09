@@ -43,17 +43,57 @@ class TagRepository {
 
   Future<void> transactionPostTags(
       List<String> tags, Transaction transaction) async {
-    List<bool> tagExists = List<bool>();
+    List<bool> tagsExists = List<bool>();
     for (String tag in tags) {
-      tagExists.add(await transactionCheckIfTagExists(tag, transaction));
+      tagsExists.add(await transactionCheckIfTagExists(tag, transaction));
     }
     for (int i = 0; i < tags.length; i++) {
-      if (tagExists[i]) {
-        transaction.update(await _tagsRef.document(tags[i]),
+      if (tagsExists[i]) {
+        await transaction.update(_tagsRef.document(tags[i]),
             {"postsCounter": FieldValue.increment(1)});
       } else {
         await transaction.set(
             _tagsRef.document(tags[i]), TagEntity(tags[i], 1).toJson());
+      }
+    }
+  }
+
+  Future<void> transactionPostAndRemoveTags(List<String> tagsToRemove,
+      List<String> tagsToPost, Transaction transaction) async {
+    List<bool> addTagsExists = List<bool>();
+    for (String tag in tagsToPost) {
+      addTagsExists.add(await transactionCheckIfTagExists(tag, transaction));
+    }
+
+    List<DocumentSnapshot> removeTagsSnapshot = List<DocumentSnapshot>();
+    for (String tag in tagsToRemove) {
+      removeTagsSnapshot.add(await transaction.get(_tagsRef.document(tag)));
+    }
+
+    for (DocumentSnapshot documentSnapshot in removeTagsSnapshot) {
+      if (documentSnapshot.exists) {
+        if (documentSnapshot.data["postsCounter"] <= 1 ||
+            documentSnapshot.data["postsCounter"] == null) {
+          await transaction
+              .delete(_tagsRef.document(documentSnapshot.documentID));
+        } else {
+          await transaction.update(
+              _tagsRef.document(documentSnapshot.documentID),
+              {"postsCounter": FieldValue.increment(-1)});
+        }
+      } else {
+        await transaction
+            .set(_tagsRef.document(documentSnapshot.documentID), {});
+      }
+    }
+
+    for (int i = 0; i < tagsToPost.length; i++) {
+      if (addTagsExists[i]) {
+        await transaction.update(_tagsRef.document(tagsToPost[i]),
+            {"postsCounter": FieldValue.increment(1)});
+      } else {
+        await transaction.set(_tagsRef.document(tagsToPost[i]),
+            TagEntity(tagsToPost[i], 1).toJson());
       }
     }
   }

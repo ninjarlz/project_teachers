@@ -1,4 +1,5 @@
 {
+  "lang": "en",
   "": "",
   "global_hello": "Welcome",
   "global_next": "Next",
@@ -139,6 +140,10 @@
   "other_users": "Other users",
   "my_profile": "My profile",
   "Expert": "Expert",
-  "Coach": "Coach"
-
+  "Coach": "Coach",
+  "edit_answer": "Edit answer",
+  "edit_question": "Edit question",
+  "messages": "Messages",
+  "none":  "None",
+  "like_own_post": "You cannot add reaction to own post"
 }

@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:project_teachers/entities/timeline/question_entity.dart';
+import 'package:project_teachers/services/filtering/question_filtering_service.dart';
+import 'package:project_teachers/services/managers/app_state_manager.dart';
 import 'package:project_teachers/services/storage/storage_service.dart';
 import 'package:project_teachers/services/timeline/timeline_service.dart';
 import 'package:project_teachers/services/users/user_service.dart';
 import 'package:project_teachers/themes/index.dart';
+import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/widgets/article/index.dart';
 import 'package:project_teachers/widgets/pills/pill_profile.dart';
+import 'package:provider/provider.dart';
 
 class CardArticleWidget extends StatefulWidget {
   final String userId;
@@ -20,6 +25,9 @@ class CardArticleWidget extends StatefulWidget {
   final List<String> images;
   final int reactionsNumber;
   final int answersNumber;
+  final bool isEditable;
+  final Function onEdit;
+  final bool lastAnswerSeenByAuthor;
 
   CardArticleWidget(
       {@required this.userId,
@@ -33,7 +41,10 @@ class CardArticleWidget extends StatefulWidget {
       this.tags,
       this.images,
       @required this.reactionsNumber,
-      this.answersNumber});
+      this.answersNumber,
+      this.isEditable = false,
+      this.onEdit,
+      this.lastAnswerSeenByAuthor});
 
   @override
   State<StatefulWidget> createState() {
@@ -45,6 +56,7 @@ class _CardArticleState extends State<CardArticleWidget> {
   StorageService _storageService;
   TimelineService _timelineService;
   UserService _userService;
+  QuestionFilteringService _filteringService;
 
   @override
   void initState() {
@@ -52,11 +64,16 @@ class _CardArticleState extends State<CardArticleWidget> {
     _storageService = StorageService.instance;
     _timelineService = TimelineService.instance;
     _userService = UserService.instance;
+    _filteringService = QuestionFilteringService.instance;
   }
 
   Future<void> _updateLike() async {
-    if (_userService.currentUser.likedPosts != null &&
-        !_userService.currentUser.likedPosts.contains(widget.postId)) {
+    if (!_userService.currentUser.likedPosts.contains(widget.postId)) {
+      if (widget.userId == _userService.currentUser.uid) {
+        Fluttertoast.showToast(
+            msg: Translations.of(context).text("like_own_post"));
+        return;
+      }
       if (!widget.isAnswer) {
         await _timelineService.addQuestionReaction(widget.postId);
       } else {
@@ -74,13 +91,30 @@ class _CardArticleState extends State<CardArticleWidget> {
   Widget _buildTagsRow(int rowIndex) {
     List<Widget> _rowElements = List<Widget>();
     for (int i = 0; i < 2 && (2 * rowIndex + i) < widget.tags.length; i++) {
-      _rowElements.add(Text('#${widget.tags[2 * rowIndex + i]}',
-          style: ThemeGlobalText().tag));
+      _rowElements.add(GestureDetector(
+          child: Text('#${widget.tags[2 * rowIndex + i]}',
+              style: ThemeGlobalText().tag),
+          onTap: () {
+            _onTagTapped(widget.tags[2 * rowIndex + i]);
+          }));
     }
     return Row(children: _rowElements);
   }
 
+  void _onTagTapped(String tag) {
+    _filteringService.resetFilters();
+    _filteringService.selectedTag = tag;
+    _filteringService.orderingField = _filteringService.orderingValues[0];
+    _timelineService.resetQuestionList();
+    _timelineService.updateQuestionList();
+    Provider.of<AppStateManager>(context, listen: false)
+        .changeAppState(AppState.TIMELINE);
+  }
+
   Widget _buildSubjectRow() {
+    if (widget.subjectsTranslation == Translations.of(context).text("none")) {
+      return Container();
+    }
     return Align(
         alignment: Alignment.centerLeft,
         child: PillProfileWidget(
@@ -191,10 +225,16 @@ class _CardArticleState extends State<CardArticleWidget> {
                   minWidth: 0,
                   child: Row(
                     children: <Widget>[
-                      Image.asset(
-                        "assets/img/timeline/comment2.png",
-                        scale: 2.5,
-                      ),
+                      !widget.lastAnswerSeenByAuthor &&
+                              widget.userId == _userService.currentUser.uid
+                          ? Image.asset(
+                              "assets/img/timeline/comment2new.png",
+                              scale: 2.5,
+                            )
+                          : Image.asset(
+                              "assets/img/timeline/comment2.png",
+                              scale: 2.5,
+                            ),
                       SizedBox(width: 5),
                       Text(
                         widget.answersNumber.toString(),
@@ -219,12 +259,17 @@ class _CardArticleState extends State<CardArticleWidget> {
           padding: const EdgeInsets.only(top: 14.0),
           child: Column(
             children: <Widget>[
-              ArticleUserWidget(
-                userId: widget.userId,
-                userName: widget.username,
-                onPressedFunction: null,
-                articleDate: widget.date,
-              ),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                ArticleUserWidget(
+                  userId: widget.userId,
+                  userName: widget.username,
+                  articleDate: widget.date,
+                ),
+                widget.isEditable
+                    ? IconButton(
+                        icon: Icon(Icons.edit), onPressed: widget.onEdit)
+                    : Container()
+              ]),
               _buildContent(context),
               widget.subjectsTranslation != null
                   ? _buildSubjectRow()

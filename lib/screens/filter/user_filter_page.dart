@@ -47,8 +47,7 @@ class _UserFilterPageState extends State<UserFilterPage> {
         _userTypeRadioLabels.add(Translations.of(context).text("all"));
         _userTypeRadioLabels.addAll(
             TranslationMapper.translateList(UserTypeExtension.labels, context));
-        _pickedCoachTypeTranslation =
-            Translations.of(context).text("all");
+        _pickedCoachTypeTranslation = Translations.of(context).text("all");
         if (_filteringService.activeUserType == null) {
           _isExtendedForCoaches = false;
           _pickedUserTypeTranslation = _userTypeRadioLabels[0];
@@ -126,7 +125,7 @@ class _UserFilterPageState extends State<UserFilterPage> {
       CheckboxGroup(
         onSelected: _onSubjectsValuesChanged,
         labels: TranslationMapper.translateList(
-            SchoolSubjectExtension.labels, context),
+            SchoolSubjectExtension.editableLabels, context),
         checked: _pickedSubjectsTranslation,
         activeColor: ThemeGlobalColor().mainColorDark,
         labelStyle: ThemeGlobalText().text,
@@ -151,14 +150,26 @@ class _UserFilterPageState extends State<UserFilterPage> {
       ),
       Padding(
           padding: EdgeInsets.all(15),
-          child: PlacesInputWithIconWidget(
-              ctrl: _schoolCtrl,
-              hint: Translations.of(context).text("register_school"),
-              icon: Icons.school,
-              error: Translations.of(context).text("error_school"),
-              placesTypes: ["school", "university"],
-              language: Translations.of(context).text("language"),
-              onPlacePicked: _onPlacePicked)),
+          child: Row(children: [
+            Expanded(
+                child: PlacesInputWithIconWidget(
+                    ctrl: _schoolCtrl,
+                    hint: Translations.of(context).text("register_school"),
+                    icon: Icons.school,
+                    error: Translations.of(context).text("error_school"),
+                    placesTypes: ["school", "university"],
+                    language: Translations.of(context).text("language"),
+                    onPlacePicked: _onPlacePicked)),
+            IconButton(
+              icon: Icon(Icons.clear, color: Colors.red),
+              onPressed: () {
+                setState(() {
+                  _schoolCtrl.clear();
+                  _schoolId = null;
+                });
+              },
+            )
+          ], mainAxisAlignment: MainAxisAlignment.spaceAround))
     ]);
   }
 

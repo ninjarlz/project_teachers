@@ -12,6 +12,8 @@ import 'package:project_teachers/screens/navigation_drawer/navigation_drawer.dar
 import 'package:project_teachers/screens/profile/selected_user_profile.dart';
 import 'package:project_teachers/screens/profile/user_profile.dart';
 import 'package:project_teachers/screens/settings/settings.dart';
+import 'package:project_teachers/screens/timeline/edit_answer.dart';
+import 'package:project_teachers/screens/timeline/edit_question.dart';
 import 'package:project_teachers/screens/timeline/post_answer.dart';
 import 'package:project_teachers/screens/timeline/post_question.dart';
 import 'package:project_teachers/screens/timeline/question_answers.dart';
@@ -22,6 +24,7 @@ import 'package:project_teachers/services/connection/connection_service.dart';
 import 'package:project_teachers/services/managers/app_state_manager.dart';
 import 'package:project_teachers/services/messaging/messaging_service.dart';
 import 'package:project_teachers/services/storage/storage_service.dart';
+import 'package:project_teachers/services/timeline/timeline_service.dart';
 import 'package:project_teachers/services/users/user_service.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
@@ -40,8 +43,10 @@ class _HomeState extends State<Home>
         ConversationPageListener,
         SelectedUserListener,
         SelectedUserProfileImageListener,
-        UserListProfileImagesListener {
+        UserListProfileImagesListener,
+        UserQuestionListListener {
   MessagingService _messagingService;
+  TimelineService _timelineService;
   StorageService _storageService;
   UserService _userService;
   ConnectionService _connectionService;
@@ -53,6 +58,7 @@ class _HomeState extends State<Home>
     _messagingService = MessagingService.instance;
     _storageService = StorageService.instance;
     _userService = UserService.instance;
+    _timelineService = TimelineService.instance;
     _connectionService = ConnectionService.instance;
     _connectionChangeStream =
         _connectionService.connectionChange.listen(connectionChanged);
@@ -60,6 +66,7 @@ class _HomeState extends State<Home>
     _storageService.selectedUserProfileImageListeners.add(this);
     _storageService.userListProfileImageListeners.add(this);
     _userService.selectedUserListeners.add(this);
+    _timelineService.userQuestionListListeners.add(this);
     Future.delayed(Duration.zero, () async {
       connectionChanged(await _connectionService.checkConnection());
     });
@@ -267,7 +274,7 @@ class _HomeState extends State<Home>
             },
             child: Contacts());
         appBar = AppBar(
-            title: Text(Translations.of(context).text("my_contacts"),
+            title: Text(Translations.of(context).text("messages"),
                 style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
         navBarIndex = 2;
@@ -350,6 +357,40 @@ class _HomeState extends State<Home>
         navBarIndex = -1;
         break;
 
+      case AppState.EDIT_ANSWER:
+        body = WillPopScope(
+            onWillPop: () async {
+              Provider.of<AppStateManager>(context, listen: false)
+                  .previousState();
+              return false;
+            },
+            child: EditAnswer());
+        appBar = AppBar(
+            title: Text(Translations.of(context).text("edit_answer"),
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: ThemeGlobalColor().secondaryColor);
+        floatingButton = EditAnswer.editAnswerFloatingActionButton(context);
+        floatingActionButtonLocation = FloatingActionButtonLocation.endTop;
+        navBarIndex = -1;
+        break;
+
+      case AppState.EDIT_QUESTION:
+        body = WillPopScope(
+            onWillPop: () async {
+              Provider.of<AppStateManager>(context, listen: false)
+                  .previousState();
+              return false;
+            },
+            child: EditQuestion());
+        appBar = AppBar(
+            title: Text(Translations.of(context).text("edit_question"),
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: ThemeGlobalColor().secondaryColor);
+        floatingButton = EditQuestion.editQuestionFloatingActionButton(context);
+        floatingActionButtonLocation = FloatingActionButtonLocation.endTop;
+        navBarIndex = -1;
+        break;
+
       default:
         body = _buildWaitingScreen();
         navBarIndex = 0;
@@ -426,7 +467,9 @@ class _HomeState extends State<Home>
                 icon: Icon(Icons.filter_list),
                 title: Text(Translations.of(context).text("filter"))),
             BottomNavigationBarItem(
-                icon: Icon(Icons.person_pin),
+                icon: _timelineService.hasUnreadAnswers
+                    ? Icon(Icons.new_releases, color: Colors.red)
+                    : Icon(Icons.person_pin),
                 title: Text(Translations.of(context).text("my_posts"))),
           ],
         );
@@ -448,7 +491,7 @@ class _HomeState extends State<Home>
                 icon: _messagingService.hasUnreadMessages
                     ? Icon(Icons.sms_failed, color: Colors.red)
                     : Icon(Icons.message),
-                title: Text(Translations.of(context).text("my_contacts"))),
+                title: Text(Translations.of(context).text("messages"))),
           ],
         );
     }
@@ -467,6 +510,7 @@ class _HomeState extends State<Home>
     _userService.selectedUserListeners.remove(this);
     _storageService.userListProfileImageListeners.remove(this);
     _storageService.selectedUserProfileImageListeners.remove(this);
+    _timelineService.userQuestionListListeners.remove(this);
     _connectionChangeStream.cancel();
   }
 
@@ -505,6 +549,17 @@ class _HomeState extends State<Home>
         _messagingService.selectedConversation != null &&
         updatedCoachesIds.contains(
             _messagingService.selectedConversation.otherParticipantId)) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void onUserQuestionListChange() {
+    AppState appState =
+        Provider.of<AppStateManager>(context, listen: false).appState;
+    if (appState == AppState.TIMELINE ||
+        appState == AppState.FILTER_QUESTIONS ||
+        appState == AppState.USER_TIMELINE) {
       setState(() {});
     }
   }

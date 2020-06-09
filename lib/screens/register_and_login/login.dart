@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project_teachers/services/authentication/auth.dart';
 import 'package:project_teachers/services/validation/valid_email_address_service.dart';
+import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/widgets/index.dart';
 
@@ -101,7 +102,8 @@ class _LoginState extends State<Login> {
                 .checkIfAddressIsValid(_email.text);
             if (isEmailValid) {
               userId = await _auth.signUp(_email.text, _password.text);
-              await _validEmailAddressService.markAddressAsValidated(_email.text);
+              await _validEmailAddressService
+                  .markAddressAsValidated(_email.text);
               await _auth.sendEmailVerification();
               _errorMessage = ACTIVATE_EMAIL_MSG;
               print('Signed up user: $userId');
@@ -188,40 +190,47 @@ class _LoginState extends State<Login> {
         child: ListView(
           shrinkWrap: true,
           children: <Widget>[
-            Image.asset("assets/img/logo.png"),
-            InputWithIconWidget(
-                ctrl: _email,
-                hint: Translations.of(context).text("login_email"),
-                icon: Icons.email,
-                type: TextInputType.emailAddress,
-                error: Translations.of(context).text("error_email_empty"),
-                maxLines: 1),
-            Visibility(
-                visible: _currentLoginState != LoginState.FORGOT_PASSWORD_FORM,
-                child: InputWithIconWidget(
-                    ctrl: _password,
-                    hint: Translations.of(context).text("login_password"),
-                    icon: Icons.lock,
-                    type: TextInputType.visiblePassword,
-                    maxLines: 1,
-                    error:
-                        Translations.of(context).text("error_password_empty"))),
+            Image.asset("assets/img/logo.jpeg"),
             Padding(
               padding: EdgeInsets.symmetric(vertical: 10),
-              child: Center(child: TextErrorWidget(text: _errorMessage)),
+              child: Column(children: [
+                InputWithIconWidget(
+                    ctrl: _email,
+                    hint: Translations.of(context).text("login_email"),
+                    icon: Icons.email,
+                    type: TextInputType.emailAddress,
+                    error: Translations.of(context).text("error_email_empty"),
+                    maxLines: 1),
+                Visibility(
+                    visible:
+                        _currentLoginState != LoginState.FORGOT_PASSWORD_FORM,
+                    child: InputWithIconWidget(
+                        ctrl: _password,
+                        hint: Translations.of(context).text("login_password"),
+                        icon: Icons.lock,
+                        type: TextInputType.visiblePassword,
+                        maxLines: 1,
+                        error: Translations.of(context)
+                            .text("error_password_empty"))),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  child: Center(child: TextErrorWidget(text: _errorMessage)),
+                ),
+                ButtonPrimaryWidget(
+                    text: firstButtonTxt, submit: _validateAndSubmit),
+                ButtonSecondaryWidget(
+                    text: secondButtonTxt, submit: onSecondButton),
+                Visibility(
+                    visible:
+                        _currentLoginState != LoginState.FORGOT_PASSWORD_FORM,
+                    child: ButtonSecondaryWidget(
+                      text: Translations.of(context)
+                          .text("login_password_forgotten"),
+                      submit: _goToPasswordRecovery,
+                      size: 12,
+                    ))
+              ], crossAxisAlignment: CrossAxisAlignment.stretch),
             ),
-            ButtonPrimaryWidget(
-                text: firstButtonTxt, submit: _validateAndSubmit),
-            ButtonSecondaryWidget(
-                text: secondButtonTxt, submit: onSecondButton),
-            Visibility(
-                visible: _currentLoginState != LoginState.FORGOT_PASSWORD_FORM,
-                child: ButtonSecondaryWidget(
-                  text:
-                      Translations.of(context).text("login_password_forgotten"),
-                  submit: _goToPasswordRecovery,
-                  size: 12,
-                ))
           ],
         ),
       ),
@@ -231,6 +240,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: ThemeGlobalColor().backgroundColor,
       body: SafeArea(
         child: Stack(
           children: <Widget>[

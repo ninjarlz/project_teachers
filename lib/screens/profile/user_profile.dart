@@ -21,7 +21,6 @@ class UserProfile extends StatefulWidget {
     return SpeedDial(
       animatedIcon: AnimatedIcons.menu_close,
       animatedIconTheme: IconThemeData(size: 22.0),
-      // child: Icon(Icons.add),
       onOpen: () => print('OPENING DIAL'),
       onClose: () => print('DIAL CLOSED'),
       visible: true,
@@ -35,7 +34,7 @@ class UserProfile extends StatefulWidget {
             Provider.of<AppStateManager>(context, listen: false)
                 .changeAppState(AppState.EDIT_PROFILE);
           },
-          label: Translations.of(context).text("edit"),
+          label: Translations.of(context).text("edit_profile"),
           labelStyle:
               TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
           labelBackgroundColor: ThemeGlobalColor().secondaryColor,

@@ -34,6 +34,10 @@ class TimelineService {
 
   QuestionEntity get selectedQuestion => _selectedQuestion;
 
+  QuestionEntity editedQuestion;
+
+  AnswerEntity editedAnswer;
+
   List<QuestionEntity> _questions;
 
   List<QuestionEntity> get questions => _questions;
@@ -78,6 +82,10 @@ class TimelineService {
   List<QuestionListener> _questionListeners = List<QuestionListener>();
 
   List<QuestionListener> get questionListeners => _questionListeners;
+
+  bool _hasUnreadAnswers = false;
+
+  bool get hasUnreadAnswers => _hasUnreadAnswers;
 
   TimelineRepository _timelineRepository;
   UserService _userService;
@@ -158,13 +166,18 @@ class TimelineService {
 
   void _onUserQuestionListChange(QuerySnapshot event) {
     _userQuestions = List<QuestionEntity>();
-    if (event.documents.length < _questionsOffset) {
+    _hasUnreadAnswers = false;
+    if (event.documents.length < _userQuestionsOffset) {
       _hasMoreUserQuestions = false;
     } else {
       _hasMoreUserQuestions = true;
     }
     event.documents.forEach((element) {
       QuestionEntity question = QuestionEntity.fromJson(element.data);
+      if (question.authorId == _userService.currentUser.uid &&
+          question.lastAnswerSeenByAuthor == false) {
+        _hasUnreadAnswers = true;
+      }
       question.id = element.documentID;
       question.authorData.id = question.authorId;
       _userQuestions.add(question);
@@ -180,6 +193,7 @@ class TimelineService {
     _userQuestionsOffset += _userQuestionsLimit;
     Query query = _timelineRepository
         .getUserQuestionsQuery(_userService.currentUser.uid)
+        .orderBy("lastAnswerSeenByAuthor")
         .orderBy("timestamp", descending: true)
         .limit(_userQuestionsOffset);
     _timelineRepository.subscribeUserQuestions(
@@ -201,6 +215,29 @@ class TimelineService {
             text,
             0,
             photoNames));
+  }
+
+  Future<void> updateAnswer(String questionId, String answerId, String content,
+      List<String> photoNames) async {
+    await _timelineRepository.updateAnswer(
+        questionId, answerId, content, photoNames);
+  }
+
+  Future<void> updateQuestion(
+      String questionId,
+      String content,
+      List<String> tags,
+      SchoolSubject schoolSubject,
+      List<String> photoNames,
+      List<String> tagsToPost,
+      List<String> tagsToRemove) async {
+    await _transactionManager
+        .runTransaction(await (Transaction transaction) async {
+      await _tagService.transactionPostAndRemoveTags(
+          tagsToRemove, tagsToPost, transaction);
+      await _timelineRepository.transactionUpdateQuestion(
+          questionId, content, tags, schoolSubject, photoNames, transaction);
+    });
   }
 
   void _onQuestionAnswersChange(QuerySnapshot event) {
@@ -226,6 +263,10 @@ class TimelineService {
   void _onQuestionChange(DocumentSnapshot event) {
     _selectedQuestion = QuestionEntity.fromJson(event.data);
     _selectedQuestion.id = event.documentID;
+    if (!_selectedQuestion.lastAnswerSeenByAuthor &&
+        _selectedQuestion.authorId == _userService.currentUser.uid) {
+      markQuestionLastAnswerAsSeen(_selectedQuestion.id);
+    }
     _questionListeners.forEach((element) {
       element.onQuestionChange();
     });
@@ -239,6 +280,10 @@ class TimelineService {
 
   String generatePostId() {
     return _timelineRepository.generatePostId();
+  }
+
+  Future<void> markQuestionLastAnswerAsSeen(String questionId) async {
+    await _timelineRepository.markQuestionLastAnswerAsSeen(questionId);
   }
 
   Future<void> sendQuestion(String questionId, String content,
@@ -260,7 +305,8 @@ class TimelineService {
               0,
               photoNames,
               subject,
-              tags),
+              tags,
+              true),
           transaction);
     });
   }

@@ -83,11 +83,13 @@ extension CoachTypeExtension on CoachType {
   }
 }
 
-enum SchoolSubject { MATHS, ENGLISH, PHYSICS, CHEMISTRY, IT }
+enum SchoolSubject { NONE, MATHS, ENGLISH, PHYSICS, CHEMISTRY, IT }
 
 extension SchoolSubjectExtension on SchoolSubject {
   String get label {
     switch (this) {
+      case SchoolSubject.NONE:
+        return 'none';
       case SchoolSubject.ENGLISH:
         return 'english';
       case SchoolSubject.MATHS:
@@ -111,8 +113,18 @@ extension SchoolSubjectExtension on SchoolSubject {
     return labels;
   }
 
+  static List<String> get editableLabels {
+    List<String> labels = List<String>();
+    for (int i = 1; i < SchoolSubject.values.length; i++) {
+      labels.add(SchoolSubject.values[i].label);
+    }
+    return labels;
+  }
+
   static SchoolSubject getValue(String label) {
     switch (label) {
+      case "none":
+        return SchoolSubject.NONE;
       case "english":
         return SchoolSubject.ENGLISH;
       case "maths":

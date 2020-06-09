@@ -59,6 +59,22 @@ class StorageRepository {
     StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
   }
 
+  Future<void> deleteAnswerImage(String fileName, String answerId) async {
+    StorageReference ref = _storageReference
+        .child(Constants.ANSWERS_DIR)
+        .child(answerId)
+        .child(fileName);
+    await ref.delete();
+  }
+
+  Future<void> deleteQuestionImage(String fileName, String questionId) async {
+    StorageReference ref = _storageReference
+        .child(Constants.QUESTIONS_DIR)
+        .child(questionId)
+        .child(fileName);
+    await ref.delete();
+  }
+
   Future<Image> getProfileImageFromUser(UserEntity user) async {
     var url = await _storage
         .ref()

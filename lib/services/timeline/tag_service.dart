@@ -32,4 +32,10 @@ class TagService {
       List<String> tags, Transaction transaction) async {
     await _tagRepository.transactionPostTags(tags, transaction);
   }
+
+  Future<void> transactionPostAndRemoveTags(
+      List<String> tagsToRemove, List<String> tagsToPost, Transaction transaction) async {
+    await _tagRepository.transactionPostAndRemoveTags(
+        tagsToRemove, tagsToPost, transaction);
+  }
 }

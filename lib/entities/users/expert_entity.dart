@@ -22,8 +22,20 @@ class ExpertEntity extends UserEntity {
       List<String> likedPosts,
       List<SchoolSubject> schoolSubjects,
       List<Specialization> specializations)
-      : super(uid, name, surname, email, city, school, schoolID, profession, bio,
-            profileImageName, backgroundImageName, likedPosts, UserType.EXPERT) {
+      : super(
+            uid,
+            name,
+            surname,
+            email,
+            city,
+            school,
+            schoolID,
+            profession,
+            bio,
+            profileImageName,
+            backgroundImageName,
+            likedPosts,
+            UserType.EXPERT) {
     this.schoolSubjects = schoolSubjects;
     this.specializations = specializations;
   }
@@ -96,8 +108,9 @@ class ExpertEntity extends UserEntity {
       return null;
     }
     Map<String, bool> map = Map<String, bool>();
-    for (SchoolSubject schoolSubject in SchoolSubject.values) {
-      map[schoolSubject.label] = schoolSubjects.contains(schoolSubject);
+    for (int i = 1; i < SchoolSubject.values.length; i++) {
+      map[SchoolSubject.values[i].label] =
+          schoolSubjects.contains(SchoolSubject.values[i]);
     }
     return map;
   }

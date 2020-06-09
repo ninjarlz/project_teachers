@@ -6,6 +6,7 @@ import 'package:project_teachers/services/managers/app_state_manager.dart';
 import 'package:project_teachers/services/managers/auth_status_manager.dart';
 import 'package:project_teachers/services/messaging/messaging_service.dart';
 import 'package:project_teachers/services/storage/storage_service.dart';
+import 'package:project_teachers/services/timeline/timeline_service.dart';
 import 'package:project_teachers/services/users/user_service.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/utils/index.dart';
@@ -21,7 +22,7 @@ class _NavigationDrawerState extends State<NavigationDrawer>
     implements
         UserListener,
         UserProfileImageListener,
-        ConversationPageListener {
+        ConversationPageListener, UserQuestionListListener {
   String _userName = "";
   String _userEmail = "";
   UserService _userService;
@@ -31,6 +32,7 @@ class _NavigationDrawerState extends State<NavigationDrawer>
   StorageService _storageService;
   Widget _profileImage;
   MessagingService _messagingService;
+  TimelineService _timelineService;
 
   @override
   void initState() {
@@ -39,25 +41,37 @@ class _NavigationDrawerState extends State<NavigationDrawer>
     _auth = Auth.instance;
     _storageService = StorageService.instance;
     _messagingService = MessagingService.instance;
+    _timelineService = TimelineService.instance;
     _userService.userListeners.add(this);
     _storageService.userProfileImageListeners.add(this);
     _messagingService.conversationPageListeners.add(this);
+    _timelineService.userQuestionListListeners.add(this);
+
     onUserDataChange();
-    _profileImage = CircleAvatar(
-      backgroundColor: Colors.white,
-      child: _userName != ""
-          ? Text(
-              _userName[0].toUpperCase(),
-              style: TextStyle(fontSize: 40.0),
-            )
-          : Container(),
-    );
+    _profileImage = GestureDetector(
+        onTap: _onProfileTap,
+        child: CircleAvatar(
+          backgroundColor: Colors.white,
+          child: _userName != ""
+              ? Text(
+                  _userName[0].toUpperCase(),
+                  style: TextStyle(fontSize: 40.0),
+                )
+              : Container(),
+        ));
     onUserProfileImageChange();
     Future.delayed(Duration.zero, () {
       _appStateManager = Provider.of<AppStateManager>(context, listen: false);
       _authStatusManager =
           Provider.of<AuthStatusManager>(context, listen: false);
     });
+  }
+
+  void _onProfileTap() {
+    Navigator.of(context).pop();
+    if (_appStateManager.appState != AppState.PROFILE_PAGE) {
+      _appStateManager.changeAppState(AppState.PROFILE_PAGE);
+    }
   }
 
   @override
@@ -67,6 +81,8 @@ class _NavigationDrawerState extends State<NavigationDrawer>
         padding: EdgeInsets.zero,
         children: <Widget>[
           UserAccountsDrawerHeader(
+            arrowColor: ThemeGlobalColor().secondaryColor,
+            onDetailsPressed: _onProfileTap,
             accountEmail: Text(_userEmail),
             accountName: Text(_userName),
             currentAccountPicture: _profileImage,
@@ -77,6 +93,9 @@ class _NavigationDrawerState extends State<NavigationDrawer>
           ListTile(
             leading: Icon(Icons.access_time),
             title: Text(Translations.of(context).text("timeline")),
+            trailing: _timelineService.hasUnreadAnswers
+                ? Icon(Icons.new_releases, color: Colors.red)
+                : null,
             onTap: () {
               Navigator.of(context).pop();
               if (_appStateManager.appState != AppState.TIMELINE) {
@@ -170,19 +189,27 @@ class _NavigationDrawerState extends State<NavigationDrawer>
     _userService.userListeners.remove(this);
     _storageService.userProfileImageListeners.remove(this);
     _messagingService.conversationPageListeners.remove(this);
+    _timelineService.userQuestionListListeners.remove(this);
   }
 
   @override
   void onUserProfileImageChange() {
     setState(() {
       if (_storageService.userProfileImage != null) {
-        _profileImage = ClipOval(child: _storageService.userProfileImage);
+        _profileImage = GestureDetector(
+            child: ClipOval(child: _storageService.userProfileImage),
+            onTap: _onProfileTap);
       }
     });
   }
 
   @override
   void onConversationListChange() {
+    setState(() {});
+  }
+
+  @override
+  void onUserQuestionListChange() {
     setState(() {});
   }
 }

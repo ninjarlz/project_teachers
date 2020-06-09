@@ -217,7 +217,7 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
                 CheckboxGroup(
                   onSelected: onSubjectsValuesChanged,
                   labels: TranslationMapper.translateList(
-                      SchoolSubjectExtension.labels, context),
+                      SchoolSubjectExtension.editableLabels, context),
                   checked: pickedSubjectsTranslation,
                   activeColor: ThemeGlobalColor().mainColorDark,
                   labelStyle: ThemeGlobalText().text,

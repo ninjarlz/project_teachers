@@ -1,4 +1,5 @@
 {
+  "lang": "nl",
   "": "",
   "global_hello": "Welcome",
   "global_next": "Next",
@@ -99,7 +100,7 @@
   "type_your_message": "Type your message",
   "nothing_to_send": "Nothing to send",
   "chat": "Chat",
-  "seen":  "Seen",
+  "seen": "Seen",
   "timeline": "Timeline, but in Dutch",
   "timeline_content": "Content",
   "post": "Post",

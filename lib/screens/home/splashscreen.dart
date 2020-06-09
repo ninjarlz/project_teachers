@@ -8,6 +8,7 @@ import 'package:project_teachers/services/managers/app_state_manager.dart';
 import 'package:project_teachers/services/managers/auth_status_manager.dart';
 import 'package:project_teachers/services/users/user_service.dart';
 import 'package:project_teachers/services/validation/valid_email_address_service.dart';
+import 'package:project_teachers/themes/global.dart';
 import 'package:provider/provider.dart';
 import 'home.dart';
 

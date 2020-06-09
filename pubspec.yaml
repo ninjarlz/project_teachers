@@ -47,6 +47,13 @@ dependencies:
   connectivity: ^0.4.8+6
   keyboard_visibility: ^0.5.6
   cached_network_image: ^2.2.0+1
+  flutter_launcher_icons: ^0.7.5
+  flutter_calendar_carousel: ^1.4.12
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/img/icon.jpeg"
 
 dev_dependencies:
   flutter_test:
@@ -66,7 +73,7 @@ flutter:
    #To add assets to your application, add an assets section, like this:
   assets:
     - assets/img/connection-lost.png
-    - assets/img/logo.png
+    - assets/img/logo.jpeg
     - assets/img/lang/lang_en.png
     - assets/img/lang/lang_nl.png
     - assets/img/default_background.jpg
@@ -75,6 +82,7 @@ flutter:
     - assets/img/icon_new.png
     - assets/img/timeline/comment.png
     - assets/img/timeline/comment2.png
+    - assets/img/timeline/comment2new.png
     - assets/img/timeline/like_enabled.png
     - assets/img/timeline/like_disabled.png
     - locale/i18n_en.json

@@ -85,8 +85,7 @@ class StorageService {
           Tuple2<String,
               Image>>>(); // <questionId, List<Tuple2<photoName, Image>>>
 
-  Map<String, List<Tuple2<String, Image>>> get answerImages =>
-      _answerImages;
+  Map<String, List<Tuple2<String, Image>>> get answerImages => _answerImages;
 
   Map<String, List<Tuple2<String, Image>>> _questionImages = Map<
       String,
@@ -100,14 +99,17 @@ class StorageService {
   List<SelectedUserProfileImageListener> _selectedUserProfileImageListeners =
       List<SelectedUserProfileImageListener>();
 
-  List<SelectedUserProfileImageListener> get selectedUserProfileImageListeners =>
-      _selectedUserProfileImageListeners;
+  List<SelectedUserProfileImageListener>
+      get selectedUserProfileImageListeners =>
+          _selectedUserProfileImageListeners;
 
-  List<SelectedUserBackgroundImageListener> _selectedUserBackgroundImageListeners =
+  List<SelectedUserBackgroundImageListener>
+      _selectedUserBackgroundImageListeners =
       List<SelectedUserBackgroundImageListener>();
 
-  List<SelectedUserBackgroundImageListener> get selectedUserBackgroundImageListeners =>
-      _selectedUserBackgroundImageListeners;
+  List<SelectedUserBackgroundImageListener>
+      get selectedUserBackgroundImageListeners =>
+          _selectedUserBackgroundImageListeners;
 
   List<UserListProfileImagesListener> _userListProfileImageListeners =
       List<UserListProfileImagesListener>();
@@ -119,7 +121,7 @@ class StorageService {
       _questionsListImagesListener;
 
   List<AnswersListImagesListener> _answersListImagesListener =
-  List<AnswersListImagesListener>();
+      List<AnswersListImagesListener>();
 
   List<AnswersListImagesListener> get answersListImagesListener =>
       _answersListImagesListener;
@@ -289,8 +291,7 @@ class StorageService {
         Tuple2(question.authorData.profileImageName, image);
   }
 
-  Future<void> updateUserProfileImageWithAnswer(
-      AnswerEntity answer) async {
+  Future<void> updateUserProfileImageWithAnswer(AnswerEntity answer) async {
     Image image = await _storageRepository.getProfileImageFromData(
         answer.authorId, answer.authorData.profileImageName);
     _userImages[answer.authorId] =
@@ -371,7 +372,19 @@ class StorageService {
     });
   }
 
-  Future<void> uploadQuestionImages(List<Image> images, List<File> files,
+  Future<void> deleteQuestionImages(
+      List<String> fileNames, String questionId) async {
+    await _questionListImagesLock.synchronized(await () async {
+      for (String fileName in fileNames) {
+        await _storageRepository.deleteQuestionImage(fileName, questionId);
+        Tuple2<String, Image> tupleImage = _questionImages[questionId]
+            .firstWhere((element) => element.item1 == fileName);
+        _questionImages[questionId].remove(tupleImage);
+      }
+    });
+  }
+
+  Future<void> uploadQuestionImages(List<Image> images, List<dynamic> files,
       List<String> fileNames, String questionId) async {
     await _questionListImagesLock.synchronized(await () async {
       List<String> updatedQuestions = [questionId];
@@ -386,22 +399,29 @@ class StorageService {
   }
 
   Future<void> uploadQuestionImage(
-      Image image, File file, String fileName, String questionId) async {
+      Image image, dynamic file, String fileName, String questionId) async {
     if (!_questionImages.containsKey(questionId)) {
       _questionImages[questionId] = List<Tuple2<String, Image>>();
+      _questionImages[questionId].add(Tuple2<String, Image>(fileName, image));
+      await _storageRepository.uploadQuestionImage(file, fileName, questionId);
+    } else {
+      Tuple2<String, Image> imageTuple = _questionImages[questionId].firstWhere(
+          (element) => element.item1 == fileName,
+          orElse: () => null);
+      if (imageTuple == null) {
+        _questionImages[questionId].add(Tuple2<String, Image>(fileName, image));
+        await _storageRepository.uploadQuestionImage(
+            file, fileName, questionId);
+      }
     }
-    _questionImages[questionId].add(Tuple2<String, Image>(fileName, image));
-    await _storageRepository.uploadQuestionImage(file, fileName, questionId);
   }
 
-
-  Future<void> uploadAnswerImages(List<Image> images, List<File> files,
+  Future<void> uploadAnswerImages(List<Image> images, List<dynamic> files,
       List<String> fileNames, String answerId) async {
     await _answerListImagesLock.synchronized(await () async {
       List<String> updatedAnswers = [answerId];
       for (int i = 0; i < images.length; i++) {
-        await uploadAnswerImage(
-            images[i], files[i], fileNames[i], answerId);
+        await uploadAnswerImage(images[i], files[i], fileNames[i], answerId);
       }
       _answersListImagesListener.forEach((element) {
         element.onAnswerListImagesChange(updatedAnswers);
@@ -409,13 +429,33 @@ class StorageService {
     });
   }
 
+  Future<void> deleteAnswerImages(
+      List<String> fileNames, String answerId) async {
+    await _answerListImagesLock.synchronized(await () async {
+      for (String fileName in fileNames) {
+        await _storageRepository.deleteAnswerImage(fileName, answerId);
+        Tuple2<String, Image> tupleImage = _answerImages[answerId]
+            .firstWhere((element) => element.item1 == fileName);
+        _answerImages[answerId].remove(tupleImage);
+      }
+    });
+  }
+
   Future<void> uploadAnswerImage(
-      Image image, File file, String fileName, String answerId) async {
+      Image image, dynamic file, String fileName, String answerId) async {
     if (!_answerImages.containsKey(answerId)) {
       _answerImages[answerId] = List<Tuple2<String, Image>>();
+      _answerImages[answerId].add(Tuple2<String, Image>(fileName, image));
+      await _storageRepository.uploadAnswerImage(file, fileName, answerId);
+    } else {
+      Tuple2<String, Image> imageTuple = _answerImages[answerId].firstWhere(
+          (element) => element.item1 == fileName,
+          orElse: () => null);
+      if (imageTuple == null) {
+        _answerImages[answerId].add(Tuple2<String, Image>(fileName, image));
+        await _storageRepository.uploadAnswerImage(file, fileName, answerId);
+      }
     }
-    _answerImages[answerId].add(Tuple2<String, Image>(fileName, image));
-    await _storageRepository.uploadAnswerImage(file, fileName, answerId);
   }
 
   Future<void> updateAnswerListImages(List<AnswerEntity> answers) async {
@@ -449,8 +489,8 @@ class StorageService {
               if (!updatedAnswers.contains(answer.id)) {
                 updatedAnswers.add(answer.id);
               }
-              Image image = await _storageRepository.getAnswerImage(
-                  answer.id, imageName);
+              Image image =
+                  await _storageRepository.getAnswerImage(answer.id, imageName);
               _answerImages[answer.id]
                   .add(Tuple2<String, Image>(imageName, image));
             }
@@ -526,12 +566,9 @@ class StorageService {
     if (user.backgroundImageName != null) {
       if (_selectedUserBackgroundImage == null ||
           (_selectedUserBackgroundImage != null &&
-              _selectedUserBackgroundImage.item1 !=
-                  user.backgroundImageName)) {
-        Image image =
-            await _storageRepository.getBackgroundImageFromUser(user);
-        _selectedUserBackgroundImage =
-            Tuple2(user.backgroundImageName, image);
+              _selectedUserBackgroundImage.item1 != user.backgroundImageName)) {
+        Image image = await _storageRepository.getBackgroundImageFromUser(user);
+        _selectedUserBackgroundImage = Tuple2(user.backgroundImageName, image);
         _selectedUserBackgroundImageListeners.forEach((element) {
           element.onSelectedUserBackgroundImageChange();
         });

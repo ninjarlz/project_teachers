@@ -31,7 +31,9 @@ class UserQuestions extends StatefulWidget {
 class _UserQuestionsState extends State<UserQuestions>
     implements
         UserQuestionListListener,
-        QuestionsListImagesListener, UserListener, UserProfileImageListener {
+        QuestionsListImagesListener,
+        UserListener,
+        UserProfileImageListener {
   bool _isLoading = false;
   TimelineService _timelineService;
   StorageService _storageService;
@@ -58,8 +60,14 @@ class _UserQuestionsState extends State<UserQuestions>
       _appStateManager = Provider.of<AppStateManager>(context, listen: false);
     });
   }
+
+  void _onEdit(QuestionEntity questionEntity) {
+    _timelineService.editedQuestion = questionEntity;
+    _appStateManager.changeAppState(AppState.EDIT_QUESTION);
+  }
+
   Future<void> _loadMoreQuestions() async {
-    if (!_timelineService.hasMoreQuestions || _isLoading) {
+    if (!_timelineService.hasMoreUserQuestions || _isLoading) {
       return;
     }
     _timelineService.updateUserQuestionList();
@@ -83,15 +91,21 @@ class _UserQuestionsState extends State<UserQuestions>
                         Translations.of(context).text("no_results") + "..."),
                   )
                 : ListView.builder(
+                    controller: _scrollController,
                     itemCount: _timelineService.userQuestions.length,
                     itemBuilder: (context, index) {
                       QuestionEntity question =
                           _timelineService.userQuestions[index];
                       return CardArticleWidget(
+                        lastAnswerSeenByAuthor: question.lastAnswerSeenByAuthor,
                         goToPost: () {
                           _timelineService.setSelectedQuestion(question);
                           _appStateManager
                               .changeAppState(AppState.QUESTION_ANSWERS);
+                        },
+                        isEditable: true,
+                        onEdit: () {
+                          _onEdit(question);
                         },
                         userId: question.authorId,
                         postId: question.id,
@@ -135,7 +149,6 @@ class _UserQuestionsState extends State<UserQuestions>
     _storageService.userProfileImageListeners.remove(this);
   }
 
-
   @override
   void onQuestionListImagesChange(List<String> updatedQuestions) {
     List<String> questionIds =
@@ -156,7 +169,7 @@ class _UserQuestionsState extends State<UserQuestions>
   @override
   void onUserQuestionListChange() {
     setState(() {
-    _isLoading = false;
+      _isLoading = false;
     });
   }
 

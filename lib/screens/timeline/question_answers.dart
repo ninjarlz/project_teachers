@@ -15,13 +15,13 @@ import 'package:provider/provider.dart';
 class QuestionAnswers extends StatefulWidget {
   static Stack questionAnswersFloatingActionButton(BuildContext context) {
     AppStateManager appStateManager =
-        Provider.of<AppStateManager>(context, listen: false);
+    Provider.of<AppStateManager>(context, listen: false);
 
     return Stack(
       children: <Widget>[
         Align(
             alignment:
-                Alignment.lerp(Alignment.topRight, Alignment.centerRight, 0.19),
+            Alignment.lerp(Alignment.topRight, Alignment.centerRight, 0.19),
             child: FloatingActionButton(
                 onPressed: appStateManager.previousState,
                 backgroundColor: ThemeGlobalColor().mainColor,
@@ -51,14 +51,17 @@ class _QuestionAnswersState extends State<QuestionAnswers>
   bool _isLoading = false;
   TimelineService _timelineService;
   StorageService _storageService;
+  UserService _userService;
   ScrollController _scrollController = ScrollController();
   AppStateManager _appStateManager;
+
 
   @override
   void initState() {
     super.initState();
     _timelineService = TimelineService.instance;
     _storageService = StorageService.instance;
+    _userService = UserService.instance;
     _storageService.userListProfileImageListeners.add(this);
     _storageService.questionsListImagesListener.add(this);
     _storageService.answersListImagesListener.add(this);
@@ -66,16 +69,22 @@ class _QuestionAnswersState extends State<QuestionAnswers>
     _scrollController.addListener(() {
       double maxScroll = _scrollController.position.maxScrollExtent;
       double currentScroll = _scrollController.position.pixels;
-      double delta = MediaQuery.of(context).size.height * 0.20;
+      double delta = MediaQuery
+          .of(context)
+          .size
+          .height * 0.20;
       if (maxScroll - currentScroll <= delta) {
         _loadMoreAnswers();
       }
     });
+
     Future.delayed(Duration.zero, () {
-      _appStateManager = Provider.of<AppStateManager>(context, listen: false);
-      if (_appStateManager.prevState != AppState.POST_ANSWER) {
-        _timelineService.updateAnswersList();
-      }
+      setState(() {
+        _appStateManager = Provider.of<AppStateManager>(context, listen: false);
+        if (_appStateManager.prevState != AppState.POST_ANSWER) {
+          _timelineService.updateAnswersList();
+        }
+      });
     });
   }
 
@@ -89,14 +98,30 @@ class _QuestionAnswersState extends State<QuestionAnswers>
     });
   }
 
+  void _onEditAnswer(AnswerEntity answerEntity) {
+    _timelineService.editedAnswer = answerEntity;
+    _appStateManager.changeAppState(AppState.EDIT_ANSWER);
+  }
+
+  void _onEditQuestion(QuestionEntity questionEntity) {
+    _timelineService.editedQuestion = questionEntity;
+    _appStateManager.changeAppState(AppState.EDIT_QUESTION);
+  }
+
   @override
   Widget build(BuildContext context) {
-    List<Widget> listViewContent = List<Widget>();
+    List<Widget> listViewWidgets = List<Widget>();
     if (_timelineService.selectedQuestion != null) {
-      listViewContent.add(CardArticleWidget(
+      listViewWidgets.add(CardArticleWidget(
+        lastAnswerSeenByAuthor: true,
         userId: _timelineService.selectedQuestion.authorId,
         postId: _timelineService.selectedQuestion.id,
         isAnswer: false,
+        isEditable: _timelineService.selectedQuestion.authorId ==
+            _userService.currentUser.uid,
+        onEdit: () {
+          _onEditQuestion(_timelineService.selectedQuestion);
+        },
         username: _timelineService.selectedQuestion.authorData.name +
             " " +
             _timelineService.selectedQuestion.authorData.surname,
@@ -112,19 +137,24 @@ class _QuestionAnswersState extends State<QuestionAnswers>
             .text(_timelineService.selectedQuestion.schoolSubject.label),
       ));
     }
-    listViewContent.add(Padding(
+    listViewWidgets.add(Padding(
         padding: EdgeInsets.all(10),
         child: Text(Translations.of(context).text("answers") + ":",
             style: ThemeGlobalText().titleText)));
     if (_timelineService.selectedQuestionAnswers != null &&
         _timelineService.selectedQuestionAnswers.length > 0) {
-      listViewContent.addAll(_timelineService.selectedQuestionAnswers
-          .map((answer) => CardArticleWidget(
+      listViewWidgets.addAll(_timelineService.selectedQuestionAnswers
+          .map((answer) =>
+          CardArticleWidget(
               userId: answer.authorId,
               postId: answer.id,
               isAnswer: true,
+              isEditable: answer.authorId == _userService.currentUser.uid,
+              onEdit: () {
+                _onEditAnswer(answer);
+              },
               username:
-                  answer.authorData.name + " " + answer.authorData.surname,
+              answer.authorData.name + " " + answer.authorData.surname,
               content: answer.content,
               date: DateFormat('dd MMM kk:mm').format(
                   DateTime.fromMillisecondsSinceEpoch(
@@ -133,30 +163,34 @@ class _QuestionAnswersState extends State<QuestionAnswers>
               images: answer.photoNames))
           .toList());
     } else {
-      listViewContent.add(Center(
+      listViewWidgets.add(Center(
           child: Text(Translations.of(context).text("no_results") + "...")));
     }
     return Container(
-      width: MediaQuery.of(context).size.width,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width,
       decoration: new BoxDecoration(color: ThemeGlobalColor().containerColor),
       child: Column(
         children: [
           Expanded(
             child: ListView.builder(
-              itemCount: listViewContent.length,
+              controller: _scrollController,
+              itemCount: listViewWidgets.length,
               itemBuilder: (context, index) {
-                return listViewContent[index];
+                return listViewWidgets[index];
               },
             ),
           ),
           _isLoading
               ? Text(
-                  Translations.of(context).text("loading") + "...",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                )
+            Translations.of(context).text("loading") + "...",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          )
               : Container(),
         ],
       ),
@@ -170,7 +204,8 @@ class _QuestionAnswersState extends State<QuestionAnswers>
     _storageService.questionsListImagesListener.remove(this);
     _storageService.answersListImagesListener.remove(this);
     _timelineService.questionListeners.remove(this);
-    if (_appStateManager.appState != AppState.POST_ANSWER) {
+    if (_appStateManager.appState != AppState.POST_ANSWER &&
+        _appStateManager.appState != AppState.EDIT_ANSWER) {
       _timelineService.resetAnswerList();
     }
   }
@@ -184,7 +219,7 @@ class _QuestionAnswersState extends State<QuestionAnswers>
       usersIds.add(_timelineService.selectedQuestion.authorId);
     }
     String id = usersIds.firstWhere(
-        (element) => updatedUsersIds.contains(element),
+            (element) => updatedUsersIds.contains(element),
         orElse: () => null);
     if (id != null) {
       setState(() {});
@@ -217,9 +252,9 @@ class _QuestionAnswersState extends State<QuestionAnswers>
   @override
   void onAnswerListImagesChange(List<String> updatedAnswers) {
     List<String> answersIds =
-        _timelineService.selectedQuestionAnswers.map((a) => a.id).toList();
+    _timelineService.selectedQuestionAnswers.map((a) => a.id).toList();
     String id = answersIds.firstWhere(
-        (element) => updatedAnswers.contains(element),
+            (element) => updatedAnswers.contains(element),
         orElse: () => null);
     if (id != null) {
       setState(() {});

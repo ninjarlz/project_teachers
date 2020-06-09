@@ -36,6 +36,7 @@ class _TimelineState extends State<Timeline>
         UserListener {
   bool _isLoading = false;
   TimelineService _timelineService;
+  UserService _userService;
   StorageService _storageService;
   ScrollController _scrollController = ScrollController();
   AppStateManager _appStateManager;
@@ -45,6 +46,7 @@ class _TimelineState extends State<Timeline>
     super.initState();
     _timelineService = TimelineService.instance;
     _storageService = StorageService.instance;
+    _userService = UserService.instance;
     _timelineService.questionListListeners.add(this);
     _storageService.userListProfileImageListeners.add(this);
     _storageService.questionsListImagesListener.add(this);
@@ -71,6 +73,11 @@ class _TimelineState extends State<Timeline>
     });
   }
 
+  void _onEdit(QuestionEntity questionEntity) {
+    _timelineService.editedQuestion = questionEntity;
+    _appStateManager.changeAppState(AppState.EDIT_QUESTION);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -86,15 +93,22 @@ class _TimelineState extends State<Timeline>
                         Translations.of(context).text("no_results") + "..."),
                   )
                 : ListView.builder(
+                    controller: _scrollController,
                     itemCount: _timelineService.questions.length,
                     itemBuilder: (context, index) {
                       QuestionEntity question =
                           _timelineService.questions[index];
                       return CardArticleWidget(
+                        lastAnswerSeenByAuthor: question.lastAnswerSeenByAuthor,
                         goToPost: () {
                           _timelineService.setSelectedQuestion(question);
                           _appStateManager
                               .changeAppState(AppState.QUESTION_ANSWERS);
+                        },
+                        isEditable:
+                            question.authorId == _userService.currentUser.uid,
+                        onEdit: () {
+                          _onEdit(question);
                         },
                         userId: question.authorId,
                         postId: question.id,

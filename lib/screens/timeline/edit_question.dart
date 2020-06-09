@@ -14,9 +14,10 @@ import 'package:project_teachers/widgets/animation/animation_circular_progress.d
 import 'package:project_teachers/widgets/input/type_ahead_input_with_icon.dart';
 import 'package:provider/provider.dart';
 import 'package:path/path.dart';
+import 'package:tuple/tuple.dart';
 
-class PostQuestion extends StatefulWidget {
-  static FloatingActionButton postQuestionFloatingActionButton(
+class EditQuestion extends StatefulWidget {
+  static FloatingActionButton editQuestionFloatingActionButton(
       BuildContext context) {
     return FloatingActionButton(
         onPressed:
@@ -26,10 +27,10 @@ class PostQuestion extends StatefulWidget {
   }
 
   @override
-  State<StatefulWidget> createState() => _PostQuestionState();
+  State<StatefulWidget> createState() => _EditQuestionState();
 }
 
-class _PostQuestionState extends BasePostState {
+class _EditQuestionState extends BasePostState {
   List<String> _tags = List<String>();
   List<String> _subjectsTranslations = List<String>();
   String _pickedSubjectTranslation;
@@ -41,11 +42,22 @@ class _PostQuestionState extends BasePostState {
   void initState() {
     super.initState();
     _tagService = TagService.instance;
+    if (storageService.questionImages
+        .containsKey(timelineService.editedQuestion.id)) {
+      for (Tuple2<String, Image> tuple
+          in storageService.questionImages[timelineService.editedQuestion.id]) {
+        imageList.add(tuple.item2);
+        fileList.add(tuple.item1);
+      }
+    }
+    content.text = timelineService.editedQuestion.content;
+    _tags.addAll(timelineService.editedQuestion.tags);
     Future.delayed(Duration.zero, () {
       setState(() {
         _subjectsTranslations = TranslationMapper.translateList(
             SchoolSubjectExtension.labels, this.context);
-        _pickedSubjectTranslation = _subjectsTranslations[0];
+        _pickedSubjectTranslation = Translations.of(this.context)
+            .text(timelineService.editedQuestion.schoolSubject.label);
       });
     });
   }
@@ -80,19 +92,52 @@ class _PostQuestionState extends BasePostState {
 
   @override
   Future<void> onSubmit() async {
-    List<String> fileNames = fileList
-        .map((file) => Uuid().generateV4() + basename(file.path))
-        .toList();
-    String questionId = timelineService.generatePostId();
+    List<String> oldFileNames = List<String>();
+    for (dynamic value in fileList) {
+      if (value is String) {
+        oldFileNames.add(value);
+      }
+    }
+    List<String> fileNamesToDelete = List<String>();
+    for (String fileName in timelineService.editedQuestion.photoNames) {
+      if (!oldFileNames.contains(fileName)) {
+        fileNamesToDelete.add(fileName);
+      }
+    }
+    await storageService.deleteQuestionImages(
+        fileNamesToDelete, timelineService.editedQuestion.id);
+    List<String> fileNames = List<String>.from(fileList.map((value) {
+      if (value is File) {
+        return Uuid().generateV4() + basename(value.path);
+      } else {
+        return value;
+      }
+    }));
+
+    List<String> tagsToRemove = List<String>();
+    for (String tag in timelineService.editedQuestion.tags) {
+      if (!_tags.contains(tag)) {
+        tagsToRemove.add(tag);
+      }
+    }
+    List<String> tagsToPost = List<String>();
+    for (String tag in _tags) {
+      if (!timelineService.editedQuestion.tags.contains(tag)) {
+        tagsToPost.add(tag);
+      }
+    }
+
     await storageService.uploadQuestionImages(
-        imageList, List<File>.from(fileList), fileNames, questionId);
-    await timelineService.sendQuestion(
-        questionId,
+        imageList, fileList, fileNames, timelineService.editedQuestion.id);
+    await timelineService.updateQuestion(
+        timelineService.editedQuestion.id,
         content.text,
+        _tags,
         SchoolSubjectExtension.getValue(
             Translations.of(this.context).key(_pickedSubjectTranslation)),
-        _tags,
-        fileNames);
+        fileNames,
+        tagsToPost,
+        tagsToRemove);
     appStateManager.previousState();
   }
 
@@ -222,5 +267,11 @@ class _PostQuestionState extends BasePostState {
             ],
           ),
         ));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    timelineService.editedQuestion = null;
   }
 }

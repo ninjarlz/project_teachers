@@ -24,6 +24,10 @@ class ThemeGlobalText {
 
   TextStyle text = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: ThemeGlobalColor().textColor);
 
+  TextStyle weekendDayText = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: Colors.red);
+
+  TextStyle inactiveDayText = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: ThemeGlobalColor().smallTextColor);
+
   TextStyle tag = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: ThemeGlobalColor().secondaryColorDark);
 
   TextStyle whiteText = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: Colors.white);
