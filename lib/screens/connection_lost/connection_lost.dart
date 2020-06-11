@@ -60,38 +60,42 @@ class _ConnectionLostState extends State<ConnectionLost> {
     return WillPopScope(
         onWillPop: () async => false,
         child: Scaffold(
-            appBar: AppBar(
-                automaticallyImplyLeading: false,
-                title: Text(Translations.of(context).text("connection_lost"),
-                    style: TextStyle(color: Colors.white)),
-                backgroundColor: ThemeGlobalColor().secondaryColor),
-            body: Container(
-                padding: EdgeInsets.all(16.0),
-                width: MediaQuery.of(context).size.width,
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 15, horizontal: 15),
-                          child: Image.asset("assets/img/connection-lost.png")),
-                      Align(
-                          alignment: Alignment.center,
-                          child: Text(
-                              Translations.of(context)
-                                  .text("waiting_for_connection"),
-                              style: ThemeGlobalText().titleText)),
-                      Padding(
-                          padding: EdgeInsets.symmetric(vertical: 20),
-                          child: Column(children: [
-                            ButtonPrimaryWidget(
-                                text: Translations.of(context).text("reconnect"),
-                                submit: checkConnection),
-                            ButtonSecondaryWidget(
-                                text: Translations.of(context).text("logout"),
-                                submit: logout)
-                          ], crossAxisAlignment: CrossAxisAlignment.stretch))
-                    ]))));
+          appBar: AppBar(
+              automaticallyImplyLeading: false,
+              title: Text(Translations.of(context).text("connection_lost"),
+                  style: TextStyle(color: Colors.white)),
+              backgroundColor: ThemeGlobalColor().secondaryColor),
+          body: Scrollbar(
+              child: Container(
+                  padding: EdgeInsets.all(16.0),
+                  width: MediaQuery.of(context).size.width,
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        Padding(
+                            padding: EdgeInsets.symmetric(
+                                vertical: 15, horizontal: 15),
+                            child:
+                                Image.asset("assets/img/connection-lost.png")),
+                        Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                                Translations.of(context)
+                                    .text("waiting_for_connection"),
+                                style: ThemeGlobalText().titleText)),
+                        Padding(
+                            padding: EdgeInsets.symmetric(vertical: 20),
+                            child: Column(children: [
+                              ButtonPrimaryWidget(
+                                  text: Translations.of(context)
+                                      .text("reconnect"),
+                                  submit: checkConnection),
+                              ButtonSecondaryWidget(
+                                  text: Translations.of(context).text("logout"),
+                                  submit: logout)
+                            ], crossAxisAlignment: CrossAxisAlignment.stretch))
+                      ]))),
+        ));
   }
 
   void logout() {

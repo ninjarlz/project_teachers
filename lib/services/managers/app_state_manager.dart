@@ -22,7 +22,8 @@ enum AppState {
   CHAT,
   CONNECTION_LOST,
   EDIT_QUESTION,
-  EDIT_ANSWER
+  EDIT_ANSWER,
+  CONTACT
 }
 
 class AppStateManager extends ChangeNotifier {

@@ -50,14 +50,15 @@ class _EditAnswerState extends BasePostState {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return Scrollbar(
+        child: SafeArea(
       child: Stack(
         children: <Widget>[
           showForm(),
           AnimationCircularProgressWidget(status: isLoading)
         ],
       ),
-    );
+    ));
   }
 
   @override

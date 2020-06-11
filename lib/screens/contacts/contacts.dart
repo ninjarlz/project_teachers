@@ -69,16 +69,18 @@ class _ContactsState extends State<Contacts>
                 conversation.lastMsgSenderId != _userService.currentUser.uid
             ? Text(
                 "\u2022 " +
-                    DateFormat('dd MMM kk:mm').format(
-                        DateTime.fromMillisecondsSinceEpoch(conversation
+                    DateFormat('dd MMM kk:mm',
+                            Translations.of(context).text("lang"))
+                        .format(DateTime.fromMillisecondsSinceEpoch(conversation
                             .lastMsgTimestamp.millisecondsSinceEpoch)) +
                     " - " +
                     conversation.lastMsgText,
                 style: ThemeGlobalText().boldSmallText,
               )
             : Text(
-                DateFormat('dd MMM kk:mm').format(
-                        DateTime.fromMillisecondsSinceEpoch(conversation
+                DateFormat('dd MMM kk:mm',
+                            Translations.of(context).text("lang"))
+                        .format(DateTime.fromMillisecondsSinceEpoch(conversation
                             .lastMsgTimestamp.millisecondsSinceEpoch)) +
                     " - " +
                     (conversation.lastMsgSenderId ==

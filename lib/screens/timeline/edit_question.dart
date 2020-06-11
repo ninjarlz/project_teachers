@@ -32,8 +32,7 @@ class EditQuestion extends StatefulWidget {
 
 class _EditQuestionState extends BasePostState {
   List<String> _tags = List<String>();
-  List<String> _subjectsTranslations = List<String>();
-  String _pickedSubjectTranslation;
+  SchoolSubject _pickedSubject;
   TextEditingController _tagsCtrl = TextEditingController();
   GlobalKey<FormState> _tagFormKey = GlobalKey<FormState>();
   TagService _tagService;
@@ -52,14 +51,7 @@ class _EditQuestionState extends BasePostState {
     }
     content.text = timelineService.editedQuestion.content;
     _tags.addAll(timelineService.editedQuestion.tags);
-    Future.delayed(Duration.zero, () {
-      setState(() {
-        _subjectsTranslations = TranslationMapper.translateList(
-            SchoolSubjectExtension.labels, this.context);
-        _pickedSubjectTranslation = Translations.of(this.context)
-            .text(timelineService.editedQuestion.schoolSubject.label);
-      });
-    });
+    _pickedSubject = timelineService.editedQuestion.schoolSubject;
   }
 
   @override
@@ -80,14 +72,14 @@ class _EditQuestionState extends BasePostState {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return Scrollbar(child: SafeArea(
       child: Stack(
         children: <Widget>[
           showForm(),
           AnimationCircularProgressWidget(status: isLoading)
         ],
       ),
-    );
+    ));
   }
 
   @override
@@ -133,8 +125,7 @@ class _EditQuestionState extends BasePostState {
         timelineService.editedQuestion.id,
         content.text,
         _tags,
-        SchoolSubjectExtension.getValue(
-            Translations.of(this.context).key(_pickedSubjectTranslation)),
+        _pickedSubject,
         fileNames,
         tagsToPost,
         tagsToRemove);
@@ -147,8 +138,10 @@ class _EditQuestionState extends BasePostState {
           style: ThemeGlobalText().titleText),
       RadioButtonGroup(
         onSelected: _onSubjectValueChanged,
-        labels: _subjectsTranslations,
-        picked: _pickedSubjectTranslation,
+        labels: TranslationMapper.translateList(
+            SchoolSubjectExtension.getLabelsFromList(SchoolSubject.values),
+            this.context),
+        picked: Translations.of(this.context).text(_pickedSubject.label),
         activeColor: ThemeGlobalColor().mainColorDark,
         labelStyle: ThemeGlobalText().text,
       )
@@ -157,7 +150,8 @@ class _EditQuestionState extends BasePostState {
 
   void _onSubjectValueChanged(String value) {
     setState(() {
-      _pickedSubjectTranslation = value;
+      _pickedSubject = SchoolSubjectExtension.getValue(
+          Translations.of(this.context).key(value));
     });
   }
 
@@ -260,8 +254,8 @@ class _EditQuestionState extends BasePostState {
               buildArticle(),
               buildContentForm(),
               buildImagesForm(),
-              _buildSubjectsForm(),
               _buildTagsForm(),
+              _buildSubjectsForm(),
               buildErrorMsg(),
               buildPostButton()
             ],

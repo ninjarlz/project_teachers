@@ -9,7 +9,6 @@ import 'package:project_teachers/services/storage/storage_service.dart';
 import 'package:project_teachers/services/users/user_service.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
-import 'package:project_teachers/utils/translations/translation_mapper.dart';
 import 'package:provider/provider.dart';
 
 class UserProfile extends StatefulWidget {
@@ -69,21 +68,16 @@ class _UserProfileState extends BaseProfileState<UserProfile>
         UserListener,
         UserProfileImageListener,
         UserBackgroundImageListener {
-
-  UserType _userType;
-
   @override
   void initState() {
     super.initState();
-    _userType = userService.currentUser.userType;
+    userType = userService.currentUser.userType;
     userService.userListeners.add(this);
     storageService.userProfileImageListeners.add(this);
     storageService.userBackgroundImageListeners.add(this);
     onUserProfileImageChange();
     onUserBackgroundImageChange();
-    Future.delayed(Duration.zero, () {
-      onUserDataChange();
-    });
+    onUserDataChange();
   }
 
   @override
@@ -94,30 +88,20 @@ class _UserProfileState extends BaseProfileState<UserProfile>
         userName = expert.name + " " + expert.surname;
         city = expert.city;
         school = expert.school;
-        profession = expert.profession + " | " + expert.userType.label;
-        if (_userType == UserType.COACH) {
+        profession = expert.profession;
+        if (userType == UserType.COACH) {
           CoachEntity coach = userService.currentCoach;
-          profession += " - " +
-              Translations.of(context)
-                  .text(coach.coachType.label);
-          availability = (coach.maxAvailabilityPerWeek !=
-                      null
-                  ? coach.maxAvailabilityPerWeek.toString()
-                  : "0 ") +
-              " hrs per week | " +
-              (coach.remainingAvailabilityInWeek != null
-                  ? coach.remainingAvailabilityInWeek
-                      .toString()
-                  : "0 ") +
-              " hrs remaining in this week";
+          coachType = coach.coachType;
+          maxAvailabilityPerWeek = coach.maxAvailabilityPerWeek;
+          remainingAvailabilityInWeek = coach.remainingAvailabilityInWeek;
         }
         bio = expert.bio;
         if (expert.specializations != null &&
             expert.specializations.isNotEmpty) {
-          competencies = TranslationMapper.translateList(
-              SpecializationExtension.getShortcutsFromList(
-                  expert.specializations),
-              context);
+          competencies = expert.specializations;
+        }
+        if (expert.schoolSubjects != null && expert.schoolSubjects.isNotEmpty) {
+          subjects = expert.schoolSubjects;
         }
       } else {
         userName = "";
@@ -157,7 +141,7 @@ class _UserProfileState extends BaseProfileState<UserProfile>
 
   @override
   Widget buildProfile() {
-    switch (_userType) {
+    switch (userType) {
       case UserType.COACH:
         return Column(
           children: <Widget>[
@@ -167,11 +151,29 @@ class _UserProfileState extends BaseProfileState<UserProfile>
             SizedBox(height: 5),
             Text(city, style: ThemeGlobalText().smallText),
             SizedBox(height: 5),
-            Text(profession, style: ThemeGlobalText().text),
+            Text(
+                profession +
+                    " | " +
+                    userType.label +
+                    " - " +
+                    Translations.of(context).text(coachType.label),
+                style: ThemeGlobalText().text),
             SizedBox(height: 5),
             Text(school, style: ThemeGlobalText().text),
             SizedBox(height: 5),
-            Text(availability, style: ThemeGlobalText().text),
+            Text(
+                (maxAvailabilityPerWeek != null
+                        ? maxAvailabilityPerWeek.toString()
+                        : "0") +
+                    " " +
+                    Translations.of(context).text("hrs_per_week") +
+                    " | " +
+                    (remainingAvailabilityInWeek != null
+                        ? remainingAvailabilityInWeek.toString()
+                        : "0") +
+                    " " +
+                    Translations.of(context).text("hrs_remaining_in_this_week"),
+                style: ThemeGlobalText().text),
             SizedBox(height: 10),
             buildProfileSubjects(),
             SizedBox(height: 10),
@@ -182,25 +184,27 @@ class _UserProfileState extends BaseProfileState<UserProfile>
           ],
         );
       default:
-      return Column(
-        children: <Widget>[
-          SizedBox(height: MediaQuery.of(context).size.height / 3),
-          buildProfileImage(),
-          Text(userName, style: ThemeGlobalText().titleText),
-          SizedBox(height: 5),
-          Text(city, style: ThemeGlobalText().smallText),
-          SizedBox(height: 5),
-          Text(profession, style: ThemeGlobalText().text),
-          SizedBox(height: 5),
-          Text(school, style: ThemeGlobalText().text),
-          SizedBox(height: 10),
-          buildProfileCompetencies(),
-          SizedBox(height: 10),
-          buildProfileBio(),
-          SizedBox(height: 100),
-        ],
-      );
+        return Column(
+          children: <Widget>[
+            SizedBox(height: MediaQuery.of(context).size.height / 3),
+            buildProfileImage(),
+            Text(userName, style: ThemeGlobalText().titleText),
+            SizedBox(height: 5),
+            Text(city, style: ThemeGlobalText().smallText),
+            SizedBox(height: 5),
+            Text(profession + " | " + userType.label,
+                style: ThemeGlobalText().text),
+            SizedBox(height: 5),
+            Text(school, style: ThemeGlobalText().text),
+            SizedBox(height: 10),
+            buildProfileSubjects(),
+            SizedBox(height: 10),
+            buildProfileCompetencies(),
+            SizedBox(height: 10),
+            buildProfileBio(),
+            SizedBox(height: 100),
+          ],
+        );
     }
-
   }
 }

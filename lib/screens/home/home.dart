@@ -4,6 +4,7 @@ import 'package:project_teachers/entities/messaging/conversation_entity.dart';
 import 'package:project_teachers/screens/calendar/calendar.dart';
 import 'package:project_teachers/screens/chat/chat.dart';
 import 'package:project_teachers/screens/connection_lost/connection_lost.dart';
+import 'package:project_teachers/screens/contact/contact.dart';
 import 'package:project_teachers/screens/contacts/contacts.dart';
 import 'package:project_teachers/screens/edit_profile/edit_profile.dart';
 import 'package:project_teachers/screens/filter/question_filter_page.dart';
@@ -352,6 +353,21 @@ class _HomeState extends State<Home>
             child: Calendar());
         appBar = AppBar(
             title: Text(Translations.of(context).text("calendar"),
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: ThemeGlobalColor().secondaryColor);
+        navBarIndex = -1;
+        floatingButton = Calendar.buildCalendarFloatingActionButtons(context);
+        break;
+
+
+      case AppState.CONTACT:
+        body = WillPopScope(
+            onWillPop: () async {
+              return false;
+            },
+            child: Contact());
+        appBar = AppBar(
+            title: Text(Translations.of(context).text("contact"),
                 style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
         navBarIndex = -1;

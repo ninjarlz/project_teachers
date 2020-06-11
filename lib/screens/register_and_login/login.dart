@@ -3,6 +3,7 @@ import 'package:project_teachers/services/authentication/auth.dart';
 import 'package:project_teachers/services/validation/valid_email_address_service.dart';
 import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
+import 'package:project_teachers/utils/translations/translation_manager.dart';
 import 'package:project_teachers/widgets/index.dart';
 
 class Login extends StatefulWidget {
@@ -25,24 +26,12 @@ class _LoginState extends State<Login> {
   String _errorMessage;
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   ValidEmailAddressService _validEmailAddressService;
-  String INVALID_EMAIL_MSG;
-  String NOT_VERIFIED_EMAIL_MSG;
-  String ACTIVATE_EMAIL_MSG;
-  String PASSWORD_RESET_EMAIL_MSG;
 
   @override
   void initState() {
     super.initState();
     _validEmailAddressService = ValidEmailAddressService.instance;
     _auth = Auth.instance;
-    Future.delayed(Duration.zero, () {
-      INVALID_EMAIL_MSG = Translations.of(context).text("error_email_invalid");
-      NOT_VERIFIED_EMAIL_MSG =
-          Translations.of(context).text("error_email_unverified");
-      ACTIVATE_EMAIL_MSG = Translations.of(context).text("login_code_sent");
-      PASSWORD_RESET_EMAIL_MSG =
-          Translations.of(context).text("reset_email_sent");
-    });
   }
 
   void _setFormMode(LoginState loginState) {
@@ -75,8 +64,10 @@ class _LoginState extends State<Login> {
               } else {
                 setState(() {
                   _isLoading = false;
-                  _errorMessage = NOT_VERIFIED_EMAIL_MSG;
-                  print(NOT_VERIFIED_EMAIL_MSG);
+                  _errorMessage =
+                      Translations.of(context).text("error_email_unverified");
+                  print(
+                      Translations.of(context).text("error_email_unverified"));
                   _auth.signOut();
                 });
               }
@@ -105,12 +96,13 @@ class _LoginState extends State<Login> {
               await _validEmailAddressService
                   .markAddressAsValidated(_email.text);
               await _auth.sendEmailVerification();
-              _errorMessage = ACTIVATE_EMAIL_MSG;
+              _errorMessage = Translations.of(context).text("login_code_sent");
               print('Signed up user: $userId');
             } else {
               setState(() {
-                _errorMessage = INVALID_EMAIL_MSG;
-                print(INVALID_EMAIL_MSG);
+                _errorMessage =
+                    Translations.of(context).text("error_email_invalid");
+                print(Translations.of(context).text("error_email_invalid"));
               });
             }
             setState(() {
@@ -126,8 +118,8 @@ class _LoginState extends State<Login> {
             setState(() {
               _isLoading = false;
               _formKey.currentState.reset();
-              _errorMessage = PASSWORD_RESET_EMAIL_MSG;
-              print(PASSWORD_RESET_EMAIL_MSG);
+              _errorMessage = Translations.of(context).text("reset_email_sent");
+              print(Translations.of(context).text("reset_email_sent"));
               FocusScope.of(context).unfocus();
             });
             break;
@@ -182,7 +174,8 @@ class _LoginState extends State<Login> {
         break;
     }
 
-    return Container(
+    return Scrollbar(
+        child: Container(
       padding: EdgeInsets.all(16.0),
       width: MediaQuery.of(context).size.width,
       child: Form(
@@ -213,7 +206,7 @@ class _LoginState extends State<Login> {
                         error: Translations.of(context)
                             .text("error_password_empty"))),
                 Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10),
+                  padding: EdgeInsets.symmetric(vertical: 5),
                   child: Center(child: TextErrorWidget(text: _errorMessage)),
                 ),
                 ButtonPrimaryWidget(
@@ -228,13 +221,25 @@ class _LoginState extends State<Login> {
                           .text("login_password_forgotten"),
                       submit: _goToPasswordRecovery,
                       size: 12,
-                    ))
+                    )),
+                Padding(
+                  padding: EdgeInsets.only(top: 0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[TranslationManagerWidget()],
+                  ),
+                ),
+                Padding(
+                    padding: EdgeInsets.only(top: 0),
+                    child: Text(Translations.of(context).text("problems"),
+                        style: ThemeGlobalText().smallText,
+                        textAlign: TextAlign.center))
               ], crossAxisAlignment: CrossAxisAlignment.stretch),
             ),
           ],
         ),
       ),
-    );
+    ));
   }
 
   @override

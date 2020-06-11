@@ -9,7 +9,6 @@ import 'package:project_teachers/themes/global.dart';
 import 'package:project_teachers/translations/translations.dart';
 import 'package:project_teachers/utils/translations/translation_mapper.dart';
 import 'package:project_teachers/widgets/button/button_primary.dart';
-import 'package:project_teachers/widgets/button/button_secondary.dart';
 import 'package:project_teachers/widgets/input/places_input_with_icon.dart';
 import 'package:project_teachers/widgets/slider/slider_widget.dart';
 import 'package:provider/provider.dart';
@@ -22,12 +21,10 @@ class UserFilterPage extends StatefulWidget {
 class _UserFilterPageState extends State<UserFilterPage> {
   UserFilteringService _filteringService;
   AppStateManager _appStateManager;
-  List<String> _userTypeRadioLabels = List<String>();
-  String _pickedUserTypeTranslation;
-  String _pickedCoachTypeTranslation;
-  List<String> _pickedSubjectsTranslation;
-  List<String> _pickedSpecializationsTranslation;
-  List<String> _coachTypeRadioLabels = List<String>();
+  UserType _pickedUserType;
+  CoachType _pickedCoachType;
+  List<SchoolSubject> _pickedSubjects;
+  List<Specialization> _pickedSpecializations;
   TextEditingController _schoolCtrl = TextEditingController();
   String _schoolId;
   int _maxAvailability = 0;
@@ -41,61 +38,44 @@ class _UserFilterPageState extends State<UserFilterPage> {
     super.initState();
     _filteringService = UserFilteringService.instance;
     _userService = UserService.instance;
+    if (_filteringService.activeUserType == null) {
+      _isExtendedForCoaches = false;
+    } else {
+      _pickedUserType = _filteringService.activeUserType;
+      _isExtendedForCoaches =
+          _filteringService.activeUserType == UserType.COACH;
+      if (_isExtendedForCoaches) {
+        if (_filteringService.activeCoachType != null) {
+          _pickedCoachType = _filteringService.activeCoachType;
+        }
+        if (_filteringService.activeMaxAvailability == null) {
+          _maxAvailability = 0;
+        } else {
+          _maxAvailability = _filteringService.activeMaxAvailability;
+        }
+        if (_filteringService.activeRemainingAvailability == null) {
+          _remainingAvailability = 0;
+        } else {
+          _remainingAvailability =
+              _filteringService.activeRemainingAvailability;
+        }
+      }
+    }
+    _pickedSpecializations = _filteringService.activeSpecializations;
+    _pickedSubjects =
+        _filteringService.activeSchoolSubjects;
+    if (_filteringService.schoolId != null) {
+      _schoolId = _filteringService.schoolId;
+      _schoolCtrl.text = _filteringService.schoolName;
+    }
     Future.delayed(Duration.zero, () {
       _appStateManager = Provider.of<AppStateManager>(context, listen: false);
-      setState(() {
-        _userTypeRadioLabels.add(Translations.of(context).text("all"));
-        _userTypeRadioLabels.addAll(
-            TranslationMapper.translateList(UserTypeExtension.labels, context));
-        _pickedCoachTypeTranslation = Translations.of(context).text("all");
-        if (_filteringService.activeUserType == null) {
-          _isExtendedForCoaches = false;
-          _pickedUserTypeTranslation = _userTypeRadioLabels[0];
-        } else {
-          _pickedUserTypeTranslation = Translations.of(context)
-              .text(_filteringService.activeUserType.label);
-          _isExtendedForCoaches =
-              _filteringService.activeUserType == UserType.COACH;
-          if (_isExtendedForCoaches) {
-            if (_filteringService.activeCoachType != null) {
-              _pickedCoachTypeTranslation = Translations.of(context)
-                  .text(_filteringService.activeCoachType.label);
-            }
-            if (_filteringService.activeMaxAvailability == null) {
-              _maxAvailability = 0;
-            } else {
-              _maxAvailability = _filteringService.activeMaxAvailability;
-            }
-            if (_filteringService.activeRemainingAvailability == null) {
-              _remainingAvailability = 0;
-            } else {
-              _remainingAvailability =
-                  _filteringService.activeRemainingAvailability;
-            }
-          }
-        }
-        _pickedSpecializationsTranslation = TranslationMapper.translateList(
-            SpecializationExtension.getLabelsFromList(
-                _filteringService.activeSpecializations),
-            context);
-        _pickedSubjectsTranslation = TranslationMapper.translateList(
-            SchoolSubjectExtension.getLabelsFromList(
-                _filteringService.activeSchoolSubjects),
-            context);
-        if (_filteringService.schoolId != null) {
-          _schoolId = _filteringService.schoolId;
-          _schoolCtrl.text = _filteringService.schoolName;
-        }
-        _coachTypeRadioLabels.add(Translations.of(context).text("all"));
-        _coachTypeRadioLabels.addAll(TranslationMapper.translateList(
-            CoachTypeExtension.labels, context));
-      });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return showFilters();
+    return Scrollbar(child: showFilters());
   }
 
   Widget _buildUserTypeRadioButtons() {
@@ -106,10 +86,13 @@ class _UserFilterPageState extends State<UserFilterPage> {
             style: ThemeGlobalText().titleText),
       ),
       RadioButtonGroup(
-        labels: _userTypeRadioLabels,
+        labels: [Translations.of(context).text("all")] +
+            TranslationMapper.translateList(UserTypeExtension.labels, context),
         onSelected: _onUserTypeValueChanged,
         labelStyle: ThemeGlobalText().text,
-        picked: _pickedUserTypeTranslation,
+        picked: _pickedUserType != null
+            ? Translations.of(context).text(_pickedUserType.label)
+            : Translations.of(context).text("all"),
         activeColor: ThemeGlobalColor().mainColorDark,
       ),
     ]);
@@ -126,7 +109,7 @@ class _UserFilterPageState extends State<UserFilterPage> {
         onSelected: _onSubjectsValuesChanged,
         labels: TranslationMapper.translateList(
             SchoolSubjectExtension.editableLabels, context),
-        checked: _pickedSubjectsTranslation,
+        checked: TranslationMapper.translateList(SchoolSubjectExtension.getLabelsFromList(_pickedSubjects), context),
         activeColor: ThemeGlobalColor().mainColorDark,
         labelStyle: ThemeGlobalText().text,
       ),
@@ -139,7 +122,7 @@ class _UserFilterPageState extends State<UserFilterPage> {
         onSelected: _onSpecializationsValuesChanged,
         labels: TranslationMapper.translateList(
             SpecializationExtension.labels, context),
-        checked: _pickedSpecializationsTranslation,
+        checked: TranslationMapper.translateList(SpecializationExtension.getLabelsFromList(_pickedSpecializations), context),
         activeColor: ThemeGlobalColor().mainColorDark,
         labelStyle: ThemeGlobalText().text,
       ),
@@ -181,10 +164,13 @@ class _UserFilterPageState extends State<UserFilterPage> {
             style: ThemeGlobalText().titleText),
       ),
       RadioButtonGroup(
-        labels: _coachTypeRadioLabels,
+        labels: [Translations.of(context).text("all")] +
+            TranslationMapper.translateList(CoachTypeExtension.labels, context),
         onSelected: _onCoachTypeValueChanged,
         labelStyle: ThemeGlobalText().text,
-        picked: _pickedCoachTypeTranslation,
+        picked: _pickedCoachType != null
+            ? Translations.of(context).text(_pickedCoachType.label)
+            : Translations.of(context).text("all"),
         activeColor: ThemeGlobalColor().mainColorDark,
       ),
       Padding(
@@ -255,14 +241,8 @@ class _UserFilterPageState extends State<UserFilterPage> {
   void applyFilters() {
     if (_validateAndSave()) {
       _filteringService.searchFilter = null;
-      _filteringService.activeSchoolSubjects =
-          SchoolSubjectExtension.getValuesFromLabels(
-              TranslationMapper.labelsFromTranslation(
-                  _pickedSubjectsTranslation, context));
-      _filteringService.activeSpecializations =
-          SpecializationExtension.getValuesFromLabels(
-              TranslationMapper.labelsFromTranslation(
-                  _pickedSpecializationsTranslation, context));
+      _filteringService.activeSchoolSubjects = _pickedSubjects;
+      _filteringService.activeSpecializations = _pickedSpecializations;
       if (_schoolId != null) {
         _filteringService.schoolId = _schoolId;
         _filteringService.schoolName = _schoolCtrl.text;
@@ -270,17 +250,10 @@ class _UserFilterPageState extends State<UserFilterPage> {
         _filteringService.schoolId = null;
         _filteringService.schoolName = null;
       }
-      if (_pickedUserTypeTranslation != Translations.of(context).text("all")) {
-        _filteringService.activeUserType = UserTypeExtension.getValue(
-            Translations.of(context).key(_pickedUserTypeTranslation));
+      _filteringService.activeUserType = _pickedUserType;
+      if (_pickedUserType != null) {
         if (_filteringService.activeUserType == UserType.COACH) {
-          if (_pickedCoachTypeTranslation !=
-              Translations.of(context).text("all")) {
-            _filteringService.activeCoachType = CoachTypeExtension.getValue(
-                Translations.of(context).key(_pickedCoachTypeTranslation));
-          } else {
-            _filteringService.activeCoachType = null;
-          }
+          _filteringService.activeCoachType = _pickedCoachType;
           if (_maxAvailability == 0) {
             _filteringService.activeMaxAvailability = null;
           } else {
@@ -293,8 +266,6 @@ class _UserFilterPageState extends State<UserFilterPage> {
                 _remainingAvailability;
           }
         }
-      } else {
-        _filteringService.activeUserType = null;
       }
       _userService.resetUserList();
       _userService.updateUserList();
@@ -304,28 +275,34 @@ class _UserFilterPageState extends State<UserFilterPage> {
 
   void _onCoachTypeValueChanged(String newValue) {
     setState(() {
-      _pickedCoachTypeTranslation = newValue;
+      if (newValue == Translations.of(context).text("all")) {
+      _pickedCoachType = null;
+    } else {
+      _pickedCoachType = CoachTypeExtension.getValue(Translations.of(context).key(newValue));}
     });
   }
 
   void _onUserTypeValueChanged(String newValue) {
     setState(() {
-      _pickedUserTypeTranslation = newValue;
-      _isExtendedForCoaches =
-          Translations.of(context).key(_pickedUserTypeTranslation) ==
-              UserType.COACH.label;
+      if (newValue == Translations.of(context).text("all")) {
+        _pickedUserType = null;
+        _isExtendedForCoaches = false;
+      } else {
+        _pickedUserType = UserTypeExtension.getValue(Translations.of(context).key(newValue));
+        _isExtendedForCoaches = _pickedUserType == UserType.COACH;
+      }
     });
   }
 
   void _onSpecializationsValuesChanged(List<String> selected) {
     setState(() {
-      _pickedSpecializationsTranslation = selected;
+      _pickedSpecializations = SpecializationExtension.getValuesFromLabels(TranslationMapper.labelsFromTranslation(selected, context));
     });
   }
 
   void _onSubjectsValuesChanged(List<String> selected) {
     setState(() {
-      _pickedSubjectsTranslation = selected;
+      _pickedSubjects = SchoolSubjectExtension.getValuesFromLabels(TranslationMapper.labelsFromTranslation(selected, context));
     });
   }
 

@@ -31,8 +31,7 @@ class PostQuestion extends StatefulWidget {
 
 class _PostQuestionState extends BasePostState {
   List<String> _tags = List<String>();
-  List<String> _subjectsTranslations = List<String>();
-  String _pickedSubjectTranslation;
+  SchoolSubject _pickedSubject;
   TextEditingController _tagsCtrl = TextEditingController();
   GlobalKey<FormState> _tagFormKey = GlobalKey<FormState>();
   TagService _tagService;
@@ -41,13 +40,7 @@ class _PostQuestionState extends BasePostState {
   void initState() {
     super.initState();
     _tagService = TagService.instance;
-    Future.delayed(Duration.zero, () {
-      setState(() {
-        _subjectsTranslations = TranslationMapper.translateList(
-            SchoolSubjectExtension.labels, this.context);
-        _pickedSubjectTranslation = _subjectsTranslations[0];
-      });
-    });
+    _pickedSubject = SchoolSubject.values[1];
   }
 
   @override
@@ -68,14 +61,14 @@ class _PostQuestionState extends BasePostState {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
+    return Scrollbar(child: SafeArea(
       child: Stack(
         children: <Widget>[
           showForm(),
           AnimationCircularProgressWidget(status: isLoading)
         ],
       ),
-    );
+    ));
   }
 
   @override
@@ -87,32 +80,32 @@ class _PostQuestionState extends BasePostState {
     await storageService.uploadQuestionImages(
         imageList, List<File>.from(fileList), fileNames, questionId);
     await timelineService.sendQuestion(
-        questionId,
-        content.text,
-        SchoolSubjectExtension.getValue(
-            Translations.of(this.context).key(_pickedSubjectTranslation)),
-        _tags,
-        fileNames);
+        questionId, content.text, _pickedSubject, _tags, fileNames);
     appStateManager.previousState();
   }
 
   Widget _buildSubjectsForm() {
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      Text(Translations.of(this.context).text("subject"),
-          style: ThemeGlobalText().titleText),
-      RadioButtonGroup(
-        onSelected: _onSubjectValueChanged,
-        labels: _subjectsTranslations,
-        picked: _pickedSubjectTranslation,
-        activeColor: ThemeGlobalColor().mainColorDark,
-        labelStyle: ThemeGlobalText().text,
-      )
-    ]);
+    return Padding(
+        padding: EdgeInsets.only(top: 5),
+        child:
+            Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Text(Translations.of(this.context).text("subject"),
+              style: ThemeGlobalText().titleText),
+          RadioButtonGroup(
+            onSelected: _onSubjectValueChanged,
+            labels: TranslationMapper.translateList(
+                SchoolSubjectExtension.editableLabels, this.context),
+            picked: Translations.of(this.context).text(_pickedSubject.label),
+            activeColor: ThemeGlobalColor().mainColorDark,
+            labelStyle: ThemeGlobalText().text,
+          )
+        ]));
   }
 
   void _onSubjectValueChanged(String value) {
     setState(() {
-      _pickedSubjectTranslation = value;
+      _pickedSubject = SchoolSubjectExtension.getValue(
+          Translations.of(this.context).key(value));
     });
   }
 
@@ -215,8 +208,8 @@ class _PostQuestionState extends BasePostState {
               buildArticle(),
               buildContentForm(),
               buildImagesForm(),
-              _buildSubjectsForm(),
               _buildTagsForm(),
+              _buildSubjectsForm(),
               buildErrorMsg(),
               buildPostButton()
             ],

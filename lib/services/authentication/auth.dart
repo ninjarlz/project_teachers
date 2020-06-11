@@ -19,6 +19,8 @@ abstract class BaseAuth {
   Future<bool> isEmailVerified();
 
   Future<void> deleteUser();
+
+  Future<void> setLocale(String lang);
 }
 
 class Auth implements BaseAuth {
@@ -82,5 +84,10 @@ class Auth implements BaseAuth {
   Future<FirebaseUser> loadCurrentUser() async {
     FirebaseUser user = await _firebaseAuth.currentUser();
     return user;
+  }
+
+  @override
+  Future<void> setLocale(String lang) async {
+    await _firebaseAuth.setLanguageCode(lang);
   }
 }

@@ -35,8 +35,7 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
           this.userType = userType;
           _initialFormState = EditFormStateEnum.USER_TYPE_DETERMINED;
           if (userType == UserType.COACH) {
-            pickedCoachTypeTranslation =
-                Translations.of(context).text(CoachTypeExtension.labels[0]);
+            pickedCoachType = CoachType.values[0];
           }
         });
       });
@@ -59,12 +58,8 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
             schoolId,
             profession.text,
             bio.text,
-            SchoolSubjectExtension.getValuesFromLabels(
-                TranslationMapper.labelsFromTranslation(
-                    pickedSubjectsTranslation, context)),
-            SpecializationExtension.getValuesFromLabels(
-                TranslationMapper.labelsFromTranslation(
-                    pickedSpecializationsTranslation, context)));
+            pickedSubjects,
+            pickedSpecializations);
         break;
 
       case UserType.COACH:
@@ -78,14 +73,9 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
             schoolId,
             profession.text,
             bio.text,
-            SchoolSubjectExtension.getValuesFromLabels(
-                TranslationMapper.labelsFromTranslation(
-                    pickedSubjectsTranslation, context)),
-            SpecializationExtension.getValuesFromLabels(
-                TranslationMapper.labelsFromTranslation(
-                    pickedSpecializationsTranslation, context)),
-            CoachTypeExtension.getValue(
-                Translations.of(context).key(pickedCoachTypeTranslation)),
+            pickedSubjects,
+            pickedSpecializations,
+            pickedCoachType,
             maxAvailability);
         break;
     }
@@ -111,26 +101,28 @@ class _InitialFormState extends BaseEditFormState<InitialForm> {
         switch (userType) {
           case UserType.COACH:
             return Scaffold(
-                body: SafeArea(
+                body: Scrollbar(
+                    child: SafeArea(
               child: Stack(
                 children: <Widget>[
                   showCoachForm(),
                   AnimationCircularProgressWidget(status: isLoading)
                 ],
               ),
-            ));
+            )));
 
           default:
             return Scaffold(
                 backgroundColor: ThemeGlobalColor().backgroundColor,
-                body: SafeArea(
+                body: Scrollbar(
+                    child: SafeArea(
                   child: Stack(
                     children: <Widget>[
                       showExpertForm(),
                       AnimationCircularProgressWidget(status: isLoading)
                     ],
                   ),
-                ));
+                )));
         }
         break;
       default:

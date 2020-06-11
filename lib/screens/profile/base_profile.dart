@@ -14,7 +14,9 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
   @protected
   String userName = "";
   @protected
-  List<String> competencies = List<String>();
+  List<Specialization> competencies = List<Specialization>();
+  @protected
+  List<SchoolSubject> subjects = List<SchoolSubject>();
   @protected
   String profession = "";
   @protected
@@ -24,7 +26,13 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
   @protected
   String school = "";
   @protected
-  String availability = "";
+  UserType userType;
+  @protected
+  int maxAvailabilityPerWeek;
+  @protected
+  int remainingAvailabilityInWeek;
+  @protected
+  CoachType coachType;
   @protected
   Image profileImage;
   @protected
@@ -83,7 +91,9 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
   Widget buildProfileCompetencyRow(int rowIndex) {
     List<Widget> _rowElements = List<Widget>();
     for (int i = 0; i < 3 && (3 * rowIndex + i) < competencies.length; i++) {
-      _rowElements.add(PillProfileWidget(text: competencies[3 * rowIndex + i]));
+      _rowElements.add(PillProfileWidget(
+          text: Translations.of(context)
+              .text(competencies[3 * rowIndex + i].label + "_s")));
     }
     return Row(
         mainAxisAlignment: MainAxisAlignment.center, children: _rowElements);
@@ -104,14 +114,9 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
   @protected
   Widget buildProfileSubjectRow(int rowIndex) {
     List<Widget> _rowElements = List<Widget>();
-    for (int i = 0;
-        i < 3 &&
-            (3 * rowIndex + i) <
-                userService.currentExpert.schoolSubjects.length;
-        i++) {
+    for (int i = 0; i < 3 && (3 * rowIndex + i) < subjects.length; i++) {
       _rowElements.add(PillProfileWidget(
-        text: Translations.of(context).text(
-            userService.currentExpert.schoolSubjects[3 * rowIndex + i].label),
+        text: Translations.of(context).text(subjects[3 * rowIndex + i].label),
         color: ThemeGlobalColor().secondaryColor,
       ));
     }
@@ -136,7 +141,8 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return Scrollbar(
+        child: SingleChildScrollView(
       child: Stack(
         overflow: Overflow.visible,
         children: <Widget>[
@@ -144,6 +150,6 @@ abstract class BaseProfileState<T extends StatefulWidget> extends State<T> {
           buildProfile(),
         ],
       ),
-    );
+    ));
   }
 }

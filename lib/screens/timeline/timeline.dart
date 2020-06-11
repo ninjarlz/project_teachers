@@ -17,7 +17,7 @@ class Timeline extends StatefulWidget {
     return FloatingActionButton(
         onPressed: () {
           AppStateManager appStateManager =
-              Provider.of<AppStateManager>(context, listen: false);
+          Provider.of<AppStateManager>(context, listen: false);
           appStateManager.changeAppState(AppState.POST_QUESTION);
         },
         backgroundColor: ThemeGlobalColor().mainColor,
@@ -53,7 +53,10 @@ class _TimelineState extends State<Timeline>
     _scrollController.addListener(() {
       double maxScroll = _scrollController.position.maxScrollExtent;
       double currentScroll = _scrollController.position.pixels;
-      double delta = MediaQuery.of(context).size.height * 0.20;
+      double delta = MediaQuery
+          .of(context)
+          .size
+          .height * 0.20;
       if (maxScroll - currentScroll <= delta) {
         _loadMoreQuestions();
       }
@@ -81,63 +84,68 @@ class _TimelineState extends State<Timeline>
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.of(context).size.width,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width,
       decoration: new BoxDecoration(color: ThemeGlobalColor().containerColor),
       child: Column(
         children: [
           Expanded(
             child: _timelineService.questions == null ||
-                    _timelineService.questions.length == 0
+                _timelineService.questions.length == 0
                 ? Center(
-                    child: Text(
-                        Translations.of(context).text("no_results") + "..."),
-                  )
+              child: Text(
+                  Translations.of(context).text("no_results") + "..."),
+            )
                 : ListView.builder(
-                    controller: _scrollController,
-                    itemCount: _timelineService.questions.length,
-                    itemBuilder: (context, index) {
-                      QuestionEntity question =
-                          _timelineService.questions[index];
-                      return CardArticleWidget(
-                        lastAnswerSeenByAuthor: question.lastAnswerSeenByAuthor,
-                        goToPost: () {
-                          _timelineService.setSelectedQuestion(question);
-                          _appStateManager
-                              .changeAppState(AppState.QUESTION_ANSWERS);
-                        },
-                        isEditable:
-                            question.authorId == _userService.currentUser.uid,
-                        onEdit: () {
-                          _onEdit(question);
-                        },
-                        userId: question.authorId,
-                        postId: question.id,
-                        isAnswer: false,
-                        username: question.authorData.name +
-                            " " +
-                            question.authorData.surname,
-                        content: question.content,
-                        date: DateFormat('dd MMM kk:mm').format(
-                            DateTime.fromMillisecondsSinceEpoch(
-                                question.timestamp.millisecondsSinceEpoch)),
-                        reactionsNumber: question.reactionsCounter,
-                        answersNumber: question.answersCounter,
-                        images: question.photoNames,
-                        tags: question.tags,
-                        subjectsTranslation: Translations.of(context)
-                            .text(question.schoolSubject.label),
-                      );
+              controller: _scrollController,
+              itemCount: _timelineService.questions.length,
+              itemBuilder: (context, index) {
+                QuestionEntity question =
+                _timelineService.questions[index];
+                return CardArticleWidget(
+                    lastAnswerSeenByAuthor: question.lastAnswerSeenByAuthor,
+                    goToPost: () {
+                      _timelineService.setSelectedQuestion(question);
+                      _appStateManager
+                          .changeAppState(AppState.QUESTION_ANSWERS);
                     },
-                  ),
+                    isEditable:
+                    question.authorId == _userService.currentUser.uid,
+                    onEdit: () {
+                      _onEdit(question);
+                    },
+                    userId: question.authorId,
+                    postId: question.id,
+                    isAnswer: false,
+                    username: question.authorData.name +
+                        " " +
+                        question.authorData.surname,
+                    content: question.content,
+                    date: DateFormat('dd MMM kk:mm', Translations.of(context)
+                        .text("lang")).format(
+                    DateTime.fromMillisecondsSinceEpoch(
+                        question.timestamp.millisecondsSinceEpoch)),
+                reactionsNumber: question.reactionsCounter,
+                answersNumber: question.answersCounter,
+                images: question.photoNames,
+                tags: question.tags,
+                subjectsTranslation: Translations.of(context)
+                    .text(question.schoolSubject.label)
+                ,
+                );
+              },
+            ),
           ),
           _isLoading
               ? Text(
-                  Translations.of(context).text("loading") + "...",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                )
+            Translations.of(context).text("loading") + "...",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          )
               : Container(),
         ],
       ),
@@ -162,9 +170,9 @@ class _TimelineState extends State<Timeline>
   @override
   void onUserListProfileImagesChange(List<String> updatedUsersIds) {
     List<String> usersIds =
-        _timelineService.questions.map((e) => e.authorId).toList();
+    _timelineService.questions.map((e) => e.authorId).toList();
     String id = usersIds.firstWhere(
-        (element) => updatedUsersIds.contains(element),
+            (element) => updatedUsersIds.contains(element),
         orElse: () => null);
     if (id != null) {
       setState(() {});
@@ -174,9 +182,9 @@ class _TimelineState extends State<Timeline>
   @override
   void onQuestionListImagesChange(List<String> updatedQuestions) {
     List<String> questionIds =
-        _timelineService.questions.map((e) => e.id).toList();
+    _timelineService.questions.map((e) => e.id).toList();
     String id = questionIds.firstWhere(
-        (element) => updatedQuestions.contains(element),
+            (element) => updatedQuestions.contains(element),
         orElse: () => null);
     if (id != null) {
       setState(() {});

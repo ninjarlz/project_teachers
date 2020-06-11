@@ -14,12 +14,14 @@ class TypeAheadInputWithIconWidget extends StatefulWidget {
   final ValueChanged<String> onFieldSubmitted;
   final ValueChanged<String> suggestionsCallback;
   final ValueChanged<String> onSuggestionSelected;
+  final Function onTap;
 
   TypeAheadInputWithIconWidget({@required this.ctrl,
     @required this.hint,
     @required this.icon,
     @required this.suggestionsCallback,
     @required this.onSuggestionSelected,
+    this.onTap,
     this.onFieldSubmitted,
     this.error,
     this.type,
@@ -54,6 +56,7 @@ class _TypeAheadInputWithIconWidgetState
         child: TypeAheadFormField(
           textFieldConfiguration: TextFieldConfiguration(
             focusNode: _focusNode,
+            onTap: widget.onTap,
             onSubmitted: (value) {
               if (widget.onFieldSubmitted != null) {
                 widget.onFieldSubmitted(value);

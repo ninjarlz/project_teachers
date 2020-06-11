@@ -153,6 +153,10 @@ class UserService {
     _userRepository.subscribeUserList(query, _onUserListChange);
   }
 
+  Future<void> deleteUserAccount() async {
+
+  }
+
   Future<void> resetUserList() async {
     _usersOffset = 0;
     if (_userList != null) {
@@ -170,7 +174,7 @@ class UserService {
       return;
     }
     if (cnt == 1) {
-      _storageService.updateSelectedUserBackgroundImage(_selectedCoach);
+      _storageService.updateSelectedUserBackgroundImage(_selectedUser);
       return;
     }
     UserType userType = UserTypeExtension.getValue(event.data["userType"]);

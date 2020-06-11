@@ -23,10 +23,14 @@ class _QuestionFilterPageState extends State<QuestionFilterPage> {
   TagService _tagService;
   TimelineService _timelineService;
   AppStateManager _appStateManager;
-  List<String> _sortByRadioLabels = List<String>();
+  List<String> _sortByRadioLabels = [
+    "date",
+    "number_of_reactions",
+    "number_of_answers"
+  ];
   String _pickedSortByLabel;
-  List<String> _subjectsTranslations = List<String>();
-  String _pickedSubjectTranslation;
+  List<SchoolSubject> _subjects = List<SchoolSubject>();
+  SchoolSubject _pickedSubject;
   TextEditingController _tagCtrl = TextEditingController();
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -40,33 +44,24 @@ class _QuestionFilterPageState extends State<QuestionFilterPage> {
         _filteringService.selectedTag != "") {
       _tagCtrl.text = _filteringService.selectedTag;
     }
+    if (_filteringService.orderingField ==
+        _filteringService.orderingValues[0]) {
+      _pickedSortByLabel = _sortByRadioLabels[0];
+    } else if (_filteringService.orderingField ==
+        _filteringService.orderingValues[1]) {
+      _pickedSortByLabel = _sortByRadioLabels[1];
+    } else {
+      _pickedSortByLabel = _sortByRadioLabels[2];
+    }
+    _subjects = SchoolSubject.values;
+
+    if (_filteringService.selectedSubject == null) {
+      _pickedSubject = null;
+    } else {
+      _pickedSubject = _filteringService.selectedSubject;
+    }
     Future.delayed(Duration.zero, () {
       _appStateManager = Provider.of<AppStateManager>(context, listen: false);
-      setState(() {
-        _sortByRadioLabels.add(Translations.of(context).text("date"));
-        _sortByRadioLabels
-            .add(Translations.of(context).text("number_of_reactions"));
-        _sortByRadioLabels
-            .add(Translations.of(context).text("number_of_answers"));
-        if (_filteringService.orderingField ==
-            _filteringService.orderingValues[0]) {
-          _pickedSortByLabel = _sortByRadioLabels[0];
-        } else if (_filteringService.orderingField ==
-            _filteringService.orderingValues[1]) {
-          _pickedSortByLabel = _sortByRadioLabels[1];
-        } else {
-          _pickedSortByLabel = _sortByRadioLabels[2];
-        }
-        _subjectsTranslations = TranslationMapper.translateList(
-            SchoolSubjectExtension.labels, this.context);
-        _subjectsTranslations.insert(0, Translations.of(context).text("all"));
-        if (_filteringService.selectedSubject == null) {
-          _pickedSubjectTranslation = _subjectsTranslations[0];
-        } else {
-          _pickedSubjectTranslation = Translations.of(context)
-              .text(_filteringService.selectedSubject.label);
-        }
-      });
     });
   }
 
@@ -76,95 +71,108 @@ class _QuestionFilterPageState extends State<QuestionFilterPage> {
   }
 
   Widget showFilters() {
-    return Container(
-        margin: EdgeInsets.only(top: 10),
-        width: MediaQuery.of(context).size.width,
-        child: SingleChildScrollView(
-            child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(left: 20),
-                child: Text(Translations.of(context).text("sort_by"),
-                    style: ThemeGlobalText().titleText),
-              ),
-              RadioButtonGroup(
-                labels: _sortByRadioLabels,
-                onSelected: _onSortByValueChanged,
-                labelStyle: ThemeGlobalText().text,
-                picked: _pickedSortByLabel,
-                activeColor: ThemeGlobalColor().mainColorDark,
-              ),
-              Padding(
-                padding: EdgeInsets.only(left: 20),
-                child: Text(Translations.of(context).text("subject"),
-                    style: ThemeGlobalText().titleText),
-              ),
-              RadioButtonGroup(
-                onSelected: _onSubjectValueChanged,
-                labels: _subjectsTranslations,
-                picked: _pickedSubjectTranslation,
-                activeColor: ThemeGlobalColor().mainColorDark,
-                labelStyle: ThemeGlobalText().text,
-              ),
-              Padding(
-                padding: EdgeInsets.only(left: 20),
-                child: Text(Translations.of(context).text("tag"),
-                    style: ThemeGlobalText().titleText),
-              ),
-              Padding(
-                  padding: EdgeInsets.all(15),
-                  child: Row(children: [
-                    Expanded(
-                      child: TypeAheadInputWithIconWidget(
-                          ctrl: _tagCtrl,
-                          hint: Translations.of(this.context).text("tag"),
-                          icon: Icons.label,
-                          type: TextInputType.text,
-                          suggestionsCallback: (String value) async {
-                            if (value == null || value == "") {
-                              return List<String>();
-                            }
-                            return await _tagService
-                                .getTagsSuggestionsStrings(value);
+    return Scrollbar(
+        child: Container(
+            margin: EdgeInsets.only(top: 10),
+            width: MediaQuery.of(context).size.width,
+            child: SingleChildScrollView(
+                child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(left: 20),
+                    child: Text(Translations.of(context).text("sort_by"),
+                        style: ThemeGlobalText().titleText),
+                  ),
+                  RadioButtonGroup(
+                    labels: TranslationMapper.translateList(
+                        _sortByRadioLabels, context),
+                    onSelected: _onSortByValueChanged,
+                    labelStyle: ThemeGlobalText().text,
+                    picked: Translations.of(context).text(_pickedSortByLabel),
+                    activeColor: ThemeGlobalColor().mainColorDark,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(left: 20),
+                    child: Text(Translations.of(context).text("tag"),
+                        style: ThemeGlobalText().titleText),
+                  ),
+                  Padding(
+                      padding: EdgeInsets.all(15),
+                      child: Row(children: [
+                        Expanded(
+                          child: TypeAheadInputWithIconWidget(
+                              ctrl: _tagCtrl,
+                              hint: Translations.of(this.context).text("tag"),
+                              icon: Icons.label,
+                              type: TextInputType.text,
+                              suggestionsCallback: (String value) async {
+                                if (value == null || value == "") {
+                                  return List<String>();
+                                }
+                                return await _tagService
+                                    .getTagsSuggestionsStrings(value);
+                              },
+                              onSuggestionSelected: (String value) {
+                                int whiteSpaceIndex = value.indexOf(" ");
+                                String tag =
+                                    value.substring(0, whiteSpaceIndex);
+                                _tagCtrl.text = tag;
+                              }),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.clear, color: Colors.red),
+                          onPressed: () {
+                            setState(() {
+                              _tagCtrl.clear();
+                            });
                           },
-                          onSuggestionSelected: (String value) {
-                            int whiteSpaceIndex = value.indexOf(" ");
-                            String tag = value.substring(0, whiteSpaceIndex);
-                            _tagCtrl.text = tag;
-                          }),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.clear, color: Colors.red),
-                      onPressed: () {
-                        setState(() {
-                          _tagCtrl.clear();
-                        });
-                      },
-                    )
-                  ], mainAxisAlignment: MainAxisAlignment.spaceAround)),
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 15),
-                child: ButtonPrimaryWidget(
-                    text: Translations.of(context).text("apply"),
-                    submit: applyFilters),
+                        )
+                      ], mainAxisAlignment: MainAxisAlignment.spaceAround)),
+                  Padding(
+                    padding: EdgeInsets.only(left: 20, top: 5),
+                    child: Text(Translations.of(context).text("subject"),
+                        style: ThemeGlobalText().titleText),
+                  ),
+                  RadioButtonGroup(
+                    onSelected: _onSubjectValueChanged,
+                    labels: [Translations.of(context).text("all")] +
+                        TranslationMapper.translateList(
+                            SchoolSubjectExtension.getLabelsFromList(_subjects),
+                            context),
+                    picked: _pickedSubject == null
+                        ? Translations.of(context).text("all")
+                        : Translations.of(context).text(_pickedSubject.label),
+                    activeColor: ThemeGlobalColor().mainColorDark,
+                    labelStyle: ThemeGlobalText().text,
+                  ),
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 15),
+                    child: ButtonPrimaryWidget(
+                        text: Translations.of(context).text("apply"),
+                        submit: applyFilters),
+                  ),
+                ],
               ),
-            ],
-          ),
-        )));
+            ))));
   }
 
   void _onSortByValueChanged(String value) {
     setState(() {
-      _pickedSortByLabel = value;
+      _pickedSortByLabel = Translations.of(context).key(value);
     });
   }
 
   void _onSubjectValueChanged(String value) {
     setState(() {
-      _pickedSubjectTranslation = value;
+      if (value == Translations.of(context).text("all")) {
+        _pickedSubject = null;
+      } else {
+        _pickedSubject = SchoolSubjectExtension.getValue(
+            Translations.of(context).key(value));
+      }
     });
   }
 
@@ -177,12 +185,7 @@ class _QuestionFilterPageState extends State<QuestionFilterPage> {
       } else {
         _filteringService.orderingField = _filteringService.orderingValues[2];
       }
-      if (_pickedSubjectTranslation == _subjectsTranslations[0]) {
-        _filteringService.selectedSubject = null;
-      } else {
-        _filteringService.selectedSubject = SchoolSubjectExtension.getValue(
-            Translations.of(context).key(_pickedSubjectTranslation));
-      }
+      _filteringService.selectedSubject = _pickedSubject;
       if (_tagCtrl.text != null && _tagCtrl.text != "") {
         _filteringService.selectedTag = _tagCtrl.text;
       } else {

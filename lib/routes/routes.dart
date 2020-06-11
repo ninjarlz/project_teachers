@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:project_teachers/screens/connection_lost/connection_lost.dart';
 import 'package:project_teachers/screens/home/splashscreen.dart';
 import 'package:project_teachers/screens/register_and_login/login.dart';
+import 'package:project_teachers/services/authentication/auth.dart';
 import 'package:project_teachers/utils/index.dart';
 import 'package:project_teachers/themes/index.dart';
 import 'package:project_teachers/translations/translations.dart';
@@ -26,10 +27,12 @@ class Routes extends StatefulWidget {
 class _RoutesState extends State<Routes> {
   SpecificLocalizationDelegate _localeOverrideDelegate;
   var routes;
+  BaseAuth _auth;
 
   @override
   void initState() {
     super.initState();
+    _auth = Auth.instance;
     _localeOverrideDelegate = SpecificLocalizationDelegate(null);
     applic.onLocaleChanged = onLocaleChange;
     AuthenticationSave().getString("lang").then((response) {
@@ -45,6 +48,7 @@ class _RoutesState extends State<Routes> {
   onLocaleChange(Locale locale) {
     setState(() {
       _localeOverrideDelegate = SpecificLocalizationDelegate(locale);
+      _auth.setLocale(locale.languageCode);
     });
   }
 
@@ -55,7 +59,7 @@ class _RoutesState extends State<Routes> {
       DeviceOrientation.portraitDown,
     ]);
     return MaterialApp(
-      title: 'ProjectTeachers',
+      title: 'De Haagse Onderwijsapp',
       routes: routes,
       initialRoute: Splashscreen.routeName,
       debugShowCheckedModeBanner: false,

@@ -43,33 +43,22 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
     school.text = currUser.school;
     profession.text = currUser.profession;
     bio.text = currUser.bio;
-    Future.delayed(Duration.zero, () {
-      setState(() {
-        if (userType == UserType.COACH) {
-          CoachEntity currentCoach = userService.currentCoach;
-          pickedCoachTypeTranslation =
-              Translations.of(context).text(currentCoach.coachType.label);
-          if (currentCoach.maxAvailabilityPerWeek != null) {
-            maxAvailability = currentCoach.maxAvailabilityPerWeek;
-          }
-          if (currentCoach.remainingAvailabilityInWeek != null) {
-            _remainingAvailability = currentCoach.remainingAvailabilityInWeek;
-          }
-        }
-        if (userService.currentExpert.specializations != null) {
-          pickedSpecializationsTranslation = TranslationMapper.translateList(
-              SpecializationExtension.getLabelsFromList(
-                  userService.currentExpert.specializations),
-              context);
-        }
-        if (userService.currentExpert.schoolSubjects != null) {
-          pickedSubjectsTranslation = TranslationMapper.translateList(
-              SchoolSubjectExtension.getLabelsFromList(
-                  userService.currentExpert.schoolSubjects),
-              context);
-        }
-      });
-    });
+    if (userType == UserType.COACH) {
+      CoachEntity currentCoach = userService.currentCoach;
+      pickedCoachType = currentCoach.coachType;
+      if (currentCoach.maxAvailabilityPerWeek != null) {
+        maxAvailability = currentCoach.maxAvailabilityPerWeek;
+      }
+      if (currentCoach.remainingAvailabilityInWeek != null) {
+        _remainingAvailability = currentCoach.remainingAvailabilityInWeek;
+      }
+    }
+    if (userService.currentExpert.specializations != null) {
+      pickedSpecializations = userService.currentExpert.specializations;
+    }
+    if (userService.currentExpert.schoolSubjects != null) {
+      pickedSubjects = userService.currentExpert.schoolSubjects;
+    }
   }
 
   @override
@@ -77,22 +66,24 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
     switch (userService.currentUser.userType) {
       case UserType.COACH:
         return SafeArea(
+            child: Scrollbar(
           child: Stack(
             children: <Widget>[
               showCoachForm(),
               AnimationCircularProgressWidget(status: isLoading)
             ],
           ),
-        );
+        ));
       default:
         return SafeArea(
+            child: Scrollbar(
           child: Stack(
             children: <Widget>[
               showExpertForm(),
               AnimationCircularProgressWidget(status: isLoading)
             ],
           ),
-        );
+        ));
     }
   }
 
@@ -113,12 +104,8 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
             schoolId,
             profession.text,
             bio.text,
-            SchoolSubjectExtension.getValuesFromLabels(
-                TranslationMapper.labelsFromTranslation(
-                    pickedSubjectsTranslation, context)),
-            SpecializationExtension.getValuesFromLabels(
-                TranslationMapper.labelsFromTranslation(
-                    pickedSpecializationsTranslation, context)));
+            pickedSubjects,
+            pickedSpecializations);
         break;
       case UserType.COACH:
         await userService.updateCurrentCoachData(
@@ -129,14 +116,9 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
             schoolId,
             profession.text,
             bio.text,
-            SchoolSubjectExtension.getValuesFromLabels(
-                TranslationMapper.labelsFromTranslation(
-                    pickedSubjectsTranslation, context)),
-            SpecializationExtension.getValuesFromLabels(
-                TranslationMapper.labelsFromTranslation(
-                    pickedSpecializationsTranslation, context)),
-            CoachTypeExtension.getValue(
-                Translations.of(context).key(pickedCoachTypeTranslation)),
+            pickedSubjects,
+            pickedSpecializations,
+            pickedCoachType,
             maxAvailability != 0 ? maxAvailability : 0,
             _remainingAvailability != 0 ? _remainingAvailability : null);
         break;
@@ -218,7 +200,9 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
                   onSelected: onSubjectsValuesChanged,
                   labels: TranslationMapper.translateList(
                       SchoolSubjectExtension.editableLabels, context),
-                  checked: pickedSubjectsTranslation,
+                  checked: TranslationMapper.translateList(
+                      SchoolSubjectExtension.getLabelsFromList(pickedSubjects),
+                      context),
                   activeColor: ThemeGlobalColor().mainColorDark,
                   labelStyle: ThemeGlobalText().text,
                 ),
@@ -228,7 +212,10 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
                   onSelected: onSpecializationsValuesChanged,
                   labels: TranslationMapper.translateList(
                       SpecializationExtension.labels, context),
-                  checked: pickedSpecializationsTranslation,
+                  checked: TranslationMapper.translateList(
+                      SpecializationExtension.getLabelsFromList(
+                          pickedSpecializations),
+                      context),
                   activeColor: ThemeGlobalColor().mainColorDark,
                   labelStyle: ThemeGlobalText().text,
                 ),
@@ -239,7 +226,7 @@ class _EditProfileState extends BaseEditFormState<EditProfile> {
                       CoachTypeExtension.labels, context),
                   onSelected: onCoachTypeValueChanged,
                   labelStyle: ThemeGlobalText().text,
-                  picked: pickedCoachTypeTranslation,
+                  picked: Translations.of(context).text(pickedCoachType.label),
                   activeColor: ThemeGlobalColor().mainColorDark,
                 ),
                 Text(Translations.of(context).text("max_availability"),

@@ -147,6 +147,16 @@ class _NavigationDrawerState extends State<NavigationDrawer>
             },
           ),
           ListTile(
+            leading: Icon(Icons.contact_mail),
+            title: Text(Translations.of(context).text("contact")),
+            onTap: () {
+              Navigator.of(context).pop();
+              if (_appStateManager.appState != AppState.CONTACT) {
+                _appStateManager.changeAppState(AppState.CONTACT);
+              }
+            },
+          ),
+          ListTile(
             leading: Icon(Icons.arrow_back),
             title: Text(Translations.of(context).text("logout")),
             onTap: () {

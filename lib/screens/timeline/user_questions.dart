@@ -114,7 +114,7 @@ class _UserQuestionsState extends State<UserQuestions>
                             " " +
                             question.authorData.surname,
                         content: question.content,
-                        date: DateFormat('dd MMM kk:mm').format(
+                        date: DateFormat('dd MMM kk:mm', Translations.of(context).text("lang")).format(
                             DateTime.fromMillisecondsSinceEpoch(
                                 question.timestamp.millisecondsSinceEpoch)),
                         reactionsNumber: question.reactionsCounter,

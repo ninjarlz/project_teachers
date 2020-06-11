@@ -48,11 +48,11 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
   @protected
   TextEditingController bio = TextEditingController();
   @protected
-  String pickedCoachTypeTranslation;
+  CoachType pickedCoachType;
   @protected
-  List<String> pickedSubjectsTranslation;
+  List<SchoolSubject> pickedSubjects = List<SchoolSubject>();
   @protected
-  List<String> pickedSpecializationsTranslation;
+  List<Specialization> pickedSpecializations = List<Specialization>();
   @protected
   int maxAvailability = 0;
   @protected
@@ -202,7 +202,9 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
                 onSelected: onSubjectsValuesChanged,
                 labels: TranslationMapper.translateList(
                     SchoolSubjectExtension.editableLabels, context),
-                checked: pickedSubjectsTranslation,
+                checked: TranslationMapper.translateList(
+                    SchoolSubjectExtension.getLabelsFromList(pickedSubjects),
+                    context),
                 activeColor: ThemeGlobalColor().mainColorDark,
                 labelStyle: ThemeGlobalText().text,
               ),
@@ -212,7 +214,10 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
                 onSelected: onSpecializationsValuesChanged,
                 labels: TranslationMapper.translateList(
                     SpecializationExtension.labels, context),
-                checked: pickedSpecializationsTranslation,
+                checked: TranslationMapper.translateList(
+                    SpecializationExtension.getLabelsFromList(
+                        pickedSpecializations),
+                    context),
                 activeColor: ThemeGlobalColor().mainColorDark,
                 labelStyle: ThemeGlobalText().text,
               ),
@@ -223,7 +228,7 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
                     CoachTypeExtension.labels, context),
                 onSelected: onCoachTypeValueChanged,
                 labelStyle: ThemeGlobalText().text,
-                picked: pickedCoachTypeTranslation,
+                picked: Translations.of(context).text(pickedCoachType.label),
                 activeColor: ThemeGlobalColor().mainColorDark,
               ),
               Text(Translations.of(context).text("max_availability"),
@@ -323,7 +328,9 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
                 onSelected: onSubjectsValuesChanged,
                 labels: TranslationMapper.translateList(
                     SchoolSubjectExtension.editableLabels, context),
-                checked: pickedSubjectsTranslation,
+                checked: TranslationMapper.translateList(
+                    SchoolSubjectExtension.getLabelsFromList(pickedSubjects),
+                    context),
                 activeColor: ThemeGlobalColor().mainColorDark,
                 labelStyle: ThemeGlobalText().text,
               ),
@@ -333,7 +340,10 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
                 onSelected: onSpecializationsValuesChanged,
                 labels: TranslationMapper.translateList(
                     SpecializationExtension.labels, context),
-                checked: pickedSpecializationsTranslation,
+                checked: TranslationMapper.translateList(
+                    SpecializationExtension.getLabelsFromList(
+                        pickedSpecializations),
+                    context),
                 activeColor: ThemeGlobalColor().mainColorDark,
                 labelStyle: ThemeGlobalText().text,
               ),
@@ -357,21 +367,24 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
   @protected
   void onCoachTypeValueChanged(String newValue) {
     setState(() {
-      pickedCoachTypeTranslation = newValue;
+      pickedCoachType =
+          CoachTypeExtension.getValue(Translations.of(context).key(newValue));
     });
   }
 
   @protected
   void onSpecializationsValuesChanged(List<String> selected) {
     setState(() {
-      pickedSpecializationsTranslation = selected;
+      pickedSpecializations = SpecializationExtension.getValuesFromLabels(
+          TranslationMapper.labelsFromTranslation(selected, context));
     });
   }
 
   @protected
   void onSubjectsValuesChanged(List<String> selected) {
     setState(() {
-      pickedSubjectsTranslation = selected;
+      pickedSubjects = SchoolSubjectExtension.getValuesFromLabels(
+          TranslationMapper.labelsFromTranslation(selected, context));
     });
   }
 
