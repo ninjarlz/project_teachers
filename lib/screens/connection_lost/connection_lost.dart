@@ -34,17 +34,18 @@ class _ConnectionLostState extends State<ConnectionLost> {
     _connectionService = ConnectionService.instance;
     _auth = Auth.instance;
     _userService = UserService.instance;
-    _connectionChangeStream =
-        _connectionService.connectionChange.listen(connectionChanged);
     Future.delayed(Duration.zero, () {
       _authStatusManager =
           Provider.of<AuthStatusManager>(context, listen: false);
       _appStateManager = Provider.of<AppStateManager>(context, listen: false);
+      _connectionChangeStream =
+          _connectionService.connectionChange.listen(connectionChanged);
     });
   }
 
   void connectionChanged(dynamic hasConnection) {
     if (hasConnection) {
+      _appStateManager.hasConnection = true;
       Navigator.pop(context);
       _connectionChangeStream.cancel();
     }

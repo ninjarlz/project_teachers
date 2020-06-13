@@ -52,6 +52,7 @@ class _HomeState extends State<Home>
   UserService _userService;
   ConnectionService _connectionService;
   StreamSubscription _connectionChangeStream;
+  AppStateManager _appStateManager;
 
   @override
   void initState() {
@@ -61,15 +62,16 @@ class _HomeState extends State<Home>
     _userService = UserService.instance;
     _timelineService = TimelineService.instance;
     _connectionService = ConnectionService.instance;
-    _connectionChangeStream =
-        _connectionService.connectionChange.listen(connectionChanged);
     _messagingService.conversationPageListeners.add(this);
     _storageService.selectedUserProfileImageListeners.add(this);
     _storageService.userListProfileImageListeners.add(this);
     _userService.selectedUserListeners.add(this);
     _timelineService.userQuestionListListeners.add(this);
     Future.delayed(Duration.zero, () async {
+      _appStateManager = Provider.of<AppStateManager>(context, listen: false);
       connectionChanged(await _connectionService.checkConnection());
+      _connectionChangeStream =
+          _connectionService.connectionChange.listen(connectionChanged);
     });
   }
 
@@ -514,7 +516,8 @@ class _HomeState extends State<Home>
   }
 
   void connectionChanged(dynamic hasConnection) {
-    if (!hasConnection) {
+    if (!hasConnection && _appStateManager.hasConnection) {
+      _appStateManager.hasConnection = false;
       Navigator.of(context).pushNamed(ConnectionLost.routeName);
     }
   }

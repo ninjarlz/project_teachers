@@ -35,6 +35,7 @@ class AppStateManager extends ChangeNotifier {
   AppState get prevState => _prevState;
   AppState _userViewPrevState;
   AppState _answersViewPrevState;
+  bool hasConnection = true;
 
   void changeAppState(AppState appState) {
     if (appState == AppState.USER_LIST) {
