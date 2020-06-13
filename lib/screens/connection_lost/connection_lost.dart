@@ -104,6 +104,7 @@ class _ConnectionLostState extends State<ConnectionLost> {
     _userService.logoutUser();
     _authStatusManager.changeAuthState(AuthStatus.NOT_LOGGED_IN);
     _appStateManager.changeAppState(AppState.LOGIN);
+    _appStateManager.hasConnection = true;
     Navigator.pop(context);
     _connectionChangeStream.cancel();
   }
