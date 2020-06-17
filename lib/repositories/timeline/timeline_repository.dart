@@ -211,6 +211,14 @@ class TimelineRepository {
       await transaction.update(documentSnapshot.reference,
           {"authorData.profileImageName": userProfileImageName});
     }
+    QuerySnapshot answersQuerySnapshot = await _database
+        .collectionGroup("Answers")
+        .where("authorId", isEqualTo: userId)
+        .getDocuments();
+    for (DocumentSnapshot documentSnapshot in answersQuerySnapshot.documents) {
+      await transaction.update(documentSnapshot.reference,
+          {"authorData.profileImageName": userProfileImageName});
+    }
   }
 
   Future<void> transactionUpdateUserData(String userId, String name,
@@ -218,6 +226,14 @@ class TimelineRepository {
     QuerySnapshot querySnapshot =
         await _questionsRef.where("authorId", isEqualTo: userId).getDocuments();
     for (DocumentSnapshot documentSnapshot in querySnapshot.documents) {
+      await transaction.update(documentSnapshot.reference,
+          {"authorData.name": name, "authorData.surname": surname});
+    }
+    QuerySnapshot answersQuerySnapshot = await _database
+        .collectionGroup("Answers")
+        .where("authorId", isEqualTo: userId)
+        .getDocuments();
+    for (DocumentSnapshot documentSnapshot in answersQuerySnapshot.documents) {
       await transaction.update(documentSnapshot.reference,
           {"authorData.name": name, "authorData.surname": surname});
     }

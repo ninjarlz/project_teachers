@@ -334,13 +334,16 @@ class StorageService {
         if (question.photoNames != null) {
           if (_questionImages.containsKey(question.id)) {
             List<String> oldImagesNames = List<String>();
+            List<String> imagesToRemove = List<String>();
             for (Tuple2<String, Image> image in _questionImages[question.id]) {
               if (!question.photoNames.contains(image.item1)) {
-                _questionImages[question.id].remove(image);
+                imagesToRemove.add(image.item1);
               } else {
                 oldImagesNames.add(image.item1);
               }
             }
+            _questionImages[question.id]
+                .removeWhere((e) => imagesToRemove.contains(e.item1));
             for (String imageName in question.photoNames) {
               if (!oldImagesNames.contains(imageName)) {
                 if (!updatedQuestions.contains(question.id)) {
@@ -465,13 +468,16 @@ class StorageService {
         if (answer.photoNames != null) {
           if (_answerImages.containsKey(answer.id)) {
             List<String> oldImagesNames = List<String>();
+            List<String> imagesToRemove = List<String>();
             for (Tuple2<String, Image> image in _answerImages[answer.id]) {
               if (!answer.photoNames.contains(image.item1)) {
-                _answerImages[answer.id].remove(image);
+                imagesToRemove.add(image.item1);
               } else {
                 oldImagesNames.add(image.item1);
               }
             }
+            _answerImages[answer.id]
+                .removeWhere((e) => imagesToRemove.contains(e.item1));
             for (String imageName in answer.photoNames) {
               if (!oldImagesNames.contains(imageName)) {
                 if (!updatedAnswers.contains(answer.id)) {
