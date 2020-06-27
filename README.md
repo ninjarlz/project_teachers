@@ -2,8 +2,11 @@
 
 A new Flutter application.
 
-[![Watch the video](screenshots/play_video.jpg) | width=200px](https://youtu.be/vt5fpE0bzSY)
-
+<p>
+Watch video: <a href="https://www.youtube.com/watch?v=f5fdTGTj8Cc&feature=youtu.be">
+<img width="210" src="screenshots/play_video.jpg">
+</a>
+</p>
 
 ## Getting Started
 
