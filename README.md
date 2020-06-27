@@ -2,9 +2,8 @@
 
 A new Flutter application.
 
-{:refdef: style="width: 200px"}
-[![Watch the video](screenshots/play_video.jpg)](https://youtu.be/vt5fpE0bzSY)
-{: refdef}
+[![Watch the video](screenshots/play_video.jpg | width=200px)](https://youtu.be/vt5fpE0bzSY)
+
 
 ## Getting Started
 
