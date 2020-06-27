@@ -2,7 +2,7 @@
 
 A new Flutter application.
 
-<p>
+<p align="center">
 <a href="https://www.youtube.com/watch?v=f5fdTGTj8Cc&feature=youtu.be">
 <img width="210" src="screenshots/play_video.jpg">
 </a>
