@@ -2,11 +2,7 @@
 
 A new Flutter application.
 
-[![Watch the video](screenshots/play_video.jpg)](https://youtu.be/vt5fpE0bzSY)
-
-<p align="center">
-  <img width="210" src="screenshots/play_video.jpg(https://youtu.be/vt5fpE0bzSY)">
- </p>
+[![Watch the video](screenshots/play_video.jpg | width =210)](https://youtu.be/vt5fpE0bzSY)
 
 ## Getting Started
 
