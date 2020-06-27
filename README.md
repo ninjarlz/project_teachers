@@ -2,7 +2,7 @@
 
 A new Flutter application.
 
-[![Watch the video](screenshots/play_video.jpg | width=200px)](https://youtu.be/vt5fpE0bzSY)
+[![Watch the video](screenshots/play_video.jpg) | width=200px](https://youtu.be/vt5fpE0bzSY)
 
 
 ## Getting Started
