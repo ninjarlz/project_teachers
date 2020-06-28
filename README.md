@@ -1,10 +1,10 @@
-# project_teachers
+# De Haagse Onderwijsapp (codename - PROJECT: Teachers) 
 
-A new Flutter application.
+## Watch video
 
 <p align="center">
 <a href="https://www.youtube.com/watch?v=f5fdTGTj8Cc&feature=youtu.be">
-<img width="210" src="screenshots/play_video.jpg">
+<img width="300" src="screenshots/play_video.jpg">
 </a>
 </p>
 
