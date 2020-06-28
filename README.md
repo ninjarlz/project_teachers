@@ -87,7 +87,7 @@ The real time data synchronization in our application is realized with asynchron
 </p>
 
 ## Download
-All releases of the app are avaliable here: [releases](https://github.com/ninjarlz/project_teachers/releases) 
+All releases of the game are avaliable on the github page in the [releases](https://github.com/ninjarlz/project_teachers/releases) tab.
 
 ## Getting Started
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
