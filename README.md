@@ -25,61 +25,61 @@ The real time data synchronization in our application is realized with asynchron
 <p align="center">
 <img width="250" src="screenshots/sign_in_en.jpg">
 <img width="250" src="screenshots/sign_in_nl.jpg">
-</p>
+</p><br>
 
 <p align="center">
 <img width="250" src="screenshots/nav_drawer_en.jpg">
 <img width="250" src="screenshots/nav_drawer_nl.jpg">
-</p>
+</p><br>
 
 <p align="center">
 <img width="250" src="screenshots/profile_en.jpg">
 <img width="250" src="screenshots/profile_nl.jpg">
-</p>
+</p><br>
 
 <p align="center">
 <img width="250" src="screenshots/profile_options_en.jpg">
 <img width="250" src="screenshots/profile_options_nl.jpg">
-</p>
+</p><br>
 
 <p align="center">
 <img width="250" src="screenshots/edit_profile_en.jpg">
 <img width="250" src="screenshots/edit_profile_nl.jpg">
-</p>
+</p><br>
 
 <p align="center">
 <img width="250" src="screenshots/edit_photo.jpg">
-</p>
+</p><br>
 
 <p align="center">
 <img width="250" src="screenshots/timeline_en.jpg">
 <img width="250" src="screenshots/timeline_nl.jpg">
-</p>
+</p><br>
 
 <p align="center">
 <img width="250" src="screenshots/qa_en.jpg">
 <img width="250" src="screenshots/qa_nl.jpg">
-</p>
+</p><br>
 
 <p align="center">
 <img width="250" src="screenshots/filter_q_en.jpg">
 <img width="250" src="screenshots/filter_q_nl.jpg">
-</p>
+</p><br>
 
 <p align="center">
 <img width="250" src="screenshots/user_list_en.jpg">
 <img width="250" src="screenshots/user_list_nl.jpg">
-</p>
+</p><br>
 
 <p align="center">
 <img width="250" src="screenshots/filter_users_en.jpg">
 <img width="250" src="screenshots/filter_users_nl.jpg">
-</p>
+</p><br>
 
 <p align="center">
 <img width="250" src="screenshots/messages_en.jpg">
 <img width="250" src="screenshots/messages_nl.jpg">
-</p>
+</p><br>
 
 <p align="center">
 <img width="250" src="screenshots/chat_en.jpg">
