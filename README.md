@@ -1,6 +1,6 @@
 # De Haagse Onderwijsapp (codename - PROJECT: Teachers) 
 
-This application was created as the project for European Project Semester.
+This application was created as the project for European Project Semester. Thanks to the fact that it is made in [Flutter](https://flutter.dev/) it can be compiled to both Android and iOS executable files.
 
 Nowadays in the Hague, many teachers are leaving the education industry because of the weakened educational base. That means a new teacher has difficulty finding a way to communicate with a skilled teacher and to gain some helpful information. Therefore, we were asked by the client to create a mobile application called “De Haagse Onderwijsapp” - for both android & iOS - that aims to connect education professionals with selected coaches and within themselves. It must allow users to share their skills and learn competencies from others and it should focus on accessibility and interaction between teachers and certified coaches. That way, for the former, the way of learning competencies can be as efficient as possible.
 
@@ -44,9 +44,9 @@ Using e.g. free-to-use Android Studio, import and build the project. Additionaly
 * [Firebase](https://firebase.google.com/) - A comprehensive app development platform
 
 The Firebase cloud modules we used in our app are as follows:
-* Auth - supports logging via two systems - social login providers (Facebook, Github, Twitter, Google, etc.) or an email and a password stored in Firebase. Firebase Auth API provides a handy and easy-to-use interface for administration of users’ accounts and enabling specific authentication methods.
-* Cloud Firestore - stores and synchronizes data with Firebase’s cloud. It is a non-relational kind of database, in which data is represented in the form of a simple JSON tree. It allows us to introduce realtime database synchronization in our application - all changes concerning subscribed data are visible almost immediately, without the need for reloading the current view of the application.
-* Cloud Storage - a very simple, yet powerful storage option, being cost-effective at the same time. It allows Firebase apps uploading and downloading files, regardless of network quality, using asynchronous functions.
+* [Auth](https://firebase.google.com/docs/auth) - supports logging via two systems - social login providers (Facebook, Github, Twitter, Google, etc.) or an email and a password stored in Firebase. Firebase Auth API provides a handy and easy-to-use interface for administration of users’ accounts and enabling specific authentication methods.
+* [Cloud Firestore](https://firebase.google.com/docs/firestore) - stores and synchronizes data with Firebase’s cloud. It is a non-relational kind of database, in which data is represented in the form of a simple JSON tree. It allows us to introduce realtime database synchronization in our application - all changes concerning subscribed data are visible almost immediately, without the need for reloading the current view of the application.
+* [Cloud Storage](https://firebase.google.com/docs/storage) - a very simple, yet powerful storage option, being cost-effective at the same time. It allows Firebase apps uploading and downloading files, regardless of network quality, using asynchronous functions.
 
 ## Developers
 * **Michał Kuśmidrowicz** - Fullstack - [ninjarlz](https://github.com/ninjarlz)
