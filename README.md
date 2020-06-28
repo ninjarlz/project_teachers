@@ -106,6 +106,7 @@ Using e.g. free-to-use Android Studio, import and build the project. Additionaly
 ## Built with
 * [Flutter](https://flutter.dev/) - The world’s leading app creation platform
 * [Firebase](https://firebase.google.com/) - A comprehensive app development platform
+* [Google Places API](https://developers.google.com/places/web-service/intro)
 
 The Firebase cloud modules we used in our app are as follows:
 * [Auth](https://firebase.google.com/docs/auth) - supports logging via two systems - social login providers (Facebook, Github, Twitter, Google, etc.) or an email and a password stored in Firebase. Firebase Auth API provides a handy and easy-to-use interface for administration of users’ accounts and enabling specific authentication methods.
