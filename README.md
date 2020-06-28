@@ -101,7 +101,7 @@ $ git clone https://github.com/ninjarlz/project_teachers
 ```
 
 ### Building
-Using e.g. free-to-use Android Studio, import and build the project. Additionaly, one has to create own instance of Firebase project with the 'RectrictedConstants' dart class containing appropriate API keys' definitions at the following location - lib/utils/constants/restricted_constants.dart.
+Using e.g. free-to-use Android Studio, import and build the project. Additionally, one has to create own instance of Firebase project as well as the 'RectrictedConstants' dart class containing appropriate API keys' definitions at the following location - lib/utils/constants/restricted_constants.dart.
 
 ## Built with
 * [Flutter](https://flutter.dev/) - The world’s leading app creation platform
