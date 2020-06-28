@@ -22,6 +22,11 @@ The real time data synchronization in our application is realized with asynchron
 
 ## Screenshots
 
+<p align="center">
+<img width="250" src="screenshots/sign_in_en.jpg">
+<img width="250" src="screenshots/sign_in_nl.jpg">
+</p>
+
 ## Download
 All releases of the app are avaliable here: https://drive.google.com/drive/folders/1Ylf5X9gtYZvAQSplDuhYd2gm_MiRz-Hy?usp=sharing. 
 
