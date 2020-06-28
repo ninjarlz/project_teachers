@@ -4,7 +4,7 @@ This application was created as the project for European Project Semester. Thank
 
 Nowadays in the Hague, many teachers are leaving the education industry because of the weakened educational base. That means a new teacher has difficulty finding a way to communicate with a skilled teacher and to gain some helpful information. Therefore, we were asked by the client to create a mobile application called “De Haagse Onderwijsapp” - for both android & iOS - that aims to connect education professionals with selected coaches and within themselves. It must allow users to share their skills and learn competencies from others and it should focus on accessibility and interaction between teachers and certified coaches. That way, for the former, the way of learning competencies can be as efficient as possible.
 
-## Watch video
+## Watch the video
 
 <p align="center">
 <a href="https://www.youtube.com/watch?v=f5fdTGTj8Cc&feature=youtu.be">
