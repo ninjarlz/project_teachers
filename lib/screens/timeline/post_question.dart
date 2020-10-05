@@ -40,7 +40,7 @@ class _PostQuestionState extends BasePostState {
   void initState() {
     super.initState();
     _tagService = TagService.instance;
-    _pickedSubject = SchoolSubject.values[1];
+    _pickedSubject = SchoolSubject.values[0];
   }
 
   @override
@@ -94,7 +94,7 @@ class _PostQuestionState extends BasePostState {
           RadioButtonGroup(
             onSelected: _onSubjectValueChanged,
             labels: TranslationMapper.translateList(
-                SchoolSubjectExtension.editableLabels, this.context),
+                SchoolSubjectExtension.labels, this.context),
             picked: Translations.of(this.context).text(_pickedSubject.label),
             activeColor: ThemeGlobalColor().mainColorDark,
             labelStyle: ThemeGlobalText().text,

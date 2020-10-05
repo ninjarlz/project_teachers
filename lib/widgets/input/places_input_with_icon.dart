@@ -67,7 +67,7 @@ class PlacesInputWithIconWidgetState
             if (widget.placesTypes.contains(type)) {
               _pickerError = false;
               if (widget.onPlacePicked != null) {
-                widget.onPlacePicked(detail.result.id);
+                widget.onPlacePicked(prediction.placeId);
               }
               break;
             }
