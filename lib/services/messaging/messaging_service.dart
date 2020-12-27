@@ -68,27 +68,22 @@ class MessagingService {
 
   void setSelectedConversation(ConversationEntity conversation) {
     _selectedConversation = conversation;
-    fillParticipantsConversationData(_selectedConversation);
+    _fillParticipantsConversationData(_selectedConversation);
   }
 
   void _onConversationListChange(QuerySnapshot event) {
     _conversations = List<ConversationEntity>();
     _hasUnreadMessages = false;
-    if (event.documents.length < _conversationsOffset) {
-      _hasMoreConversations = false;
-    } else {
-      _hasMoreConversations = true;
-    }
+    _hasMoreConversations = event.documents.length >= _conversationsOffset;
     event.documents.forEach((element) {
       ConversationEntity conversation =
           ConversationEntity.fromJson(element.data);
-      if (conversation.lastMsgSenderId != _userService.currentUser.uid &&
-          !conversation.lastMsgSeen) {
-        _hasUnreadMessages = true;
-      }
+      _hasUnreadMessages =
+          conversation.lastMsgSenderId != _userService.currentUser.uid &&
+              !conversation.lastMsgSeen;
       conversation.id = element.documentID;
       _conversations.add(conversation);
-      fillParticipantsConversationData(conversation);
+      _fillParticipantsConversationData(conversation);
     });
     _storageService
         .updateUserListProfileImagesWithConversationList(_conversations);
@@ -97,7 +92,7 @@ class MessagingService {
     });
   }
 
-  void fillParticipantsConversationData(ConversationEntity conversation) {
+  void _fillParticipantsConversationData(ConversationEntity conversation) {
     for (String userId in conversation.participants) {
       if (userId != _userService.currentUser.uid) {
         conversation.otherParticipantId = userId;
@@ -131,11 +126,7 @@ class MessagingService {
 
   void _onConversationMessagesChange(QuerySnapshot event) {
     _selectedConversationMessages = List<MessageEntity>();
-    if (event.documents.length < _messagesOffset) {
-      _hasMoreMessages = false;
-    } else {
-      _hasMoreMessages = true;
-    }
+    _hasMoreMessages = event.documents.length >= _messagesOffset;
     event.documents.forEach((element) {
       MessageEntity message = MessageEntity.fromJson(element.data);
       message.id = element.documentID;
@@ -149,7 +140,7 @@ class MessagingService {
   void _onConversationChange(DocumentSnapshot event) {
     _selectedConversation = ConversationEntity.fromJson(event.data);
     _selectedConversation.id = event.documentID;
-    fillParticipantsConversationData(_selectedConversation);
+    _fillParticipantsConversationData(_selectedConversation);
     if (selectedConversation.lastMsgSenderId != _userService.currentUser.uid &&
         !selectedConversation.lastMsgSeen) {
       markConversationLastMsgAsSeen(selectedConversation.id);
@@ -165,14 +156,14 @@ class MessagingService {
         _messagesOffset, _onConversationMessagesChange, _onConversationChange);
   }
 
-  Future<void> transactionUpdateProfileImageData(
-      String userId, String userProfileImageName, Transaction transaction) async {
+  Future<void> transactionUpdateProfileImageData(String userId,
+      String userProfileImageName, Transaction transaction) async {
     await _messagingRepository.transactionUpdateProfileImageData(
         userId, userProfileImageName, transaction);
   }
 
-  Future<void> transactionUpdateUserData(
-      String userId, String name, String surname, Transaction transaction) async {
+  Future<void> transactionUpdateUserData(String userId, String name,
+      String surname, Transaction transaction) async {
     await _messagingRepository.transactionUpdateUserData(
         userId, name, surname, transaction);
   }
@@ -196,28 +187,33 @@ class MessagingService {
     _messagingRepository.cancelConversationSubscription();
   }
 
+  ConversationEntity _createNewConversation() {
+    ConversationEntity newConversationEntity = ConversationEntity([
+      _userService.currentUser.uid,
+      _userService.selectedUser.uid
+    ], {
+      _userService.currentUser.uid: ParticipantEntity(
+          _userService.currentUser.profileImageName,
+          _userService.currentUser.name,
+          _userService.currentUser.surname),
+      _userService.selectedUser.uid: ParticipantEntity(
+          _userService.selectedUser.profileImageName,
+          _userService.selectedUser.name,
+          _userService.selectedUser.surname)
+    }, null, null, null, false);
+    newConversationEntity.otherParticipantId = _userService.selectedUser.uid;
+    newConversationEntity.otherParticipantData = newConversationEntity
+        .participantsData[_userService.selectedUser.uid];
+    newConversationEntity.currentUserData =
+    newConversationEntity.participantsData[_userService.currentUser.uid];
+    newConversationEntity.id = ConversationEntity.getConversationId(
+        _userService.currentUser.uid, _userService.selectedUser.uid);
+    return newConversationEntity;
+  }
+
   Future<void> sendMessage(String text) async {
     if (_selectedConversation == null) {
-      _selectedConversation = ConversationEntity([
-        _userService.currentUser.uid,
-        _userService.selectedCoach.uid
-      ], {
-        _userService.currentUser.uid: ParticipantEntity(
-            _userService.currentUser.profileImageName,
-            _userService.currentUser.name,
-            _userService.currentUser.surname),
-        _userService.selectedCoach.uid: ParticipantEntity(
-            _userService.selectedCoach.profileImageName,
-            _userService.selectedCoach.name,
-            _userService.selectedCoach.surname)
-      }, null, null, null, false);
-      _selectedConversation.otherParticipantId = _userService.selectedCoach.uid;
-      _selectedConversation.otherParticipantData = _selectedConversation
-          .participantsData[_userService.selectedCoach.uid];
-      _selectedConversation.currentUserData =
-          _selectedConversation.participantsData[_userService.currentUser.uid];
-      _selectedConversation.id = ConversationEntity.getConversationId(
-          _userService.currentUser.uid, _userService.selectedCoach.uid);
+      _selectedConversation = _createNewConversation();
       await _messagingRepository.updateConversation(_selectedConversation);
       await _messagingRepository.sendConversationMessage(_selectedConversation,
           MessageEntity(text, _userService.currentUser.uid, Timestamp.now()));

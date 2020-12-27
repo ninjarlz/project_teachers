@@ -26,6 +26,45 @@ class _ArticleUserState extends State<ArticleUserWidget> {
     _storageService = StorageService.instance;
   }
 
+  Widget _buildImage() {
+    return Container(
+        width: 50,
+        child: Material(
+            child: _storageService.userImages.containsKey(widget.userId)
+                ? _storageService.userImages[widget.userId].item2
+                : Image.asset(
+                    "assets/img/default_profile_2.png",
+                    fit: BoxFit.cover,
+                    alignment: Alignment.bottomCenter,
+                  ),
+            elevation: 5.0,
+            shape: CircleBorder(),
+            clipBehavior: Clip.antiAlias));
+  }
+
+  Widget _buildUsername() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 5),
+          child: Text(widget.userName,
+              textAlign: TextAlign.right,
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  color: Colors.grey[700])),
+        ),
+        Padding(
+            padding: EdgeInsets.symmetric(horizontal: 5),
+            child: Text(widget.articleDate != null ? widget.articleDate : "",
+                textAlign: TextAlign.right,
+                style: TextStyle(fontSize: 10, color: Colors.grey[500]))),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -36,41 +75,8 @@ class _ArticleUserState extends State<ArticleUserWidget> {
         onPressed: widget.onPressedFunction,
         child: Row(
           children: <Widget>[
-            Container(
-                width: 50,
-                child: Material(
-                    child: _storageService.userImages.containsKey(widget.userId)
-                        ? _storageService.userImages[widget.userId].item2
-                        : Image.asset(
-                            "assets/img/default_profile_2.png",
-                            fit: BoxFit.cover,
-                            alignment: Alignment.bottomCenter,
-                          ),
-                    elevation: 5.0,
-                    shape: CircleBorder(),
-                    clipBehavior: Clip.antiAlias)),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 5),
-                  child: Text(widget.userName,
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                          color: Colors.grey[700])),
-                ),
-                Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 5),
-                    child: Text(
-                        widget.articleDate != null ? widget.articleDate : "",
-                        textAlign: TextAlign.right,
-                        style:
-                            TextStyle(fontSize: 10, color: Colors.grey[500]))),
-              ],
-            ),
+            _buildImage(),
+            _buildUsername(),
           ],
         ),
       ),

@@ -139,11 +139,7 @@ class TimelineService {
 
   void _onQuestionListChange(QuerySnapshot event) {
     _questions = List<QuestionEntity>();
-    if (event.documents.length < _questionsOffset) {
-      _hasMoreQuestions = false;
-    } else {
-      _hasMoreQuestions = true;
-    }
+    _hasMoreQuestions = event.documents.length >= _questionsOffset;
     event.documents.forEach((element) {
       QuestionEntity question = QuestionEntity.fromJson(element.data);
       question.id = element.documentID;
@@ -167,17 +163,11 @@ class TimelineService {
   void _onUserQuestionListChange(QuerySnapshot event) {
     _userQuestions = List<QuestionEntity>();
     _hasUnreadAnswers = false;
-    if (event.documents.length < _userQuestionsOffset) {
-      _hasMoreUserQuestions = false;
-    } else {
-      _hasMoreUserQuestions = true;
-    }
+    _hasMoreUserQuestions = event.documents.length >= _userQuestionsOffset;
     event.documents.forEach((element) {
       QuestionEntity question = QuestionEntity.fromJson(element.data);
-      if (question.authorId == _userService.currentUser.uid &&
-          question.lastAnswerSeenByAuthor == false) {
-        _hasUnreadAnswers = true;
-      }
+      _hasUnreadAnswers = question.authorId == _userService.currentUser.uid &&
+          question.lastAnswerSeenByAuthor == false;
       question.id = element.documentID;
       question.authorData.id = question.authorId;
       _userQuestions.add(question);
@@ -242,11 +232,7 @@ class TimelineService {
 
   void _onQuestionAnswersChange(QuerySnapshot event) {
     _selectedQuestionAnswers = List<AnswerEntity>();
-    if (event.documents.length < _answersOffset) {
-      _hasMoreAnswers = false;
-    } else {
-      _hasMoreAnswers = true;
-    }
+    _hasMoreAnswers = event.documents.length >= _answersOffset;
     event.documents.forEach((element) {
       AnswerEntity answer = AnswerEntity.fromJson(element.data);
       answer.id = element.documentID;

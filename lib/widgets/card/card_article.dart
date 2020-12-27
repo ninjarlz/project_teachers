@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:project_teachers/entities/timeline/question_entity.dart';
 import 'package:project_teachers/services/filtering/question_filtering_service.dart';
 import 'package:project_teachers/services/managers/app_state_manager.dart';
 import 'package:project_teachers/services/storage/storage_service.dart';
@@ -144,6 +143,40 @@ class _CardArticleState extends State<CardArticleWidget> {
     );
   }
 
+  Widget _buildAnswer() {
+    return (widget.images != null
+        ? _storageService.answerImages.containsKey(widget.postId)
+            ? ListView.builder(
+                itemBuilder: (context, index) {
+                  return Padding(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      child: _storageService
+                          .answerImages[widget.postId][index].item2);
+                },
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: _storageService.answerImages[widget.postId].length,
+                shrinkWrap: true)
+            : _buildWaitingScreen()
+        : Container());
+  }
+
+  Widget _buildQuestion() {
+    return (widget.images != null
+        ? _storageService.questionImages.containsKey(widget.postId)
+            ? ListView.builder(
+                itemBuilder: (context, index) {
+                  return Padding(
+                      padding: EdgeInsets.symmetric(vertical: 10),
+                      child: _storageService
+                          .questionImages[widget.postId][index].item2);
+                },
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: _storageService.questionImages[widget.postId].length,
+                shrinkWrap: true)
+            : _buildWaitingScreen()
+        : Container());
+  }
+
   Widget _buildContent(BuildContext context) {
     return Container(
       margin: EdgeInsets.all(10.0),
@@ -156,38 +189,7 @@ class _CardArticleState extends State<CardArticleWidget> {
                 style: TextStyle(fontSize: 16, color: Colors.grey[700]),
               )),
           SizedBox(height: 15),
-          widget.isAnswer
-              ? (widget.images != null
-                  ? _storageService.answerImages.containsKey(widget.postId)
-                      ? ListView.builder(
-                          itemBuilder: (context, index) {
-                            return Padding(
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                child: _storageService
-                                    .answerImages[widget.postId][index].item2);
-                          },
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: _storageService
-                              .answerImages[widget.postId].length,
-                          shrinkWrap: true)
-                      : _buildWaitingScreen()
-                  : Container())
-              : (widget.images != null
-                  ? _storageService.questionImages.containsKey(widget.postId)
-                      ? ListView.builder(
-                          itemBuilder: (context, index) {
-                            return Padding(
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                child: _storageService
-                                    .questionImages[widget.postId][index]
-                                    .item2);
-                          },
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: _storageService
-                              .questionImages[widget.postId].length,
-                          shrinkWrap: true)
-                      : _buildWaitingScreen()
-                  : Container()),
+          widget.isAnswer ? _buildAnswer() : _buildQuestion(),
         ],
       ),
     );

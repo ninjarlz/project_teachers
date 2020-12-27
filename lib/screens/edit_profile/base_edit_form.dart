@@ -134,6 +134,15 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
   void onBack();
 
   @protected
+  Widget buildImage() {
+    return Container(
+        height: imagePath != null ? 150 : 0,
+        margin: EdgeInsets.all(10),
+        child:
+        imagePath != null ? Image.asset(imagePath) : Container());
+  }
+
+  @protected
   Widget showCoachForm() {
     return Container(
         padding: EdgeInsets.all(16.0),
@@ -144,11 +153,7 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Container(
-                  height: imagePath != null ? 150 : 0,
-                  margin: EdgeInsets.all(10),
-                  child:
-                      imagePath != null ? Image.asset(imagePath) : Container()),
+              buildImage(),
               InputWithIconWidget(
                   ctrl: name,
                   hint: Translations.of(context).text("register_firstname"),
@@ -270,11 +275,7 @@ abstract class BaseEditFormState<T extends StatefulWidget> extends State<T> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Container(
-                  height: imagePath != null ? 150 : 0,
-                  margin: EdgeInsets.all(10),
-                  child:
-                      imagePath != null ? Image.asset(imagePath) : Container()),
+              buildImage(),
               InputWithIconWidget(
                   ctrl: name,
                   hint: Translations.of(context).text("register_firstname"),

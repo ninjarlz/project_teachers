@@ -67,34 +67,42 @@ class _ContactsState extends State<Contacts>
         title: Text(fullName),
         subtitle: !conversation.lastMsgSeen &&
                 conversation.lastMsgSenderId != _userService.currentUser.uid
-            ? Text(
-                "\u2022 " +
-                    DateFormat('dd MMM kk:mm',
-                            Translations.of(context).text("lang"))
-                        .format(DateTime.fromMillisecondsSinceEpoch(conversation
-                            .lastMsgTimestamp.millisecondsSinceEpoch)) +
-                    " - " +
-                    conversation.lastMsgText,
-                style: ThemeGlobalText().boldSmallText,
-              )
-            : Text(
-                DateFormat('dd MMM kk:mm',
-                            Translations.of(context).text("lang"))
-                        .format(DateTime.fromMillisecondsSinceEpoch(conversation
-                            .lastMsgTimestamp.millisecondsSinceEpoch)) +
-                    " - " +
-                    (conversation.lastMsgSenderId ==
-                            _userService.currentUser.uid
-                        ? Translations.of(context).text("you") +
-                            ": " +
-                            conversation.lastMsgText
-                        : conversation.lastMsgText),
-                style: ThemeGlobalText().smallText,
-              ),
+            ? _buildUnseenConversation(conversation)
+            : _buildSeenConversation(conversation),
         onTap: () {
           _messagingService.setSelectedConversation(conversation);
           _appStateManager.changeAppState(AppState.CHAT);
         });
+  }
+
+  Widget _buildUnseenConversation(ConversationEntity conversation) {
+    return Text(
+      "\u2022 " +
+          DateFormat('dd MMM kk:mm',
+              Translations.of(context).text("lang"))
+              .format(DateTime.fromMillisecondsSinceEpoch(conversation
+              .lastMsgTimestamp.millisecondsSinceEpoch)) +
+          " - " +
+          conversation.lastMsgText,
+      style: ThemeGlobalText().boldSmallText,
+    );
+  }
+
+  Widget _buildSeenConversation(ConversationEntity conversation) {
+    return Text(
+      DateFormat('dd MMM kk:mm',
+          Translations.of(context).text("lang"))
+          .format(DateTime.fromMillisecondsSinceEpoch(conversation
+          .lastMsgTimestamp.millisecondsSinceEpoch)) +
+          " - " +
+          (conversation.lastMsgSenderId ==
+              _userService.currentUser.uid
+              ? Translations.of(context).text("you") +
+              ": " +
+              conversation.lastMsgText
+              : conversation.lastMsgText),
+      style: ThemeGlobalText().smallText,
+    );
   }
 
   @override

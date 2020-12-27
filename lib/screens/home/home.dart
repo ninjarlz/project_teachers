@@ -75,47 +75,52 @@ class _HomeState extends State<Home>
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    AppState appState = Provider.of<AppStateManager>(context).appState;
-    Widget body = null;
-    Widget appBar = null;
-    Widget floatingButton = null;
-    bool extendBodyBehindAppBar = false;
-    int navBarIndex = 0;
-    NavBarType navBarType = null;
-    FloatingActionButtonLocation floatingActionButtonLocation = null;
-
-    switch (appState) {
-      case AppState.TIMELINE:
-        body = WillPopScope(
+  ApplicationScreen _prepareTimelineScreen(BuildContext context) {
+    return ApplicationScreen(
+        body: WillPopScope(
             onWillPop: () async {
               return false;
             },
-            child: Timeline());
-        appBar = AppBar(
+            child: Timeline()),
+        appBar: AppBar(
             title: Text(Translations.of(context).text("timeline"),
                 style: TextStyle(color: Colors.white)),
-            backgroundColor: ThemeGlobalColor().secondaryColor);
-        floatingButton = Timeline.timelineFloatingActionButton(context);
-        navBarIndex = 0;
-        navBarType = NavBarType.TIMELINE;
-        break;
+            backgroundColor: ThemeGlobalColor().secondaryColor),
+        floatingButton: Timeline.timelineFloatingActionButton(context),
+        navBarIndex: 0,
+        navBarType: NavBarType.TIMELINE);
+  }
 
-      case AppState.FILTER_QUESTIONS:
-        body = WillPopScope(
+  ApplicationScreen _prepareFilterQuestionsScreen(BuildContext context) {
+    return ApplicationScreen(
+        body: WillPopScope(
             onWillPop: () async {
               Provider.of<AppStateManager>(context, listen: false)
                   .changeAppState(AppState.TIMELINE);
               return false;
             },
-            child: QuestionFilterPage());
-        appBar = AppBar(
+            child: QuestionFilterPage()),
+        appBar: AppBar(
             title: Text(Translations.of(context).text("filter_questions"),
                 style: TextStyle(color: Colors.white)),
-            backgroundColor: ThemeGlobalColor().secondaryColor);
-        navBarIndex = 1;
-        navBarType = NavBarType.TIMELINE;
+            backgroundColor: ThemeGlobalColor().secondaryColor),
+        navBarIndex: 1,
+        navBarType: NavBarType.TIMELINE);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    AppState appState = Provider.of<AppStateManager>(context).appState;
+
+    ApplicationScreen applicationScreen;
+
+    switch (appState) {
+      case AppState.TIMELINE:
+        applicationScreen = _prepareTimelineScreen(context);
+        break;
+
+      case AppState.FILTER_QUESTIONS:
+        applicationScreen = _prepareFilterQuestionsScreen(context);
         break;
 
       case AppState.USER_TIMELINE:
@@ -289,7 +294,7 @@ class _HomeState extends State<Home>
             _messagingService.selectedConversation;
         String otherUserId = conversation != null
             ? conversation.otherParticipantId
-            : _userService.selectedCoach.uid;
+            : _userService.selectedUser.uid;
         Map<String, Tuple2<String, Image>> images = _storageService.userImages;
         body = body = WillPopScope(
             onWillPop: () async {
@@ -323,9 +328,9 @@ class _HomeState extends State<Home>
                           ? conversation.otherParticipantData.name +
                               " " +
                               conversation.otherParticipantData.surname
-                          : _userService.selectedCoach.name +
+                          : _userService.selectedUser.name +
                               " " +
-                              _userService.selectedCoach.surname,
+                              _userService.selectedUser.surname,
                       style: TextStyle(color: Colors.white)))
             ]),
             backgroundColor: ThemeGlobalColor().secondaryColor);
@@ -360,7 +365,6 @@ class _HomeState extends State<Home>
         navBarIndex = -1;
         floatingButton = Calendar.buildCalendarFloatingActionButtons(context);
         break;
-
 
       case AppState.CONTACT:
         body = WillPopScope(
@@ -410,18 +414,19 @@ class _HomeState extends State<Home>
         break;
 
       default:
-        body = _buildWaitingScreen();
-        navBarIndex = 0;
+        applicationScreen = ApplicationScreen(body: _buildWaitingScreen(), navBarIndex: 0);
     }
 
     return Scaffold(
-      extendBodyBehindAppBar: extendBodyBehindAppBar,
-      appBar: appBar,
+      extendBodyBehindAppBar: applicationScreen.extendBodyBehindAppBar,
+      appBar: applicationScreen.appBar,
       backgroundColor: ThemeGlobalColor().backgroundColor,
-      body: body,
-      floatingActionButton: floatingButton,
-      floatingActionButtonLocation: floatingActionButtonLocation,
-      bottomNavigationBar: _buildNavBar(navBarIndex, context, navBarType),
+      body: applicationScreen.body,
+      floatingActionButton: applicationScreen.floatingButton,
+      floatingActionButtonLocation:
+          applicationScreen.floatingActionButtonLocation,
+      bottomNavigationBar: _buildNavBar(applicationScreen.navBarIndex, context,
+          applicationScreen.navBarType),
       drawer: NavigationDrawer(),
     );
   }
@@ -582,4 +587,23 @@ class _HomeState extends State<Home>
       setState(() {});
     }
   }
+}
+
+class ApplicationScreen {
+  Widget body;
+  Widget appBar;
+  Widget floatingButton;
+  bool extendBodyBehindAppBar;
+  int navBarIndex = 0;
+  NavBarType navBarType;
+  FloatingActionButtonLocation floatingActionButtonLocation;
+
+  ApplicationScreen(
+      {this.body,
+      this.appBar,
+      this.floatingButton,
+      this.extendBodyBehindAppBar,
+      this.navBarIndex,
+      this.navBarType,
+      this.floatingActionButtonLocation});
 }

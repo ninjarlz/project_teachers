@@ -15,7 +15,7 @@ class Chat extends StatefulWidget {
     return FloatingActionButton(
         onPressed: () {
           AppStateManager appStateManager =
-          Provider.of<AppStateManager>(context, listen: false);
+              Provider.of<AppStateManager>(context, listen: false);
           appStateManager.changeAppState(appStateManager.prevState);
         },
         backgroundColor: ThemeGlobalColor().mainColor,
@@ -61,10 +61,7 @@ class _ChatState extends State<Chat>
   void _onScroll() {
     double maxScroll = _scrollController.position.maxScrollExtent;
     double currentScroll = _scrollController.position.pixels;
-    double delta = MediaQuery
-        .of(context)
-        .size
-        .height * 0.20;
+    double delta = MediaQuery.of(context).size.height * 0.20;
     if (maxScroll - currentScroll <= delta) {
       _loadMoreMessages();
     }
@@ -73,36 +70,33 @@ class _ChatState extends State<Chat>
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery
-          .of(context)
-          .size
-          .width,
+      width: MediaQuery.of(context).size.width,
       padding: EdgeInsets.only(left: 20, top: 10, right: 20),
       child: Column(
         children: [
           _isLoading
               ? Text(
-            Translations.of(context).text("loading") + "...",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-            ),
-          )
+                  Translations.of(context).text("loading") + "...",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                )
               : Container(),
           Expanded(
             child: _messagingService.selectedConversation == null ||
-                _messagingService.selectedConversationMessages == null ||
-                _messagingService.selectedConversationMessages.length == 0
+                    _messagingService.selectedConversationMessages == null ||
+                    _messagingService.selectedConversationMessages.length == 0
                 ? Center()
                 : ListView.builder(
-              reverse: true,
-              controller: _scrollController,
-              itemCount:
-              _messagingService.selectedConversationMessages.length,
-              itemBuilder: (context, index) {
-                return _buildItem(index);
-              },
-            ),
+                    reverse: true,
+                    controller: _scrollController,
+                    itemCount:
+                        _messagingService.selectedConversationMessages.length,
+                    itemBuilder: (context, index) {
+                      return _buildItem(index);
+                    },
+                  ),
           ),
           _buildInput()
         ],
@@ -177,120 +171,128 @@ class _ChatState extends State<Chat>
 
   Widget _buildItem(int index) {
     MessageEntity message =
-    _messagingService.selectedConversationMessages[index];
+        _messagingService.selectedConversationMessages[index];
     if (message.senderId == _userService.currentUser.uid) {
       // Right (my message)
-      return index == 0 && _messagingService.selectedConversation.lastMsgSeen
-          ? Column(children: <Widget>[
-        Row(children: <Widget>[
-          Container(
-            child: Text(
-              message.text,
-              style: ThemeGlobalText().whiteText,
-            ),
-            padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
-            width: 200.0,
-            decoration: BoxDecoration(
-                color: ThemeGlobalColor().secondaryColor,
-                borderRadius: BorderRadius.circular(8.0)),
-            margin: EdgeInsets.only(bottom: 10.0, right: 10.0),
-          )
-        ], mainAxisAlignment: MainAxisAlignment.end),
-        Container(
-          child: Text(
-            Translations.of(context).text("seen"),
-            style: ThemeGlobalText().smallText,
-          ),
-          margin: EdgeInsets.only(
-              left: 50.0, top: 5.0, bottom: 5.0, right: 10.0),
-        )
-      ], crossAxisAlignment: CrossAxisAlignment.end)
-          : Row(
-        children: <Widget>[
-          Container(
-            child: Text(
-              message.text,
-              style: ThemeGlobalText().whiteText,
-            ),
-            padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
-            width: 200.0,
-            decoration: BoxDecoration(
-                color: ThemeGlobalColor().secondaryColor,
-                borderRadius: BorderRadius.circular(8.0)),
-            margin: EdgeInsets.only(
-                bottom: isLastMessageRightInRow(index) ? 20.0 : 10.0,
-                right: 10.0),
-          )
-        ],
-        mainAxisAlignment: MainAxisAlignment.end,
-      );
+      return _buildMyMessage(index, message);
     } else {
       // Left (peer message)
-      return Container(
-        child: Column(
-            children: <Widget>[
-        Row(
-        children: <Widget>[
-            isLastMessageLeftInRow(index)
-            ? Material(
-            elevation: 4.0,
-            shape: CircleBorder(),
-            clipBehavior: Clip.antiAlias,
-            child: Container(
-                width: 45,
-                height: 45,
-                child: _storageService.userImages
-                    .containsKey(message.senderId)
-                    ? _storageService
-                    .userImages[message.senderId].item2
-                    : Image.asset(
-                  "assets/img/default_profile_2.png",
-                  fit: BoxFit.cover,
-                  alignment: Alignment.bottomCenter,
-                )))
-            : Container(width: 45.0),
+      return _buildOtherUserMessage(index, message);
+    }
+  }
+
+  Widget _buildMyMessage(int index, MessageEntity message) {
+    return index == 0 && _messagingService.selectedConversation.lastMsgSeen
+        ? Column(children: <Widget>[
+      Row(children: <Widget>[
         Container(
           child: Text(
             message.text,
-            style: ThemeGlobalText().text,
+            style: ThemeGlobalText().whiteText,
           ),
           padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
           width: 200.0,
           decoration: BoxDecoration(
-              color: ThemeGlobalColor().boxMsgColor,
+              color: ThemeGlobalColor().secondaryColor,
               borderRadius: BorderRadius.circular(8.0)),
-          margin: EdgeInsets.only(left: 10.0),
+          margin: EdgeInsets.only(bottom: 10.0, right: 10.0),
         )
-        ],
-      ),
-
-    // Time
-    isLastMessageLeftInRow(index)
-    ? Container(
-    child: Text(
-    DateFormat('dd MMM kk:mm', Translations.of(context).text("lang")).format(
-    DateTime.fromMillisecondsSinceEpoch(
-    message.timestamp.millisecondsSinceEpoch)),
-    style: ThemeGlobalText().smallText,
-    ),
-    margin: EdgeInsets.only(left: 50.0, top: 5.0, bottom: 5.0),
-    )
-        : Container()
-    ],
-    crossAxisAlignment: CrossAxisAlignment.start,
-    ),
-    margin: EdgeInsets.only(bottom: 10.0)
-    ,
+      ], mainAxisAlignment: MainAxisAlignment.end),
+      Container(
+        child: Text(
+          Translations.of(context).text("seen"),
+          style: ThemeGlobalText().smallText,
+        ),
+        margin: EdgeInsets.only(
+            left: 50.0, top: 5.0, bottom: 5.0, right: 10.0),
+      )
+    ], crossAxisAlignment: CrossAxisAlignment.end)
+        : Row(
+      children: <Widget>[
+        Container(
+          child: Text(
+            message.text,
+            style: ThemeGlobalText().whiteText,
+          ),
+          padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+          width: 200.0,
+          decoration: BoxDecoration(
+              color: ThemeGlobalColor().secondaryColor,
+              borderRadius: BorderRadius.circular(8.0)),
+          margin: EdgeInsets.only(
+              bottom: _isLastMessageRightInRow(index) ? 20.0 : 10.0,
+              right: 10.0),
+        )
+      ],
+      mainAxisAlignment: MainAxisAlignment.end,
     );
   }
+
+  Widget _buildOtherUserMessage(int index, MessageEntity message) {
+    return Container(
+      child: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              _isLastMessageLeftInRow(index)
+                  ? Material(
+                  elevation: 4.0,
+                  shape: CircleBorder(),
+                  clipBehavior: Clip.antiAlias,
+                  child: Container(
+                      width: 45,
+                      height: 45,
+                      child: _storageService.userImages
+                          .containsKey(message.senderId)
+                          ? _storageService
+                          .userImages[message.senderId].item2
+                          : Image.asset(
+                        "assets/img/default_profile_2.png",
+                        fit: BoxFit.cover,
+                        alignment: Alignment.bottomCenter,
+                      )))
+                  : Container(width: 45.0),
+              Container(
+                child: Text(
+                  message.text,
+                  style: ThemeGlobalText().text,
+                ),
+                padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+                width: 200.0,
+                decoration: BoxDecoration(
+                    color: ThemeGlobalColor().boxMsgColor,
+                    borderRadius: BorderRadius.circular(8.0)),
+                margin: EdgeInsets.only(left: 10.0),
+              )
+            ],
+          ),
+
+          // Time
+          _isLastMessageLeftInRow(index)
+              ? Container(
+            child: Text(
+              DateFormat('dd MMM kk:mm',
+                  Translations.of(context).text("lang"))
+                  .format(DateTime.fromMillisecondsSinceEpoch(
+                  message.timestamp.millisecondsSinceEpoch)),
+              style: ThemeGlobalText().smallText,
+            ),
+            margin: EdgeInsets.only(left: 50.0, top: 5.0, bottom: 5.0),
+          )
+              : Container()
+        ],
+        crossAxisAlignment: CrossAxisAlignment.start,
+      ),
+      margin: EdgeInsets.only(bottom: 10.0),
+    );
   }
 
-  bool isLastMessageLeftInRow(int index) {
+  bool _isLastMessageLeftInRow(int index) {
     if ((index > 0 &&
-        _messagingService.selectedConversationMessages != null &&
-        _messagingService
-            .selectedConversationMessages[index - 1].senderId ==
-            _userService.currentUser.uid) ||
+            _messagingService.selectedConversationMessages != null &&
+            _messagingService
+                    .selectedConversationMessages[index - 1].senderId ==
+                _userService.currentUser.uid) ||
         index == 0) {
       return true;
     } else {
@@ -298,12 +300,12 @@ class _ChatState extends State<Chat>
     }
   }
 
-  bool isLastMessageRightInRow(int index) {
+  bool _isLastMessageRightInRow(int index) {
     if ((index > 0 &&
-        _messagingService.selectedConversationMessages != null &&
-        _messagingService
-            .selectedConversationMessages[index - 1].senderId !=
-            _userService.currentUser.uid) ||
+            _messagingService.selectedConversationMessages != null &&
+            _messagingService
+                    .selectedConversationMessages[index - 1].senderId !=
+                _userService.currentUser.uid) ||
         index == 0) {
       return true;
     } else {

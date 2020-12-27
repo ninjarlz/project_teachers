@@ -36,7 +36,7 @@ class StorageRepository {
         .child(dir)
         .child(fileName);
     StorageUploadTask uploadTask = ref.putFile(image);
-    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+    await uploadTask.onComplete;
   }
 
   Future<void> uploadQuestionImage(
@@ -46,7 +46,7 @@ class StorageRepository {
         .child(questionId)
         .child(fileName);
     StorageUploadTask uploadTask = ref.putFile(image);
-    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+    await uploadTask.onComplete;
   }
 
   Future<void> uploadAnswerImage(
@@ -56,7 +56,7 @@ class StorageRepository {
         .child(answerId)
         .child(fileName);
     StorageUploadTask uploadTask = ref.putFile(image);
-    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+    await uploadTask.onComplete;
   }
 
   Future<void> deleteAnswerImage(String fileName, String answerId) async {

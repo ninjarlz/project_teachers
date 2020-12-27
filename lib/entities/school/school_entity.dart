@@ -4,7 +4,6 @@ class SchoolEntity {
 
   String id;
   String name;
-  //String presentFor
 
   SchoolEntity(String name) {
     this.name = name;

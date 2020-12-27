@@ -118,11 +118,7 @@ class UserService {
 
   void _onUserListChange(QuerySnapshot event) {
     _userList = List<UserEntity>();
-    if (event.documents.length < _usersOffset) {
-      _hasMoreUsers = false;
-    } else {
-      _hasMoreUsers = true;
-    }
+    _hasMoreUsers = event.documents.length >= _usersOffset;
     event.documents.forEach((element) {
       UserType userType = UserTypeExtension.getValue(element.data["userType"]);
       switch (userType) {
@@ -166,14 +162,14 @@ class UserService {
     _userRepository.cancelUserListSubscription();
   }
 
-  void _onSelectedUserDataChange(DocumentSnapshot event, int cnt) {
+  void _onSelectedUserDataChange(DocumentSnapshot event, int executionCounter) {
     if (!event.exists) {
       _selectedCoach = null;
       _selectedUser = null;
       _selectedExpert = null;
       return;
     }
-    if (cnt == 1) {
+    if (executionCounter == 1) {
       _storageService.updateSelectedUserBackgroundImage(_selectedUser);
       return;
     }
@@ -286,7 +282,7 @@ class UserService {
     setCurrentUser(userId);
   }
 
-  void _onUserDataChange(DocumentSnapshot event, int cnt) {
+  void _onUserDataChange(DocumentSnapshot event, int executionCounter) {
     UserType userType = UserTypeExtension.getValue(event.data["userType"]);
     switch (userType) {
       case UserType.COACH:
@@ -298,7 +294,7 @@ class UserService {
         _currentCoach = null;
         break;
     }
-    if (cnt == 1) {
+    if (executionCounter == 1) {
       loginUser();
     }
     _userListeners.forEach((userListener) {

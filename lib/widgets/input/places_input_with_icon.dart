@@ -42,6 +42,28 @@ class PlacesInputWithIconWidgetState
     _googlePlaces = GooglePlaces.instance;
   }
 
+  void _onPlacesDetailsResponseOkay(
+      PlacesDetailsResponse detail, Prediction prediction) {
+    _pickerError = true;
+    widget.ctrl.text = detail.result.name;
+    if (widget.placesTypes != null) {
+      _checkDetailsResponsePlacesTypes(detail, prediction);
+    }
+  }
+
+  void _checkDetailsResponsePlacesTypes(
+      PlacesDetailsResponse detail, Prediction prediction) {
+    for (String type in detail.result.types) {
+      if (widget.placesTypes.contains(type)) {
+        _pickerError = false;
+        if (widget.onPlacePicked != null) {
+          widget.onPlacePicked(prediction.placeId);
+        }
+        break;
+      }
+    }
+  }
+
   Future<void> onTap() async {
     _focusNode.unfocus();
     Prediction prediction = await PlacesAutocomplete.show(
@@ -60,19 +82,7 @@ class PlacesInputWithIconWidgetState
       PlacesDetailsResponse detail =
           await _googlePlaces.Places.getDetailsByPlaceId(prediction.placeId);
       if (detail.isOkay) {
-        _pickerError = true;
-        widget.ctrl.text = detail.result.name;
-        if (widget.placesTypes != null) {
-          for (String type in detail.result.types) {
-            if (widget.placesTypes.contains(type)) {
-              _pickerError = false;
-              if (widget.onPlacePicked != null) {
-                widget.onPlacePicked(prediction.placeId);
-              }
-              break;
-            }
-          }
-        }
+        _onPlacesDetailsResponseOkay(detail, prediction);
       }
     } else {
       if (widget.onPlacePicked != null) {
