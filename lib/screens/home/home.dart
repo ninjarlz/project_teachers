@@ -108,6 +108,58 @@ class _HomeState extends State<Home>
         navBarType: NavBarType.TIMELINE);
   }
 
+  ApplicationScreen _prepareUserTimelineScreen(BuildContext context) {
+    return ApplicationScreen(
+        body: WillPopScope(
+            onWillPop: () async {
+              Provider.of<AppStateManager>(context, listen: false)
+                  .changeAppState(AppState.TIMELINE);
+              return false;
+            },
+            child: UserQuestions()),
+        appBar: AppBar(
+            title: Text(Translations.of(context).text("my_posts"),
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: ThemeGlobalColor().secondaryColor),
+        navBarIndex: 2,
+        navBarType: NavBarType.TIMELINE);
+  }
+
+  ApplicationScreen _preparePostQuestionScreen(BuildContext context) {
+    return ApplicationScreen(
+        body: WillPopScope(
+            onWillPop: () async {
+              Provider.of<AppStateManager>(context, listen: false)
+                  .previousState();
+              return false;
+            },
+            child: PostQuestion()),
+        appBar: AppBar(
+            title: Text(Translations.of(context).text("post_question"),
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: ThemeGlobalColor().secondaryColor),
+        floatingButton: PostQuestion.postQuestionFloatingActionButton(context),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
+        navBarIndex: -1);
+  }
+
+  ApplicationScreen _prepareQuestionAnswersScreen(BuildContext context) {
+    return ApplicationScreen(
+        body: WillPopScope(
+            onWillPop: () async {
+              Provider.of<AppStateManager>(context, listen: false)
+                  .previousState();
+              return false;
+            },
+            child: QuestionAnswers()),
+        appBar: AppBar(
+            title: Text(Translations.of(context).text("questions_answers"),
+                style: TextStyle(color: Colors.white)),
+            backgroundColor: ThemeGlobalColor().secondaryColor),
+        floatingButton:  QuestionAnswers.questionAnswersFloatingActionButton(context),
+        navBarIndex: -1);
+  }
+
   @override
   Widget build(BuildContext context) {
     AppState appState = Provider.of<AppStateManager>(context).appState;
@@ -118,62 +170,18 @@ class _HomeState extends State<Home>
       case AppState.TIMELINE:
         applicationScreen = _prepareTimelineScreen(context);
         break;
-
       case AppState.FILTER_QUESTIONS:
         applicationScreen = _prepareFilterQuestionsScreen(context);
         break;
-
       case AppState.USER_TIMELINE:
-        body = WillPopScope(
-            onWillPop: () async {
-              Provider.of<AppStateManager>(context, listen: false)
-                  .changeAppState(AppState.TIMELINE);
-              return false;
-            },
-            child: UserQuestions());
-        appBar = AppBar(
-            title: Text(Translations.of(context).text("my_posts"),
-                style: TextStyle(color: Colors.white)),
-            backgroundColor: ThemeGlobalColor().secondaryColor);
-        floatingButton = UserQuestions.timelineFloatingActionButton(context);
-        navBarIndex = 2;
-        navBarType = NavBarType.TIMELINE;
+        applicationScreen = _prepareUserTimelineScreen(context);
         break;
-
       case AppState.POST_QUESTION:
-        body = WillPopScope(
-            onWillPop: () async {
-              Provider.of<AppStateManager>(context, listen: false)
-                  .previousState();
-              return false;
-            },
-            child: PostQuestion());
-        appBar = AppBar(
-            title: Text(Translations.of(context).text("post_question"),
-                style: TextStyle(color: Colors.white)),
-            backgroundColor: ThemeGlobalColor().secondaryColor);
-        floatingButton = PostQuestion.postQuestionFloatingActionButton(context);
-        floatingActionButtonLocation = FloatingActionButtonLocation.endTop;
-        navBarIndex = -1;
+        applicationScreen = _preparePostQuestionScreen(context);
         break;
-
       case AppState.QUESTION_ANSWERS:
-        body = WillPopScope(
-            onWillPop: () async {
-              Provider.of<AppStateManager>(context, listen: false)
-                  .previousState();
-              return false;
-            },
-            child: QuestionAnswers());
-        appBar = AppBar(
-            title: Text(Translations.of(context).text("questions_answers"),
-                style: TextStyle(color: Colors.white)),
-            backgroundColor: ThemeGlobalColor().secondaryColor);
-        floatingButton =
-            QuestionAnswers.questionAnswersFloatingActionButton(context);
-        navBarIndex = -1;
+        applicationScreen = _prepareQuestionAnswersScreen(context);
         break;
-
       case AppState.POST_ANSWER:
         body = WillPopScope(
             onWillPop: () async {
