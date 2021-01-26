@@ -5,6 +5,7 @@ import 'package:project_teachers/entities/messaging/conversation_entity.dart';
 import 'package:project_teachers/entities/users/coach_entity.dart';
 import 'package:project_teachers/entities/users/expert_entity.dart';
 import 'package:project_teachers/entities/users/user_enums.dart';
+import 'package:project_teachers/locale/locale_keys.dart';
 import 'package:project_teachers/screens/profile/base_profile.dart';
 import 'package:project_teachers/services/managers/app_state_manager.dart';
 import 'package:project_teachers/services/messaging/messaging_service.dart';
@@ -17,6 +18,18 @@ import 'package:provider/provider.dart';
 class SelectedUserProfile extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _SelectedUserProfileState();
+
+  static Future<void> _startChat(AppStateManager appStateManager) async {
+    MessagingService messagingService =
+        MessagingService.instance;
+    UserService userService = UserService.instance;
+    ConversationEntity conversation = await messagingService
+        .getConversation(userService.selectedUser.uid);
+    if (conversation != null) {
+      messagingService.setSelectedConversation(conversation);
+    }
+    appStateManager.changeAppState(AppState.CHAT);
+  }
 
   static Stack buildSelectedUserProfileFloatingActionButtons(
       BuildContext context) {
@@ -38,9 +51,6 @@ class SelectedUserProfile extends StatefulWidget {
             child: SpeedDial(
               animatedIcon: AnimatedIcons.menu_close,
               animatedIconTheme: IconThemeData(size: 22.0),
-              // child: Icon(Icons.add),
-              onOpen: () => print('OPENING DIAL'),
-              onClose: () => print('DIAL CLOSED'),
               visible: true,
               curve: Curves.bounceIn,
               backgroundColor: ThemeGlobalColor().secondaryColor,
@@ -48,21 +58,11 @@ class SelectedUserProfile extends StatefulWidget {
                 SpeedDialChild(
                     child: Icon(Icons.message, color: Colors.white),
                     backgroundColor: ThemeGlobalColor().secondaryColor,
-                    label: Translations.of(context).text("message"),
+                    label: Translations.of(context).text(LocaleKeys.MESSAGE_KEY),
                     labelStyle: TextStyle(
                         fontWeight: FontWeight.w500, color: Colors.white),
                     labelBackgroundColor: ThemeGlobalColor().secondaryColor,
-                    onTap: () async {
-                      MessagingService messagingService =
-                          MessagingService.instance;
-                      UserService userService = UserService.instance;
-                      ConversationEntity conversation = await messagingService
-                          .getConversation(userService.selectedUser.uid);
-                      if (conversation != null) {
-                        messagingService.setSelectedConversation(conversation);
-                      }
-                      appStateManager.changeAppState(AppState.CHAT);
-                    }),
+                    onTap: () => _startChat(appStateManager)),
                 SpeedDialChild(
                   child: Icon(Icons.add_circle_outline, color: Colors.white),
                   backgroundColor: ThemeGlobalColor().secondaryColor,

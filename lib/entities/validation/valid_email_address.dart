@@ -3,6 +3,11 @@ import 'package:project_teachers/entities/users/user_enums.dart';
 
 class ValidEmailAddress {
 
+  static const String EMAIL_FIELD_NAME = "email";
+  static const String IS_VALIDATED_NAME_FIELD_NAME = "isValidated";
+  static const String IS_INITIALIZED_FIELD_NAME = "isInitialized";
+  static const String USER_TYPE_FIELD_NAME = "userType";
+
   String email;
   bool isValidated;
   bool isInitialized;
@@ -17,28 +22,28 @@ class ValidEmailAddress {
 
   factory ValidEmailAddress.fromJson(Map<String, dynamic> json) {
     return ValidEmailAddress(
-        json["email"],
-        json["isValidated"],
-        json["isInitialized"],
-        UserTypeExtension.getValue(json["userType"])
+        json[EMAIL_FIELD_NAME],
+        json[IS_VALIDATED_NAME_FIELD_NAME],
+        json[IS_INITIALIZED_FIELD_NAME],
+        UserTypeExtension.getValue(json[USER_TYPE_FIELD_NAME])
     );
   }
 
   factory ValidEmailAddress.fromSnapshot(DocumentSnapshot documentSnapshot) {
     return ValidEmailAddress(
-        documentSnapshot.data["email"],
-        documentSnapshot.data["isValidated"],
-        documentSnapshot.data["isInitialized"],
-        UserTypeExtension.getValue(documentSnapshot.data["userType"]),
+        documentSnapshot.data[EMAIL_FIELD_NAME],
+        documentSnapshot.data[IS_VALIDATED_NAME_FIELD_NAME],
+        documentSnapshot.data[IS_INITIALIZED_FIELD_NAME],
+        UserTypeExtension.getValue(documentSnapshot.data[USER_TYPE_FIELD_NAME]),
     );
   }
 
   toJson() {
     return {
-      "email": email,
-      "isValidated": isValidated,
-      "isInitialized": isInitialized,
-      "userType": userType.label
+      EMAIL_FIELD_NAME: email,
+      IS_VALIDATED_NAME_FIELD_NAME: isValidated,
+      IS_INITIALIZED_FIELD_NAME: isInitialized,
+      USER_TYPE_FIELD_NAME: userType.label
     };
   }
 }

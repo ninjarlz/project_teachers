@@ -2,6 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'user_enums.dart';
 
 class UserEntity {
+
+  static const String UID_FIELD_NAME = "uid";
+  static const String NAME_FIELD_NAME = "name";
+  static const String SURNAME_FIELD_NAME = "surname";
+  static const String SCHOOL_ID_FIELD_NAME = "schoolID";
+  static const String USER_TYPE_FIELD_NAME = "userType";
+
+
   String uid;
   String name;
   String surname;

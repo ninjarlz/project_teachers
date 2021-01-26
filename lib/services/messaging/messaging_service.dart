@@ -152,7 +152,7 @@ class MessagingService {
 
   Future<void> updateMessagesList() async {
     _messagesOffset += _messagesLimit;
-    _messagingRepository.subscribeConversation(_selectedConversation,
+    _messagingRepository.subscribeConversation(_selectedConversation.id,
         _messagesOffset, _onConversationMessagesChange, _onConversationChange);
   }
 
@@ -215,12 +215,12 @@ class MessagingService {
     if (_selectedConversation == null) {
       _selectedConversation = _createNewConversation();
       await _messagingRepository.updateConversation(_selectedConversation);
-      await _messagingRepository.sendConversationMessage(_selectedConversation,
+      await _messagingRepository.addConversationMessage(_selectedConversation.id,
           MessageEntity(text, _userService.currentUser.uid, Timestamp.now()));
       updateMessagesList();
     } else {
       _selectedConversation.lastMsgSeen = false;
-      await _messagingRepository.sendConversationMessage(_selectedConversation,
+      await _messagingRepository.addConversationMessage(_selectedConversation.id,
           MessageEntity(text, _userService.currentUser.uid, Timestamp.now()));
     }
   }

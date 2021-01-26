@@ -152,7 +152,7 @@ class _PostQuestionState extends BasePostState {
                 if (value == null || value == "") {
                   return List<String>();
                 }
-                return await _tagService.getTagsSuggestionsStrings(value);
+                return await _tagService.getTagsSuggestionsLabels(value);
               },
               onSuggestionSelected: addTagFromSuggestion,
             ),

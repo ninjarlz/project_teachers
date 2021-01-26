@@ -9,6 +9,7 @@ class ValidEmailAddressRepository {
   static const String TRANSACTION_NOT_COMMITED_MSG =
       "Transaction not committed";
   static const String NO_EMAIL_ADDRESS_MSG = "There is no such email address";
+  static const String VALID_EMAIL_ADDRESSES_COLLECTION = "ValidEmailAdresses";
 
   static ValidEmailAddressRepository _instance;
 
@@ -41,20 +42,19 @@ class ValidEmailAddressRepository {
 
   Future<ValidEmailAddress> getNotValidatedEmailAddress(String email) async {
     QuerySnapshot emailSnapshot = await _database
-        .collection("ValidEmailAdresses")
-        .where("isValidated", isEqualTo: false)
-        .where("email", isEqualTo: email)
+        .collection(VALID_EMAIL_ADDRESSES_COLLECTION)
+        .where(ValidEmailAddress.IS_VALIDATED_NAME_FIELD_NAME, isEqualTo: false)
+        .where(ValidEmailAddress.EMAIL_FIELD_NAME, isEqualTo: email)
         .getDocuments();
     if (emailSnapshot.documents.isNotEmpty) {
       return ValidEmailAddress.fromSnapshot(emailSnapshot.documents[0]);
-    } else {
-      return null;
     }
+    return null;
   }
 
   Future<List<ValidEmailAddress>> getEmailAddresses() async {
     QuerySnapshot emailSnapshot =
-        await _database.collection("ValidEmailAdresses").getDocuments();
+        await _database.collection(VALID_EMAIL_ADDRESSES_COLLECTION).getDocuments();
     List<ValidEmailAddress> emails = List<ValidEmailAddress>();
     List<DocumentSnapshot> list = emailSnapshot.documents;
     list.forEach((element) {
@@ -78,7 +78,7 @@ class ValidEmailAddressRepository {
 
   Future<QuerySnapshot> getValidEmailAddressSnapshot(String email) async {
     QuerySnapshot emailSnapshot = await _database
-        .collection("ValidEmailAdresses")
+        .collection(VALID_EMAIL_ADDRESSES_COLLECTION)
         .where("email", isEqualTo: email)
         .getDocuments();
     return emailSnapshot;
@@ -93,7 +93,7 @@ class ValidEmailAddressRepository {
       return;
     }
     DocumentReference dr =
-        _database.collection("ValidEmailAdresses").document(list[0].documentID);
+        _database.collection(VALID_EMAIL_ADDRESSES_COLLECTION).document(list[0].documentID);
     await _database.runTransaction(await (transaction) async {
       await transaction.update(
           dr, {"isInitialized": isInitialized, "isValidated": isValidated});

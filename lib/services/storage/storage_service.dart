@@ -22,6 +22,10 @@ import 'package:tuple/tuple.dart';
 class StorageService {
   StorageService._privateConstructor();
 
+  static double PROFILE_IMAGE_WIDTH = 1600;
+  static double PROFILE_IMAGE_HEIGHT = 900;
+  static int PROFILE_IMAGE_QUALITY = 900;
+
   static StorageService _instance;
 
   static StorageService get instance {
@@ -142,9 +146,9 @@ class StorageService {
   Future<void> uploadProfileImage() async {
     File image = await ImagePicker.pickImage(
         source: ImageSource.gallery,
-        maxWidth: 1600,
-        maxHeight: 900,
-        imageQuality: 80);
+        maxWidth: PROFILE_IMAGE_WIDTH,
+        maxHeight: PROFILE_IMAGE_HEIGHT,
+        imageQuality: PROFILE_IMAGE_QUALITY);
     if (image != null) {
       File croppedImage = await ImageCropper.cropImage(
           sourcePath: image.path,

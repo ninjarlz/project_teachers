@@ -4,6 +4,10 @@ import 'user_enums.dart';
 import 'user_entity.dart';
 
 class ExpertEntity extends UserEntity {
+
+  static const String SCHOOL_SUBJECTS_FIELD_NAME = "schoolSubjects";
+  static const String SPECIALIZATIONS_FIELD_NAME = "specializations";
+
   List<SchoolSubject> schoolSubjects;
   List<Specialization> specializations;
 
@@ -22,20 +26,8 @@ class ExpertEntity extends UserEntity {
       List<String> likedPosts,
       List<SchoolSubject> schoolSubjects,
       List<Specialization> specializations)
-      : super(
-            uid,
-            name,
-            surname,
-            email,
-            city,
-            school,
-            schoolID,
-            profession,
-            bio,
-            profileImageName,
-            backgroundImageName,
-            likedPosts,
-            UserType.EXPERT) {
+      : super(uid, name, surname, email, city, school, schoolID, profession, bio, profileImageName, backgroundImageName,
+            likedPosts, UserType.EXPERT) {
     this.schoolSubjects = schoolSubjects;
     this.specializations = specializations;
   }
@@ -53,9 +45,7 @@ class ExpertEntity extends UserEntity {
         json["bio"],
         json["profileImageName"],
         json["backgroundImageName"],
-        json["likedPosts"] != null
-            ? List<String>.from(json["likedPosts"])
-            : List<String>(),
+        json["likedPosts"] != null ? List<String>.from(json["likedPosts"]) : List<String>(),
         subjectsListFromSnapshot(json),
         specializationListFromSnapshot(json));
   }
@@ -102,21 +92,18 @@ class ExpertEntity extends UserEntity {
     };
   }
 
-  static Map<String, bool> schoolSubjectsMapFromList(
-      List<SchoolSubject> schoolSubjects) {
+  static Map<String, bool> schoolSubjectsMapFromList(List<SchoolSubject> schoolSubjects) {
     if (schoolSubjects == null) {
       return null;
     }
     Map<String, bool> map = Map<String, bool>();
     for (int i = 1; i < SchoolSubject.values.length; i++) {
-      map[SchoolSubject.values[i].label] =
-          schoolSubjects.contains(SchoolSubject.values[i]);
+      map[SchoolSubject.values[i].label] = schoolSubjects.contains(SchoolSubject.values[i]);
     }
     return map;
   }
 
-  static Map<String, bool> specializationsMapFromList(
-      List<Specialization> specializations) {
+  static Map<String, bool> specializationsMapFromList(List<Specialization> specializations) {
     if (specializations == null) {
       return null;
     }
@@ -127,14 +114,11 @@ class ExpertEntity extends UserEntity {
     return map;
   }
 
-  static List<Specialization> specializationListFromSnapshot(
-      Map<dynamic, dynamic> snapshotMap) {
+  static List<Specialization> specializationListFromSnapshot(Map<dynamic, dynamic> snapshotMap) {
     List<Specialization> specializations = null;
-    if (snapshotMap.containsKey("specializations") &&
-        snapshotMap["specializations"] != null) {
+    if (snapshotMap.containsKey("specializations") && snapshotMap["specializations"] != null) {
       specializations = new List<Specialization>();
-      Map<dynamic, dynamic> specializationsLabels =
-          snapshotMap["specializations"];
+      Map<dynamic, dynamic> specializationsLabels = snapshotMap["specializations"];
       specializationsLabels.forEach((key, value) {
         if (value) {
           specializations.add(SpecializationExtension.getValueFromLabel(key));
@@ -144,11 +128,9 @@ class ExpertEntity extends UserEntity {
     return specializations;
   }
 
-  static List<SchoolSubject> subjectsListFromSnapshot(
-      Map<dynamic, dynamic> snapshotMap) {
+  static List<SchoolSubject> subjectsListFromSnapshot(Map<dynamic, dynamic> snapshotMap) {
     List<SchoolSubject> subjects = null;
-    if (snapshotMap.containsKey("schoolSubjects") &&
-        snapshotMap["schoolSubjects"] != null) {
+    if (snapshotMap.containsKey("schoolSubjects") && snapshotMap["schoolSubjects"] != null) {
       subjects = new List<SchoolSubject>();
       Map<dynamic, dynamic> subjectsLabels = snapshotMap["schoolSubjects"];
       subjectsLabels.forEach((key, value) {

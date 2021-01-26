@@ -3,6 +3,9 @@ import 'package:project_teachers/entities/timeline/tag_entity.dart';
 
 class TagRepository {
   static const String DB_ERROR_MSG = "An error with database occured: ";
+  static const String TAGS_COLLECTION = "Tags";
+  static const String LAST_UNICODE = "\uf8ff";
+  static const int TAGS_SUGGESTIONS_LIMIT = 5;
 
   TagRepository._privateConstructor();
 
@@ -12,7 +15,7 @@ class TagRepository {
     if (_instance == null) {
       _instance = TagRepository._privateConstructor();
       _instance._database = Firestore.instance;
-      _instance._tagsRef = _instance._database.collection("Tags");
+      _instance._tagsRef = _instance._database.collection(TAGS_COLLECTION);
     }
     return _instance;
   }
@@ -21,80 +24,80 @@ class TagRepository {
   CollectionReference _tagsRef;
 
   Future<List<TagEntity>> getTagsSuggestions(String input) async {
-    List<TagEntity> suggestions = List<TagEntity>();
     QuerySnapshot querySnapshot = await _tagsRef
-        .orderBy("value")
+        .orderBy(TagEntity.VALUE_FIELD_NAME)
         .startAt([input])
-        .endAt([input + "\uf8ff"])
-        .limit(5)
+        .endAt([input + LAST_UNICODE])
+        .limit(TAGS_SUGGESTIONS_LIMIT)
         .getDocuments();
-    for (DocumentSnapshot documentSnapshot in querySnapshot.documents) {
-      suggestions.add(TagEntity.fromSnapshot(documentSnapshot));
-    }
-    return suggestions;
+    return querySnapshot.documents.map((documentSnapshot) => TagEntity.fromSnapshot(documentSnapshot));
   }
 
-  Future<bool> transactionCheckIfTagExists(
-      String tag, Transaction transaction) async {
-    DocumentSnapshot documentSnapshot =
-        await transaction.get(_tagsRef.document(tag));
+  Future<bool> transactionCheckIfTagExists(String tag, Transaction transaction) async {
+    DocumentSnapshot documentSnapshot = await transaction.get(_tagsRef.document(tag));
     return documentSnapshot.exists;
   }
 
-  Future<void> transactionPostTags(
-      List<String> tags, Transaction transaction) async {
-    List<bool> tagsExists = List<bool>();
-    for (String tag in tags) {
-      tagsExists.add(await transactionCheckIfTagExists(tag, transaction));
-    }
-    for (int i = 0; i < tags.length; i++) {
-      if (tagsExists[i]) {
-        await transaction.update(_tagsRef.document(tags[i]),
-            {"postsCounter": FieldValue.increment(1)});
+  Future<void> transactionPostTags(List<String> tags, Transaction transaction) async {
+    Map<String, bool> tagsExistenceMap = await _transactionCheckTagsExistence(tags, transaction);
+    await _transactionPostTagsWithExistenceMap(tags, tagsExistenceMap, transaction);
+  }
+
+  Future<void> transactionRemoveAndPostTags(
+      List<String> tagsToRemove, List<String> tagsToPost, Transaction transaction) async {
+    Map<String, bool> postTagsExistenceMap = await _transactionCheckTagsExistence(tagsToPost, transaction);
+    await _transactionRemoveTags(tagsToRemove, transaction);
+    await _transactionPostTagsWithExistenceMap(tagsToPost, postTagsExistenceMap, transaction);
+  }
+
+  Future<void> _transactionPostTagsWithExistenceMap(
+      List<String> tagsToPost, Map<String, bool> postTagsExistenceMap, Transaction transaction) async {
+    for (String tag in tagsToPost) {
+      if (postTagsExistenceMap[tag]) {
+        await _transactionChangePostCounterTag(_tagsRef.document(tag), 1, transaction);
       } else {
-        await transaction.set(
-            _tagsRef.document(tags[i]), TagEntity(tags[i], 1).toJson());
+        await transaction.set(_tagsRef.document(tag), TagEntity(tag, 1).toJson());
       }
     }
   }
 
-  Future<void> transactionPostAndRemoveTags(List<String> tagsToRemove,
-      List<String> tagsToPost, Transaction transaction) async {
-    List<bool> addTagsExists = List<bool>();
-    for (String tag in tagsToPost) {
-      addTagsExists.add(await transactionCheckIfTagExists(tag, transaction));
-    }
-
+  Future<void> _transactionRemoveTags(List<String> tagsToRemove, Transaction transaction) async {
     List<DocumentSnapshot> removeTagsSnapshot = List<DocumentSnapshot>();
     for (String tag in tagsToRemove) {
       removeTagsSnapshot.add(await transaction.get(_tagsRef.document(tag)));
     }
-
     for (DocumentSnapshot documentSnapshot in removeTagsSnapshot) {
-      if (documentSnapshot.exists) {
-        if (documentSnapshot.data["postsCounter"] <= 1 ||
-            documentSnapshot.data["postsCounter"] == null) {
-          await transaction
-              .delete(_tagsRef.document(documentSnapshot.documentID));
-        } else {
-          await transaction.update(
-              _tagsRef.document(documentSnapshot.documentID),
-              {"postsCounter": FieldValue.increment(-1)});
-        }
-      } else {
-        await transaction
-            .set(_tagsRef.document(documentSnapshot.documentID), {});
-      }
+      await _transactionRemoveTagSnapshot(documentSnapshot, transaction);
     }
+  }
 
-    for (int i = 0; i < tagsToPost.length; i++) {
-      if (addTagsExists[i]) {
-        await transaction.update(_tagsRef.document(tagsToPost[i]),
-            {"postsCounter": FieldValue.increment(1)});
+  Future<void> _transactionChangePostCounterTag(
+      DocumentReference documentReference, int delta, Transaction transaction) async {
+    await transaction.update(documentReference, {TagEntity.POSTS_COUNTER_FIELD_NAME: FieldValue.increment(delta)});
+  }
+
+  bool _isTagNotAssignedAnywhere(DocumentSnapshot documentSnapshot) {
+    return documentSnapshot.data[TagEntity.POSTS_COUNTER_FIELD_NAME] == null ||
+        documentSnapshot.data[TagEntity.POSTS_COUNTER_FIELD_NAME] <= 1;
+  }
+
+  Future<Map<String, bool>> _transactionCheckTagsExistence(List<String> tagsToCheck, Transaction transaction) async {
+    Map<String, bool> tagsExistenceMap = Map<String, bool>();
+    for (String tag in tagsToCheck) {
+      tagsExistenceMap[tag] = await transactionCheckIfTagExists(tag, transaction);
+    }
+    return tagsExistenceMap;
+  }
+
+  Future<void> _transactionRemoveTagSnapshot(DocumentSnapshot documentSnapshot, Transaction transaction) async {
+    if (documentSnapshot.exists) {
+      if (_isTagNotAssignedAnywhere(documentSnapshot)) {
+        await transaction.delete(_tagsRef.document(documentSnapshot.documentID));
       } else {
-        await transaction.set(_tagsRef.document(tagsToPost[i]),
-            TagEntity(tagsToPost[i], 1).toJson());
+        await _transactionChangePostCounterTag(_tagsRef.document(documentSnapshot.documentID), -1, transaction);
       }
+    } else {
+      await transaction.set(_tagsRef.document(documentSnapshot.documentID), {});
     }
   }
 }

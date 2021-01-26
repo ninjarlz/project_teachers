@@ -15,17 +15,8 @@ class QuestionEntity {
   List<String> tags;
   bool lastAnswerSeenByAuthor;
 
-  QuestionEntity(
-      this.authorId,
-      this.authorData,
-      this.timestamp,
-      this.content,
-      this.reactionsCounter,
-      this.answersCounter,
-      this.photoNames,
-      this.schoolSubject,
-      this.tags,
-      this.lastAnswerSeenByAuthor);
+  QuestionEntity(this.authorId, this.authorData, this.timestamp, this.content, this.reactionsCounter,
+      this.answersCounter, this.photoNames, this.schoolSubject, this.tags, this.lastAnswerSeenByAuthor);
 
   factory QuestionEntity.fromJson(Map<String, dynamic> json) {
     return QuestionEntity(
@@ -35,9 +26,7 @@ class QuestionEntity {
         json["content"],
         json["reactionsCounter"],
         json["answersCounter"],
-        json["photoNames"] != null
-            ? List<String>.from(json["photoNames"])
-            : null,
+        json["photoNames"] != null ? List<String>.from(json["photoNames"]) : null,
         SchoolSubjectExtension.getValue(json["schoolSubject"]),
         List<String>.from(json["tags"]),
         json["lastAnswerSeenByAuthor"]);
@@ -51,9 +40,7 @@ class QuestionEntity {
         documentSnapshot.data["content"],
         documentSnapshot.data["reactionsCounter"],
         documentSnapshot.data["answersCounter"],
-        documentSnapshot.data["photoNames"] != null
-            ? List<String>.from(documentSnapshot.data["photoNames"])
-            : null,
+        documentSnapshot.data["photoNames"] != null ? List<String>.from(documentSnapshot.data["photoNames"]) : null,
         SchoolSubjectExtension.getValue(documentSnapshot.data["schoolSubject"]),
         List<String>.from(documentSnapshot.data["tags"]),
         documentSnapshot.data["lastAnswerSeenByAuthor"]);

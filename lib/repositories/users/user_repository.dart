@@ -5,6 +5,7 @@ import 'package:project_teachers/entities/users/user_entity.dart';
 class UserRepository {
   UserRepository._privateConstructor();
 
+  static const String USERS_COLLECTION = "Users";
   static const String DB_ERROR_MSG = "An error with database occured: ";
 
   static UserRepository _instance;
@@ -13,7 +14,7 @@ class UserRepository {
     if (_instance == null) {
       _instance = UserRepository._privateConstructor();
       _instance._database = Firestore.instance;
-      _instance._userListRef = _instance._database.collection("Users");
+      _instance._userListRef = _instance._database.collection(USERS_COLLECTION);
     }
     return _instance;
   }

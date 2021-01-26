@@ -32,8 +32,7 @@ class ValidEmailAddressService {
   }
 
   Future<bool> checkIfAddressIsValid(String email) async {
-    ValidEmailAddress notValidatedValidEmail =
-        await getNotValidatedEmailAddress(email);
+    ValidEmailAddress notValidatedValidEmail = await getNotValidatedEmailAddress(email);
     return notValidatedValidEmail != null;
   }
 

@@ -36,7 +36,6 @@ extension UserTypeExtension on UserType {
       return getValue(label);
     }).toList();
   }
-
 }
 
 enum CoachType { PRO_ACTIVE, VIDEO, INTERPERSONAL_RELATIONS }
@@ -147,7 +146,6 @@ extension SchoolSubjectExtension on SchoolSubject {
     }
     return subjectsLabels;
   }
-
 
   static List<SchoolSubject> getValuesFromLabels(List<String> labels) {
     return labels.map((label) {
@@ -280,8 +278,7 @@ extension SpecializationExtension on Specialization {
     }).toList();
   }
 
-  static List<String> getLabelsFromList(
-      List<Specialization> specializations) {
+  static List<String> getLabelsFromList(List<Specialization> specializations) {
     List<String> specializationsLabels = List<String>();
     for (Specialization specialization in specializations) {
       specializationsLabels.add(specialization.label);
@@ -289,8 +286,7 @@ extension SpecializationExtension on Specialization {
     return specializationsLabels;
   }
 
-  static List<String> getShortcutsFromList(
-      List<Specialization> specializations) {
+  static List<String> getShortcutsFromList(List<Specialization> specializations) {
     List<String> specializationsShortcuts = List<String>();
     for (Specialization specialization in specializations) {
       specializationsShortcuts.add(specialization.shortcut);

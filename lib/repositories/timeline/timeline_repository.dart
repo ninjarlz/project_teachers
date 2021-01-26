@@ -6,6 +6,8 @@ import 'package:project_teachers/entities/timeline/question_entity.dart';
 
 class TimelineRepository {
   static const String DB_ERROR_MSG = "An error with database occured: ";
+  static const String QUESTIONS_COLLECTION_NAME = "Questions";
+  static const String ANSWERS_COLLECTION_NAME = "Answers";
 
   TimelineRepository._privateConstructor();
 
@@ -15,7 +17,7 @@ class TimelineRepository {
     if (_instance == null) {
       _instance = TimelineRepository._privateConstructor();
       _instance._database = Firestore.instance;
-      _instance._questionsRef = _instance._database.collection("Questions");
+      _instance._questionsRef = _instance._database.collection(QUESTIONS_COLLECTION_NAME);
     }
     return _instance;
   }
@@ -56,8 +58,7 @@ class TimelineRepository {
     _questionSub = null;
   }
 
-  void subscribeUserConversations(
-      Query query, Function onUserQuestionListChange) {
+  void subscribeUserConversations(Query query, Function onUserQuestionListChange) {
     cancelUserQuestionListSubscription();
     _userQuestionListSub = query.snapshots().listen(onUserQuestionListChange);
     _userQuestionListSub.onError((o) {
@@ -85,12 +86,12 @@ class TimelineRepository {
     });
   }
 
-  void subscribeQuestion(QuestionEntity question, int limit,
-      Function onConversationMessagesChange, Function onConversationChange) {
+  void subscribeQuestion(
+      QuestionEntity question, int limit, Function onConversationMessagesChange, Function onConversationChange) {
     cancelQuestionSubscription();
     _questionAnswersSub = _questionsRef
         .document(question.id)
-        .collection("Answers")
+        .collection(ANSWERS_COLLECTION_NAME)
         .limit(limit)
         .orderBy("timestamp", descending: true)
         .snapshots()
@@ -98,28 +99,16 @@ class TimelineRepository {
     _questionAnswersSub.onError((o) {
       print(DB_ERROR_MSG + o.message);
     });
-    _questionSub = _questionsRef
-        .document(question.id)
-        .snapshots()
-        .listen(onConversationChange);
+    _questionSub = _questionsRef.document(question.id).snapshots().listen(onConversationChange);
     _questionSub.onError((o) {
       print(DB_ERROR_MSG + o.message);
     });
   }
 
-  Future<void> transactionUpdateQuestion(
-      String questionId,
-      String content,
-      List<String> tags,
-      SchoolSubject schoolSubject,
-      List<String> photoNames,
-      Transaction transaction) async {
-    await transaction.update(_questionsRef.document(questionId), {
-      "content": content,
-      "tags": tags,
-      "schoolSubject": schoolSubject.label,
-      "photoNames": photoNames
-    });
+  Future<void> transactionUpdateQuestion(String questionId, String content, List<String> tags,
+      SchoolSubject schoolSubject, List<String> photoNames, Transaction transaction) async {
+    await transaction.update(_questionsRef.document(questionId),
+        {"content": content, "tags": tags, "schoolSubject": schoolSubject.label, "photoNames": photoNames});
   }
 
   Future<void> addQuestion(QuestionEntity question) async {
@@ -134,29 +123,20 @@ class TimelineRepository {
     return _questionsRef.document().documentID;
   }
 
-  Future<void> sendQuestionAnswer(
-      QuestionEntity question, String answerId, AnswerEntity answer) async {
+  Future<void> sendQuestionAnswer(QuestionEntity question, String answerId, AnswerEntity answer) async {
     await _database.runTransaction(await (Transaction transaction) async {
       transaction.set(
-          _questionsRef
-              .document(question.id)
-              .collection("Answers")
-              .document(answerId),
-          answer.toJson());
+          _questionsRef.document(question.id).collection(ANSWERS_COLLECTION_NAME).document(answerId), answer.toJson());
       if (answer.authorId != question.authorId) {
-        transaction.update(_questionsRef.document(question.id), {
-          "answersCounter": FieldValue.increment(1),
-          "lastAnswerSeenByAuthor": false
-        });
-      } else {
         transaction.update(_questionsRef.document(question.id),
-            {"answersCounter": FieldValue.increment(1)});
+            {"answersCounter": FieldValue.increment(1), "lastAnswerSeenByAuthor": false});
+      } else {
+        transaction.update(_questionsRef.document(question.id), {"answersCounter": FieldValue.increment(1)});
       }
     });
   }
 
-  Future<void> updateAnswer(String questionId, String answerId, String content,
-      List<String> photoNames) async {
+  Future<void> updateAnswer(String questionId, String answerId, String content, List<String> photoNames) async {
     await _questionsRef
         .document(questionId)
         .collection("Answers")
@@ -164,85 +144,58 @@ class TimelineRepository {
         .updateData({"content": content, "photoNames": photoNames});
   }
 
-  Future<void> transactionSendQuestion(String questionId,
-      QuestionEntity question, Transaction transaction) async {
-    await transaction.set(
-        _questionsRef.document(questionId), question.toJson());
+  Future<void> transactionSendQuestion(String questionId, QuestionEntity question, Transaction transaction) async {
+    await transaction.set(_questionsRef.document(questionId), question.toJson());
     return questionId;
   }
 
-  Future<void> transactionAddQuestionReaction(
-      String questionId, Transaction transaction) async {
-    await transaction.update(_questionsRef.document(questionId),
-        {"reactionsCounter": FieldValue.increment(1)});
+  Future<void> transactionAddQuestionReaction(String questionId, Transaction transaction) async {
+    await transaction.update(_questionsRef.document(questionId), {"reactionsCounter": FieldValue.increment(1)});
   }
 
-  Future<void> transactionRemoveQuestionReaction(
-      String questionId, Transaction transaction) async {
-    await transaction.update(_questionsRef.document(questionId),
-        {"reactionsCounter": FieldValue.increment(-1)});
+  Future<void> transactionRemoveQuestionReaction(String questionId, Transaction transaction) async {
+    await transaction.update(_questionsRef.document(questionId), {"reactionsCounter": FieldValue.increment(-1)});
   }
 
-  Future<void> transactionAddAnswerReaction(
-      QuestionEntity question, String answerId, Transaction transaction) async {
-    await transaction.update(
-        _questionsRef
-            .document(question.id)
-            .collection("Answers")
-            .document(answerId),
+  Future<void> transactionAddAnswerReaction(QuestionEntity question, String answerId, Transaction transaction) async {
+    await transaction.update(_questionsRef.document(question.id).collection(ANSWERS_COLLECTION_NAME).document(answerId),
         {"reactionsCounter": FieldValue.increment(1)});
   }
 
   Future<void> transactionRemoveAnswerReaction(
       QuestionEntity question, String answerId, Transaction transaction) async {
-    await transaction.update(
-        _questionsRef
-            .document(question.id)
-            .collection("Answers")
-            .document(answerId),
+    await transaction.update(_questionsRef.document(question.id).collection(ANSWERS_COLLECTION_NAME).document(answerId),
         {"reactionsCounter": FieldValue.increment(-1)});
   }
 
-  Future<void> transactionUpdateProfileImageData(String userId,
-      String userProfileImageName, Transaction transaction) async {
-    QuerySnapshot querySnapshot =
-        await _questionsRef.where("authorId", isEqualTo: userId).getDocuments();
+  Future<void> transactionUpdateProfileImageData(
+      String userId, String userProfileImageName, Transaction transaction) async {
+    QuerySnapshot querySnapshot = await _questionsRef.where("authorId", isEqualTo: userId).getDocuments();
     for (DocumentSnapshot documentSnapshot in querySnapshot.documents) {
-      await transaction.update(documentSnapshot.reference,
-          {"authorData.profileImageName": userProfileImageName});
+      await transaction.update(documentSnapshot.reference, {"authorData.profileImageName": userProfileImageName});
     }
-    QuerySnapshot answersQuerySnapshot = await _database
-        .collectionGroup("Answers")
-        .where("authorId", isEqualTo: userId)
-        .getDocuments();
+    QuerySnapshot answersQuerySnapshot =
+        await _database.collectionGroup(ANSWERS_COLLECTION_NAME).where("authorId", isEqualTo: userId).getDocuments();
     for (DocumentSnapshot documentSnapshot in answersQuerySnapshot.documents) {
-      await transaction.update(documentSnapshot.reference,
-          {"authorData.profileImageName": userProfileImageName});
+      await transaction.update(documentSnapshot.reference, {"authorData.profileImageName": userProfileImageName});
     }
   }
 
-  Future<void> transactionUpdateUserData(String userId, String name,
-      String surname, Transaction transaction) async {
-    QuerySnapshot querySnapshot =
-        await _questionsRef.where("authorId", isEqualTo: userId).getDocuments();
+  Future<void> transactionUpdateUserData(String userId, String name, String surname, Transaction transaction) async {
+    QuerySnapshot querySnapshot = await _questionsRef.where("authorId", isEqualTo: userId).getDocuments();
     for (DocumentSnapshot documentSnapshot in querySnapshot.documents) {
-      await transaction.update(documentSnapshot.reference,
-          {"authorData.name": name, "authorData.surname": surname});
+      await transaction.update(documentSnapshot.reference, {"authorData.name": name, "authorData.surname": surname});
     }
-    QuerySnapshot answersQuerySnapshot = await _database
-        .collectionGroup("Answers")
-        .where("authorId", isEqualTo: userId)
-        .getDocuments();
+    QuerySnapshot answersQuerySnapshot =
+        await _database.collectionGroup(ANSWERS_COLLECTION_NAME).where("authorId", isEqualTo: userId).getDocuments();
     for (DocumentSnapshot documentSnapshot in answersQuerySnapshot.documents) {
-      await transaction.update(documentSnapshot.reference,
-          {"authorData.name": name, "authorData.surname": surname});
+      await transaction.update(documentSnapshot.reference, {"authorData.name": name, "authorData.surname": surname});
     }
   }
 
   Future<void> markQuestionLastAnswerAsSeen(String questionId) async {
     await _database.runTransaction(await (Transaction transaction) async {
-      await transaction.update(
-          _questionsRef.document(questionId), {"lastAnswerSeenByAuthor": true});
+      await transaction.update(_questionsRef.document(questionId), {"lastAnswerSeenByAuthor": true});
     });
   }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:project_teachers/entities/messaging/message_entity.dart';
+import 'package:project_teachers/locale/locale_keys.dart';
 import 'package:project_teachers/services/managers/app_state_manager.dart';
 import 'package:project_teachers/services/messaging/messaging_service.dart';
 import 'package:project_teachers/services/storage/storage_service.dart';
@@ -156,7 +157,7 @@ class _ChatState extends State<Chat>
   }
 
   void _sendMessage() {
-    if (_textEditingController.text.trim() != "") {
+    if (_textEditingController.text.trim().isNotEmpty) {
       if (_messagingService.selectedConversation == null) {
         _messagingService.conversationListeners.add(this);
         _userService.selectedUserListeners.remove(this);
@@ -165,7 +166,7 @@ class _ChatState extends State<Chat>
       _textEditingController.text = "";
     } else {
       Fluttertoast.showToast(
-          msg: Translations.of(context).text("nothing_to_send"));
+          msg: Translations.of(context).text(LocaleKeys.NOTHING_TO_SEND_KEY));
     }
   }
 

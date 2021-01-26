@@ -4,7 +4,6 @@ class AuthenticationSave {
   Future<void> saveString(String key, String val) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString(key, val);
-    return;
   }
 
   Future<void> saveInt(String key, int val) async {

@@ -4,8 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 abstract class BaseAuth {
   FirebaseUser get currentUser;
 
-  Future<FirebaseUser> loadCurrentUser();
-
   Future<FirebaseUser> signIn(String email, String password);
 
   Future<String> signUp(String email, String password);
@@ -78,12 +76,6 @@ class Auth implements BaseAuth {
   @override
   Future<void> sendResetPasswordEmail(String email) async {
     _firebaseAuth.sendPasswordResetEmail(email: email);
-  }
-
-  @override
-  Future<FirebaseUser> loadCurrentUser() async {
-    FirebaseUser user = await _firebaseAuth.currentUser();
-    return user;
   }
 
   @override

@@ -70,8 +70,7 @@ class _HomeState extends State<Home>
     Future.delayed(Duration.zero, () async {
       _appStateManager = Provider.of<AppStateManager>(context, listen: false);
       connectionChanged(await _connectionService.checkConnection());
-      _connectionChangeStream =
-          _connectionService.connectionChange.listen(connectionChanged);
+      _connectionChangeStream = _connectionService.connectionChange.listen(connectionChanged);
     });
   }
 
@@ -83,8 +82,7 @@ class _HomeState extends State<Home>
             },
             child: Timeline()),
         appBar: AppBar(
-            title: Text(Translations.of(context).text("timeline"),
-                style: TextStyle(color: Colors.white)),
+            title: Text(Translations.of(context).text("timeline"), style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor),
         floatingButton: Timeline.timelineFloatingActionButton(context),
         navBarIndex: 0,
@@ -95,14 +93,12 @@ class _HomeState extends State<Home>
     return ApplicationScreen(
         body: WillPopScope(
             onWillPop: () async {
-              Provider.of<AppStateManager>(context, listen: false)
-                  .changeAppState(AppState.TIMELINE);
+              Provider.of<AppStateManager>(context, listen: false).changeAppState(AppState.TIMELINE);
               return false;
             },
             child: QuestionFilterPage()),
         appBar: AppBar(
-            title: Text(Translations.of(context).text("filter_questions"),
-                style: TextStyle(color: Colors.white)),
+            title: Text(Translations.of(context).text("filter_questions"), style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor),
         navBarIndex: 1,
         navBarType: NavBarType.TIMELINE);
@@ -112,14 +108,12 @@ class _HomeState extends State<Home>
     return ApplicationScreen(
         body: WillPopScope(
             onWillPop: () async {
-              Provider.of<AppStateManager>(context, listen: false)
-                  .changeAppState(AppState.TIMELINE);
+              Provider.of<AppStateManager>(context, listen: false).changeAppState(AppState.TIMELINE);
               return false;
             },
             child: UserQuestions()),
         appBar: AppBar(
-            title: Text(Translations.of(context).text("my_posts"),
-                style: TextStyle(color: Colors.white)),
+            title: Text(Translations.of(context).text("my_posts"), style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor),
         navBarIndex: 2,
         navBarType: NavBarType.TIMELINE);
@@ -129,14 +123,12 @@ class _HomeState extends State<Home>
     return ApplicationScreen(
         body: WillPopScope(
             onWillPop: () async {
-              Provider.of<AppStateManager>(context, listen: false)
-                  .previousState();
+              Provider.of<AppStateManager>(context, listen: false).previousState();
               return false;
             },
             child: PostQuestion()),
         appBar: AppBar(
-            title: Text(Translations.of(context).text("post_question"),
-                style: TextStyle(color: Colors.white)),
+            title: Text(Translations.of(context).text("post_question"), style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor),
         floatingButton: PostQuestion.postQuestionFloatingActionButton(context),
         floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
@@ -147,16 +139,14 @@ class _HomeState extends State<Home>
     return ApplicationScreen(
         body: WillPopScope(
             onWillPop: () async {
-              Provider.of<AppStateManager>(context, listen: false)
-                  .previousState();
+              Provider.of<AppStateManager>(context, listen: false).previousState();
               return false;
             },
             child: QuestionAnswers()),
         appBar: AppBar(
-            title: Text(Translations.of(context).text("questions_answers"),
-                style: TextStyle(color: Colors.white)),
+            title: Text(Translations.of(context).text("questions_answers"), style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor),
-        floatingButton:  QuestionAnswers.questionAnswersFloatingActionButton(context),
+        floatingButton: QuestionAnswers.questionAnswersFloatingActionButton(context),
         navBarIndex: -1);
   }
 
@@ -185,14 +175,12 @@ class _HomeState extends State<Home>
       case AppState.POST_ANSWER:
         body = WillPopScope(
             onWillPop: () async {
-              Provider.of<AppStateManager>(context, listen: false)
-                  .previousState();
+              Provider.of<AppStateManager>(context, listen: false).previousState();
               return false;
             },
             child: PostAnswer());
         appBar = AppBar(
-            title: Text(Translations.of(context).text("post_answer"),
-                style: TextStyle(color: Colors.white)),
+            title: Text(Translations.of(context).text("post_answer"), style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
         floatingButton = PostAnswer.postAnswerFloatingActionButton(context);
         floatingActionButtonLocation = FloatingActionButtonLocation.endTop;
@@ -207,8 +195,7 @@ class _HomeState extends State<Home>
             child: UserProfile());
         ;
         appBar = AppBar(
-            title: Text(Translations.of(context).text("profile"),
-                style: TextStyle(color: Colors.white)),
+            title: Text(Translations.of(context).text("profile"), style: TextStyle(color: Colors.white)),
             backgroundColor: Colors.transparent);
         floatingButton = UserProfile.buildSpeedDial(context);
         extendBodyBehindAppBar = true;
@@ -222,8 +209,7 @@ class _HomeState extends State<Home>
             },
             child: UserList());
         appBar = AppBar(
-            title: Text(Translations.of(context).text("user_list"),
-                style: TextStyle(color: Colors.white)),
+            title: Text(Translations.of(context).text("user_list"), style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
         navBarIndex = 0;
         navBarType = NavBarType.USERS;
@@ -232,18 +218,14 @@ class _HomeState extends State<Home>
       case AppState.SELECTED_USER_PROFILE_PAGE:
         body = WillPopScope(
             onWillPop: () async {
-              Provider.of<AppStateManager>(context, listen: false)
-                  .previousState();
+              Provider.of<AppStateManager>(context, listen: false).previousState();
               return false;
             },
             child: SelectedUserProfile());
         appBar = AppBar(
-            title: Text(Translations.of(context).text("user"),
-                style: TextStyle(color: Colors.white)),
+            title: Text(Translations.of(context).text("user"), style: TextStyle(color: Colors.white)),
             backgroundColor: Colors.transparent);
-        floatingButton =
-            SelectedUserProfile.buildSelectedUserProfileFloatingActionButtons(
-                context);
+        floatingButton = SelectedUserProfile.buildSelectedUserProfileFloatingActionButtons(context);
         extendBodyBehindAppBar = true;
         navBarIndex = -1;
         break;
@@ -251,14 +233,12 @@ class _HomeState extends State<Home>
       case AppState.EDIT_PROFILE:
         body = WillPopScope(
             onWillPop: () async {
-              Provider.of<AppStateManager>(context, listen: false)
-                  .previousState();
+              Provider.of<AppStateManager>(context, listen: false).previousState();
               return false;
             },
             child: EditProfile());
         appBar = AppBar(
-            title: Text(Translations.of(context).text("edit_profile"),
-                style: TextStyle(color: Colors.white)),
+            title: Text(Translations.of(context).text("edit_profile"), style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
         navBarIndex = -1;
         floatingButton = EditProfile.editProfileFloatingActionButton(context);
@@ -268,14 +248,12 @@ class _HomeState extends State<Home>
       case AppState.FILTER_USERS:
         body = WillPopScope(
             onWillPop: () async {
-              Provider.of<AppStateManager>(context, listen: false)
-                  .changeAppState(AppState.USER_LIST);
+              Provider.of<AppStateManager>(context, listen: false).changeAppState(AppState.USER_LIST);
               return false;
             },
             child: UserFilterPage());
         appBar = AppBar(
-            title: Text(Translations.of(context).text("filter_users"),
-                style: TextStyle(color: Colors.white)),
+            title: Text(Translations.of(context).text("filter_users"), style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
         navBarIndex = 1;
         navBarType = NavBarType.USERS;
@@ -284,30 +262,24 @@ class _HomeState extends State<Home>
       case AppState.CONTACTS:
         body = WillPopScope(
             onWillPop: () async {
-              Provider.of<AppStateManager>(context, listen: false)
-                  .changeAppState(AppState.USER_LIST);
+              Provider.of<AppStateManager>(context, listen: false).changeAppState(AppState.USER_LIST);
               return false;
             },
             child: Contacts());
         appBar = AppBar(
-            title: Text(Translations.of(context).text("messages"),
-                style: TextStyle(color: Colors.white)),
+            title: Text(Translations.of(context).text("messages"), style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
         navBarIndex = 2;
         navBarType = NavBarType.USERS;
         break;
 
       case AppState.CHAT:
-        ConversationEntity conversation =
-            _messagingService.selectedConversation;
-        String otherUserId = conversation != null
-            ? conversation.otherParticipantId
-            : _userService.selectedUser.uid;
+        ConversationEntity conversation = _messagingService.selectedConversation;
+        String otherUserId = conversation != null ? conversation.otherParticipantId : _userService.selectedUser.uid;
         Map<String, Tuple2<String, Image>> images = _storageService.userImages;
         body = body = WillPopScope(
             onWillPop: () async {
-              Provider.of<AppStateManager>(context, listen: false)
-                  .previousState();
+              Provider.of<AppStateManager>(context, listen: false).previousState();
               return false;
             },
             child: Chat());
@@ -329,16 +301,11 @@ class _HomeState extends State<Home>
                               alignment: Alignment.bottomCenter,
                             ))),
               Container(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
+                  padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
                   child: Text(
                       conversation != null
-                          ? conversation.otherParticipantData.name +
-                              " " +
-                              conversation.otherParticipantData.surname
-                          : _userService.selectedUser.name +
-                              " " +
-                              _userService.selectedUser.surname,
+                          ? conversation.otherParticipantData.name + " " + conversation.otherParticipantData.surname
+                          : _userService.selectedUser.name + " " + _userService.selectedUser.surname,
                       style: TextStyle(color: Colors.white)))
             ]),
             backgroundColor: ThemeGlobalColor().secondaryColor);
@@ -354,8 +321,7 @@ class _HomeState extends State<Home>
             },
             child: Settings());
         appBar = AppBar(
-            title: Text(Translations.of(context).text("settings"),
-                style: TextStyle(color: Colors.white)),
+            title: Text(Translations.of(context).text("settings"), style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
         navBarIndex = -1;
         break;
@@ -367,8 +333,7 @@ class _HomeState extends State<Home>
             },
             child: Calendar());
         appBar = AppBar(
-            title: Text(Translations.of(context).text("calendar"),
-                style: TextStyle(color: Colors.white)),
+            title: Text(Translations.of(context).text("calendar"), style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
         navBarIndex = -1;
         floatingButton = Calendar.buildCalendarFloatingActionButtons(context);
@@ -381,8 +346,7 @@ class _HomeState extends State<Home>
             },
             child: Contact());
         appBar = AppBar(
-            title: Text(Translations.of(context).text("contact"),
-                style: TextStyle(color: Colors.white)),
+            title: Text(Translations.of(context).text("contact"), style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
         navBarIndex = -1;
         break;
@@ -390,14 +354,12 @@ class _HomeState extends State<Home>
       case AppState.EDIT_ANSWER:
         body = WillPopScope(
             onWillPop: () async {
-              Provider.of<AppStateManager>(context, listen: false)
-                  .previousState();
+              Provider.of<AppStateManager>(context, listen: false).previousState();
               return false;
             },
             child: EditAnswer());
         appBar = AppBar(
-            title: Text(Translations.of(context).text("edit_answer"),
-                style: TextStyle(color: Colors.white)),
+            title: Text(Translations.of(context).text("edit_answer"), style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
         floatingButton = EditAnswer.editAnswerFloatingActionButton(context);
         floatingActionButtonLocation = FloatingActionButtonLocation.endTop;
@@ -407,14 +369,12 @@ class _HomeState extends State<Home>
       case AppState.EDIT_QUESTION:
         body = WillPopScope(
             onWillPop: () async {
-              Provider.of<AppStateManager>(context, listen: false)
-                  .previousState();
+              Provider.of<AppStateManager>(context, listen: false).previousState();
               return false;
             },
             child: EditQuestion());
         appBar = AppBar(
-            title: Text(Translations.of(context).text("edit_question"),
-                style: TextStyle(color: Colors.white)),
+            title: Text(Translations.of(context).text("edit_question"), style: TextStyle(color: Colors.white)),
             backgroundColor: ThemeGlobalColor().secondaryColor);
         floatingButton = EditQuestion.editQuestionFloatingActionButton(context);
         floatingActionButtonLocation = FloatingActionButtonLocation.endTop;
@@ -431,10 +391,8 @@ class _HomeState extends State<Home>
       backgroundColor: ThemeGlobalColor().backgroundColor,
       body: applicationScreen.body,
       floatingActionButton: applicationScreen.floatingButton,
-      floatingActionButtonLocation:
-          applicationScreen.floatingActionButtonLocation,
-      bottomNavigationBar: _buildNavBar(applicationScreen.navBarIndex, context,
-          applicationScreen.navBarType),
+      floatingActionButtonLocation: applicationScreen.floatingActionButtonLocation,
+      bottomNavigationBar: _buildNavBar(applicationScreen.navBarIndex, context, applicationScreen.navBarType),
       drawer: NavigationDrawer(),
     );
   }
@@ -449,16 +407,13 @@ class _HomeState extends State<Home>
   void _goToScreenUsers(int index, BuildContext context) {
     switch (index) {
       case 1:
-        Provider.of<AppStateManager>(context, listen: false)
-            .changeAppState(AppState.FILTER_USERS);
+        Provider.of<AppStateManager>(context, listen: false).changeAppState(AppState.FILTER_USERS);
         break;
       case 2:
-        Provider.of<AppStateManager>(context, listen: false)
-            .changeAppState(AppState.CONTACTS);
+        Provider.of<AppStateManager>(context, listen: false).changeAppState(AppState.CONTACTS);
         break;
       default:
-        Provider.of<AppStateManager>(context, listen: false)
-            .changeAppState(AppState.USER_LIST);
+        Provider.of<AppStateManager>(context, listen: false).changeAppState(AppState.USER_LIST);
         break;
     }
   }
@@ -466,21 +421,17 @@ class _HomeState extends State<Home>
   void _goToScreenTimeline(int index, BuildContext context) {
     switch (index) {
       case 1:
-        Provider.of<AppStateManager>(context, listen: false)
-            .changeAppState(AppState.FILTER_QUESTIONS);
+        Provider.of<AppStateManager>(context, listen: false).changeAppState(AppState.FILTER_QUESTIONS);
         break;
       case 2:
-        Provider.of<AppStateManager>(context, listen: false)
-            .changeAppState(AppState.USER_TIMELINE);
+        Provider.of<AppStateManager>(context, listen: false).changeAppState(AppState.USER_TIMELINE);
         break;
       default:
-        Provider.of<AppStateManager>(context, listen: false)
-            .changeAppState(AppState.TIMELINE);
+        Provider.of<AppStateManager>(context, listen: false).changeAppState(AppState.TIMELINE);
     }
   }
 
-  Widget _buildNavBar(
-      int navBarIndex, BuildContext context, NavBarType navBarType) {
+  Widget _buildNavBar(int navBarIndex, BuildContext context, NavBarType navBarType) {
     if (navBarIndex == -1) return null;
     switch (navBarType) {
       case NavBarType.TIMELINE:
@@ -492,11 +443,9 @@ class _HomeState extends State<Home>
           type: BottomNavigationBarType.fixed,
           items: [
             BottomNavigationBarItem(
-                icon: Icon(Icons.question_answer),
-                title: Text(Translations.of(context).text("posts"))),
+                icon: Icon(Icons.question_answer), title: Text(Translations.of(context).text("posts"))),
             BottomNavigationBarItem(
-                icon: Icon(Icons.filter_list),
-                title: Text(Translations.of(context).text("filter"))),
+                icon: Icon(Icons.filter_list), title: Text(Translations.of(context).text("filter"))),
             BottomNavigationBarItem(
                 icon: _timelineService.hasUnreadAnswers
                     ? Icon(Icons.new_releases, color: Colors.red)
@@ -513,11 +462,9 @@ class _HomeState extends State<Home>
           type: BottomNavigationBarType.fixed,
           items: [
             BottomNavigationBarItem(
-                icon: Icon(Icons.supervised_user_circle),
-                title: Text(Translations.of(context).text("suggestions"))),
+                icon: Icon(Icons.supervised_user_circle), title: Text(Translations.of(context).text("suggestions"))),
             BottomNavigationBarItem(
-                icon: Icon(Icons.filter_list),
-                title: Text(Translations.of(context).text("filter"))),
+                icon: Icon(Icons.filter_list), title: Text(Translations.of(context).text("filter"))),
             BottomNavigationBarItem(
                 icon: _messagingService.hasUnreadMessages
                     ? Icon(Icons.sms_failed, color: Colors.red)
@@ -548,27 +495,22 @@ class _HomeState extends State<Home>
 
   @override
   void onConversationListChange() {
-    AppState appState =
-        Provider.of<AppStateManager>(context, listen: false).appState;
-    if (appState == AppState.CHAT ||
-        appState == AppState.USER_LIST ||
-        appState == AppState.FILTER_USERS) {
+    AppState appState = Provider.of<AppStateManager>(context, listen: false).appState;
+    if (appState == AppState.CHAT || appState == AppState.USER_LIST || appState == AppState.FILTER_USERS) {
       setState(() {});
     }
   }
 
   @override
   void onUserDataChange() {
-    if (Provider.of<AppStateManager>(context, listen: false).appState ==
-        AppState.CHAT) {
+    if (Provider.of<AppStateManager>(context, listen: false).appState == AppState.CHAT) {
       setState(() {});
     }
   }
 
   @override
   void onSelectedUserProfileImageChange() {
-    if (Provider.of<AppStateManager>(context, listen: false).appState ==
-            AppState.CHAT &&
+    if (Provider.of<AppStateManager>(context, listen: false).appState == AppState.CHAT &&
         _messagingService.selectedConversation == null) {
       setState(() {});
     }
@@ -576,22 +518,17 @@ class _HomeState extends State<Home>
 
   @override
   void onUserListProfileImagesChange(List<String> updatedCoachesIds) {
-    if (Provider.of<AppStateManager>(context, listen: false).appState ==
-            AppState.CHAT &&
+    if (Provider.of<AppStateManager>(context, listen: false).appState == AppState.CHAT &&
         _messagingService.selectedConversation != null &&
-        updatedCoachesIds.contains(
-            _messagingService.selectedConversation.otherParticipantId)) {
+        updatedCoachesIds.contains(_messagingService.selectedConversation.otherParticipantId)) {
       setState(() {});
     }
   }
 
   @override
   void onUserQuestionListChange() {
-    AppState appState =
-        Provider.of<AppStateManager>(context, listen: false).appState;
-    if (appState == AppState.TIMELINE ||
-        appState == AppState.FILTER_QUESTIONS ||
-        appState == AppState.USER_TIMELINE) {
+    AppState appState = Provider.of<AppStateManager>(context, listen: false).appState;
+    if (appState == AppState.TIMELINE || appState == AppState.FILTER_QUESTIONS || appState == AppState.USER_TIMELINE) {
       setState(() {});
     }
   }

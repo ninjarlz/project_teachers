@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:grouped_buttons/grouped_buttons.dart';
 import 'package:project_teachers/entities/users/user_enums.dart';
+import 'package:project_teachers/locale/locale_keys.dart';
 import 'package:project_teachers/services/filtering/question_filtering_service.dart';
 import 'package:project_teachers/services/managers/app_state_manager.dart';
 import 'package:project_teachers/services/timeline/tag_service.dart';
@@ -19,15 +20,14 @@ class QuestionFilterPage extends StatefulWidget {
 }
 
 class _QuestionFilterPageState extends State<QuestionFilterPage> {
+
+  static const String WHITE_SPACE = " ";
+
   QuestionFilteringService _filteringService;
   TagService _tagService;
   TimelineService _timelineService;
   AppStateManager _appStateManager;
-  List<String> _sortByRadioLabels = [
-    "date",
-    "number_of_reactions",
-    "number_of_answers"
-  ];
+  List<String> _sortByRadioLabels = ["date", "number_of_reactions", "number_of_answers"];
   String _pickedSortByLabel;
   List<SchoolSubject> _subjects = List<SchoolSubject>();
   SchoolSubject _pickedSubject;
@@ -40,15 +40,12 @@ class _QuestionFilterPageState extends State<QuestionFilterPage> {
     _filteringService = QuestionFilteringService.instance;
     _tagService = TagService.instance;
     _timelineService = TimelineService.instance;
-    if (_filteringService.selectedTag != null &&
-        _filteringService.selectedTag != "") {
+    if (_filteringService.selectedTag != null && _filteringService.selectedTag != "") {
       _tagCtrl.text = _filteringService.selectedTag;
     }
-    if (_filteringService.orderingField ==
-        _filteringService.orderingValues[0]) {
+    if (_filteringService.orderingField == _filteringService.orderingValues[0]) {
       _pickedSortByLabel = _sortByRadioLabels[0];
-    } else if (_filteringService.orderingField ==
-        _filteringService.orderingValues[1]) {
+    } else if (_filteringService.orderingField == _filteringService.orderingValues[1]) {
       _pickedSortByLabel = _sortByRadioLabels[1];
     } else {
       _pickedSortByLabel = _sortByRadioLabels[2];
@@ -83,12 +80,10 @@ class _QuestionFilterPageState extends State<QuestionFilterPage> {
                 children: <Widget>[
                   Padding(
                     padding: EdgeInsets.only(left: 20),
-                    child: Text(Translations.of(context).text("sort_by"),
-                        style: ThemeGlobalText().titleText),
+                    child: Text(Translations.of(context).text("sort_by"), style: ThemeGlobalText().titleText),
                   ),
                   RadioButtonGroup(
-                    labels: TranslationMapper.translateList(
-                        _sortByRadioLabels, context),
+                    labels: TranslationMapper.translateList(_sortByRadioLabels, context),
                     onSelected: _onSortByValueChanged,
                     labelStyle: ThemeGlobalText().text,
                     picked: Translations.of(context).text(_pickedSortByLabel),
@@ -96,8 +91,7 @@ class _QuestionFilterPageState extends State<QuestionFilterPage> {
                   ),
                   Padding(
                     padding: EdgeInsets.only(left: 20),
-                    child: Text(Translations.of(context).text("tag"),
-                        style: ThemeGlobalText().titleText),
+                    child: Text(Translations.of(context).text(LocaleKeys.TAGS_KEY), style: ThemeGlobalText().titleText),
                   ),
                   Padding(
                       padding: EdgeInsets.all(15),
@@ -105,21 +99,17 @@ class _QuestionFilterPageState extends State<QuestionFilterPage> {
                         Expanded(
                           child: TypeAheadInputWithIconWidget(
                               ctrl: _tagCtrl,
-                              hint: Translations.of(this.context).text("tag"),
+                              hint: Translations.of(this.context).text(LocaleKeys.TAGS_KEY),
                               icon: Icons.label,
                               type: TextInputType.text,
                               suggestionsCallback: (String value) async {
-                                if (value == null || value == "") {
+                                if (value == null || value.isEmpty) {
                                   return List<String>();
                                 }
-                                return await _tagService
-                                    .getTagsSuggestionsStrings(value);
+                                return await _tagService.getTagsSuggestionsLabels(value);
                               },
                               onSuggestionSelected: (String value) {
-                                int whiteSpaceIndex = value.indexOf(" ");
-                                String tag =
-                                    value.substring(0, whiteSpaceIndex);
-                                _tagCtrl.text = tag;
+                                _tagCtrl.text = _getTagFromSelectedValue(value);
                               }),
                         ),
                         IconButton(
@@ -133,15 +123,12 @@ class _QuestionFilterPageState extends State<QuestionFilterPage> {
                       ], mainAxisAlignment: MainAxisAlignment.spaceAround)),
                   Padding(
                     padding: EdgeInsets.only(left: 20, top: 5),
-                    child: Text(Translations.of(context).text("subject"),
-                        style: ThemeGlobalText().titleText),
+                    child: Text(Translations.of(context).text("subject"), style: ThemeGlobalText().titleText),
                   ),
                   RadioButtonGroup(
                     onSelected: _onSubjectValueChanged,
                     labels: [Translations.of(context).text("all")] +
-                        TranslationMapper.translateList(
-                            SchoolSubjectExtension.getLabelsFromList(_subjects),
-                            context),
+                        TranslationMapper.translateList(SchoolSubjectExtension.getLabelsFromList(_subjects), context),
                     picked: _pickedSubject == null
                         ? Translations.of(context).text("all")
                         : Translations.of(context).text(_pickedSubject.label),
@@ -150,9 +137,7 @@ class _QuestionFilterPageState extends State<QuestionFilterPage> {
                   ),
                   Container(
                     margin: EdgeInsets.symmetric(horizontal: 15),
-                    child: ButtonPrimaryWidget(
-                        text: Translations.of(context).text("apply"),
-                        submit: applyFilters),
+                    child: ButtonPrimaryWidget(text: Translations.of(context).text("apply"), submit: applyFilters),
                   ),
                 ],
               ),
@@ -170,8 +155,7 @@ class _QuestionFilterPageState extends State<QuestionFilterPage> {
       if (value == Translations.of(context).text("all")) {
         _pickedSubject = null;
       } else {
-        _pickedSubject = SchoolSubjectExtension.getValue(
-            Translations.of(context).key(value));
+        _pickedSubject = SchoolSubjectExtension.getValue(Translations.of(context).key(value));
       }
     });
   }
@@ -186,7 +170,7 @@ class _QuestionFilterPageState extends State<QuestionFilterPage> {
         _filteringService.orderingField = _filteringService.orderingValues[2];
       }
       _filteringService.selectedSubject = _pickedSubject;
-      if (_tagCtrl.text != null && _tagCtrl.text != "") {
+      if (_tagCtrl.text != null && _tagCtrl.text.isNotEmpty) {
         _filteringService.selectedTag = _tagCtrl.text;
       } else {
         _filteringService.selectedTag = null;
@@ -198,7 +182,7 @@ class _QuestionFilterPageState extends State<QuestionFilterPage> {
   }
 
   bool _validateAndSave() {
-    if (_tagCtrl.text == null || _tagCtrl.text == "") {
+    if (_tagCtrl.text == null || _tagCtrl.text.isEmpty) {
       return true;
     }
     final form = _formKey.currentState;
@@ -207,5 +191,10 @@ class _QuestionFilterPageState extends State<QuestionFilterPage> {
       return true;
     }
     return false;
+  }
+
+  String _getTagFromSelectedValue(String value) {
+    int whiteSpaceIndex = value.indexOf(WHITE_SPACE);
+    return value.substring(0, whiteSpaceIndex);
   }
 }

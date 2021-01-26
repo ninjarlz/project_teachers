@@ -22,16 +22,14 @@ class Calendar extends StatefulWidget {
           child: Icon(Icons.delete_forever, color: Colors.white),
           backgroundColor: ThemeGlobalColor().secondaryColor,
           label: Translations.of(context).text("cancel_consultation_hours"),
-          labelStyle:
-              TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
+          labelStyle: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
           labelBackgroundColor: ThemeGlobalColor().secondaryColor,
         ),
         SpeedDialChild(
           child: Icon(Icons.add_circle_outline, color: Colors.white),
           backgroundColor: ThemeGlobalColor().secondaryColor,
           label: Translations.of(context).text("book_consultation_hours"),
-          labelStyle:
-              TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
+          labelStyle: TextStyle(fontWeight: FontWeight.w500, color: Colors.white),
           labelBackgroundColor: ThemeGlobalColor().secondaryColor,
         )
       ],
